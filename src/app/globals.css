@@ -1,0 +1,202 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Hanken Grotesk Font - Our design system font */
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
+
+@layer base {
+  :root {
+    /* Design System Colors - Imported from design-system */
+    --background: #F4F0FF;
+    --foreground: #000000;
+    
+    /* Primary Brand Colors */
+    --primary: #7F56D9;
+    --primary-foreground: #FFFFFF;
+    
+    /* Strategy Colors */
+    --strategy-usd: #5496DE;
+    --strategy-eth: #627EEA;
+    --strategy-btc: #F7931A;
+    
+    /* Text Colors */
+    --text-primary: #000000;
+    --text-secondary: #626066;
+    --text-muted: rgba(0, 0, 0, 0.6);
+    
+    /* Graph Colors */
+    --graph-default: #D7C9F5;
+    --graph-heading: #280F4B;
+    --graph-tvl: #7A6993;
+    --graph-bar-hover: #7F56D9;
+    
+    /* Background Variants */
+    --background-gradient: #E4DBF8;
+    --background-white: #FFFFFF;
+    
+    /* Border Colors */
+    --border-default: rgba(0, 0, 0, 0.1);
+    --border-gradient: #E8E4F2;
+    
+    /* Status Colors */
+    --status-success: #259952;
+    --status-success-bg: #EAFAF1;
+    --status-error: #E91E21;
+    --status-error-bg: #FDE8EF;
+    --status-info: #0070F2;
+    --status-info-bg: #E5F1FF;
+    --status-warning: #E91E63;
+    
+    /* Spacing - From Design System */
+    --radius: 16px;
+    --radius-inner: 12px;
+    --card-padding-x: 24px;
+    --card-padding-y: 20px;
+    --card-gap: 32px;
+    --card-gap-internal: 12px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Hanken Grotesk', sans-serif;
+    overflow: hidden;
+  }
+  
+  html {
+    overflow: hidden;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Hanken Grotesk', sans-serif;
+  }
+}
+
+/* Neumorphic Utility Classes - Based on Design System */
+@layer utilities {
+  .neumorphic-pop-out {
+    @apply shadow-neumorphic-pop-out;
+  }
+  
+  .neumorphic-pop-in {
+    @apply shadow-neumorphic-pop-in;
+  }
+  
+  .neumorphic-card {
+    @apply bg-background shadow-neumorphic-card;
+  }
+  
+  .neumorphic-card-hover {
+    @apply shadow-neumorphic-card-hover;
+  }
+  
+  .neumorphic-button {
+    @apply shadow-neumorphic-button;
+  }
+  
+  .neumorphic-button-small {
+    @apply shadow-neumorphic-button-small;
+  }
+  
+  .neumorphic-nav-icon {
+    @apply shadow-neumorphic-nav-icon;
+  }
+  
+  .neumorphic-nav-button {
+    @apply shadow-neumorphic-nav-button;
+  }
+  
+  .neumorphic-connect-wallet {
+    @apply shadow-neumorphic-connect-wallet;
+  }
+  
+  .graph-outer-shadow {
+    @apply shadow-graph-outer;
+  }
+  
+  .graph-inner-shadow {
+    @apply shadow-graph-inner;
+  }
+  
+  /* Button Drop Shadow - Exact Figma Spec */
+  .button-shadow {
+    filter: drop-shadow(-4px -4px 4px #FFF) drop-shadow(4px 4px 8px rgba(127, 86, 217, 0.15));
+  }
+}
+
+/* Typography Utility Classes - Based on Design System */
+@layer utilities {
+  .text-display-1 {
+    @apply font-bold text-[40px] leading-normal font-sans;
+  }
+  
+  .text-display-2 {
+    @apply font-bold text-[32px] leading-normal font-sans;
+  }
+  
+  .text-display-3 {
+    @apply font-medium text-[28px] leading-normal font-sans;
+  }
+  
+  .text-heading-1 {
+    @apply font-medium text-[24px] leading-normal font-sans;
+  }
+  
+  .text-heading-2 {
+    @apply font-medium text-[20px] leading-[24px] font-sans;
+  }
+  
+  .text-button {
+    @apply font-medium text-[16px] leading-[26px] font-sans;
+  }
+  
+  .text-button-small {
+    @apply font-medium text-[12px] leading-[16px] font-sans;
+  }
+  
+  .text-subtext {
+    @apply font-normal text-[14px] leading-[20px] font-sans;
+  }
+  
+  .text-label-1 {
+    @apply font-normal text-[12px] leading-normal font-sans;
+  }
+  
+  .text-label-2 {
+    @apply font-normal text-[8px] leading-normal font-sans;
+  }
+}
+
+/* Custom Scrollbar Styling */
+@layer utilities {
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  /* Firefox */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+}

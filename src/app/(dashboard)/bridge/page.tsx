@@ -1,0 +1,251 @@
+"use client"
+
+import * as React from "react"
+import Image from "next/image"
+import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
+import { PrimaryButton } from "@/components/ui/primary-button"
+import { PageContainer } from "@/components/ui/page-container"
+import { CircularPercentageSelector } from "@/components/ui/circular-percentage-selector"
+import { NetworkSelector, type Network } from "@/components/ui/network-selector"
+import { BridgeTokenSelector, type BridgeToken } from "@/components/ui/bridge-token-selector"
+import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
+import { designTokens, typographyClasses } from "@/lib/design-system"
+import { cn } from "@/lib/utils"
+
+// Token icon mapping
+const TOKEN_ICONS: Record<BridgeToken, string> = {
+  syUSD: "/images/icons/USD-stable.svg",
+  syETH: "/images/icons/ETH-stable.svg",
+  syBTC: "/images/icons/BTC Stable (1).svg",
+}
+
+export default function BridgePage() {
+  const [amount, setAmount] = React.useState("0.00")
+  const [sourceNetwork, setSourceNetwork] = React.useState<Network>("Base")
+  const [destNetwork, setDestNetwork] = React.useState<Network>("Katana")
+  const [selectedToken, setSelectedToken] = React.useState<BridgeToken>("syUSD")
+  const balance = 115447.00 // Numeric balance for calculations
+
+  // Calculate percentage based on amount
+  const percentage = React.useMemo(() => {
+    const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
+    if (amountNum === 0 || balance <= 0) return 0
+    const pct = (amountNum / balance) * 100
+    return Math.min(100, Math.max(0, pct))
+  }, [amount, balance])
+
+  // Handle amount input change
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^0-9.]/g, '')
+
+    if (value === '') {
+      setAmount('')
+      return
+    }
+    // Parse and format
+    const numValue = parseFloat(value)
+    if (!isNaN(numValue) && numValue >= 0) {
+      // Limit to balance
+      const limitedValue = Math.min(numValue, balance)
+      setAmount(limitedValue.toFixed(2))
+    }
+  }
+
+  // Handle percentage change from circular selector
+  const handlePercentageChange = (newPercentage: number) => {
+    const newAmount = (balance * newPercentage) / 100
+    setAmount(newAmount.toFixed(2))
+  }
+
+  // Format balance for display
+  const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  return (
+    <div 
+      className="relative w-full h-screen overflow-hidden flex flex-col"
+      style={{ backgroundColor: designTokens.colors.background.main }}
+    >
+      {/* Navigation */}
+      <NeumorphicNav activeMenuItem="bridge" />
+
+      {/* Main Content */}
+      <PageContainer>
+        <div className="flex flex-col items-center pt-[80px] w-full">
+        {/* Bridge Card */}
+        <NeumorphicInputCard
+          height={325}
+          width={426}
+          label="Bridge"
+          rightElement={
+            <BridgeTokenSelector 
+              selectedToken={selectedToken}
+              onTokenChange={setSelectedToken}
+            />
+          }
+          insetContainers={[
+            { top: 52, height: 96, width: 402 },  // Network Selectors Area
+            { top: 160, height: 125, width: 402 }  // Amount Input Area
+          ]}
+        >
+          {/* Network Selectors */}
+          <div className="absolute left-[36px] top-[72px] flex flex-col gap-[8px] items-start">
+            <div className="flex gap-[8px] items-center">
+              <p 
+                className={typographyClasses.label1}
+                style={{ 
+                  color: designTokens.colors.text.primary,
+                  opacity: 0.5,
+                  textAlign: 'right' as const
+                }}
+              >
+                Source Network
+              </p>
+              {/* Info Icon */}
+              <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
+                <svg 
+                  width="12" 
+                  height="12" 
+                  viewBox="0 0 12 12" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle 
+                    cx="6" 
+                    cy="6" 
+                    r="5.5" 
+                    stroke="rgba(0, 0, 0, 1)" 
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                  <path 
+                    d="M6 4V6M6 8H6.01" 
+                    stroke="rgba(0, 0, 0, 1)" 
+                    strokeWidth="1" 
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <NetworkSelector
+              selectedNetwork={sourceNetwork}
+              onNetworkChange={setSourceNetwork}
+            />
+          </div>
+
+          {/* Destination Network */}
+          <div className="absolute left-[230px] top-[72px] flex flex-col gap-[8px] items-start">
+            <div className="flex gap-[8px] items-center">
+              <p 
+                className={typographyClasses.label1}
+                style={{ 
+                  color: designTokens.colors.text.primary,
+                  opacity: 0.5,
+                  textAlign: 'right' as const
+                }}
+              >
+                Destination Network
+              </p>
+              {/* Info Icon */}
+              <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
+                <svg 
+                  width="12" 
+                  height="12" 
+                  viewBox="0 0 12 12" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle 
+                    cx="6" 
+                    cy="6" 
+                    r="5.5" 
+                    stroke="rgba(0, 0, 0, 1)" 
+                    strokeWidth="1"
+                    fill="none"
+                  />
+                  <path 
+                    d="M6 4V6M6 8H6.01" 
+                    stroke="rgba(0, 0, 0, 1)" 
+                    strokeWidth="1" 
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+            <NetworkSelector
+              selectedNetwork={destNetwork}
+              onNetworkChange={setDestNetwork}
+            />
+          </div>
+
+          {/* Amount Input */}
+          <div className="absolute left-[36px] top-[190px] z-10">
+            <input
+              type="text"
+              value={amount}
+              onChange={handleAmountChange}
+              placeholder="0.00"
+              className="font-['Hanken_Grotesk',sans-serif] font-bold leading-normal text-[24px] bg-transparent border-none outline-none w-[101px]"
+              style={{ 
+                color: designTokens.colors.text.primary,
+                caretColor: designTokens.colors.primary
+              }}
+            />
+          </div>
+
+          {/* Balance Display */}
+          <div className="absolute left-[36px] top-[245px] flex gap-[4px] items-center z-10">
+            {/* Wallet Icon */}
+            <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
+              <Image
+                src="/images/icons/wallet-logo.svg"
+                alt="Wallet"
+                width={16}
+                height={16}
+                className="object-contain w-full h-full"
+              />
+            </div>
+            <p 
+              className={typographyClasses.label1}
+              style={{ color: designTokens.colors.text.primary }}
+            >
+              {formattedBalance}
+            </p>
+          </div>
+
+          {/* Circular Percentage Selector */}
+          <div className="absolute left-[314px] top-[180px]">
+          <CircularPercentageSelector 
+            value={percentage}
+            onValueChange={handlePercentageChange}
+              tokenIcon={TOKEN_ICONS[selectedToken]}
+          />
+          </div>
+
+          {/* Bridge Fee */}
+          <p 
+            className={cn("absolute left-[24px] top-[297px] h-[16px] opacity-50", typographyClasses.label1)}
+            style={{ 
+              color: designTokens.colors.text.primary
+            }}
+          >
+            Bridge Fee: --
+          </p>
+        </NeumorphicInputCard>
+
+        {/* Bridge Button */}
+        <div className="relative mt-[32px] w-[426px]">
+          <PrimaryButton
+            className="w-full"
+            variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "default"}
+            disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
+            loading={false}
+            size="sm"
+          >
+            Bridge
+          </PrimaryButton>
+        </div>
+      </div>
+      </PageContainer>
+    </div>
+  )
+}
