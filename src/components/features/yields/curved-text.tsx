@@ -3,7 +3,7 @@ import * as React from "react"
 interface CurvedTextProps {
   text: string
   radius: number
-  startAngle: number // Angle in degrees, measured from top (0° = top, 90° = right, 180° = bottom, 270° = left)
+  startAngle: number 
   fontSize: number
   fontWeight?: "normal" | "bold" | "semibold"
   color?: string
@@ -35,7 +35,7 @@ export function CurvedText({
 }: CurvedTextProps) {
   const characters = text.split("")
   
-  // Character width approximations
+  
   const getCharWidth = (char: string): number => {
     if (char === " ") return fontSize * 0.35
     if (char === ".") return fontSize * 0.2
@@ -51,45 +51,49 @@ export function CurvedText({
   return (
     <>
       {characters.map((char, index) => {
-        // Skip rendering spaces but still account for their width
+        
         if (char === " ") {
           return null
         }
 
-        // Calculate cumulative distance along the arc
+        
         let cumulativeDistance = 0
         for (let i = 0; i < index; i++) {
           cumulativeDistance += getCharWidth(characters[i]) + letterSpacing
         }
         
-        // Add half the current character width to center it
+        
         const charWidth = getCharWidth(char)
         cumulativeDistance += charWidth / 2
         
-        // Convert distance to angle (arc length = radius * angle in radians)
+        
         const angleRad = cumulativeDistance / radius
         const angleDeg = (angleRad * 180) / Math.PI
         const currentAngle = reverse ? startAngle - angleDeg : startAngle + angleDeg
         
-        // Convert angle to radians for position calculation
-        // Convert from "top is 0°" to "right is 0°" for cos/sin
+        
+        
         const angleForPosition = currentAngle - 90
         const angleRadFinal = (angleForPosition * Math.PI) / 180
         
-        // Calculate position on circle
+        
         const x = centerX + radius * Math.cos(angleRadFinal)
         const y = centerY + radius * Math.sin(angleRadFinal)
         
-        // Rotation: text should be perpendicular to the radius
-        // For text following a curve, rotate by the angle + 90° to make it tangent
+        
+        
         const rotation = currentAngle
 
-        // Use Inter for semibold text (like "Stable Yield USD"), Hanken Grotesk for others
-        const fontFamily = fontWeight === "semibold" && fontSize <= 10.125 
-          ? "'Inter', sans-serif" 
-          : "'Hanken Grotesk', sans-serif"
+        
+        // Font family matching Figma design
+        let fontFamily = "'Hanken Grotesk', sans-serif"
+        if (fontWeight === "semibold" && fontSize <= 10.125) {
+          // For "Stable Yield USD" text - uses Inter Semi_Bold
+          fontFamily = "'Inter', sans-serif"
+        }
+        
         const weight =
-          fontWeight === "bold" ? 700 : fontWeight === "semibold" ? 500 : 400
+          fontWeight === "bold" ? 700 : fontWeight === "semibold" ? 600 : 400
 
         return (
           <div

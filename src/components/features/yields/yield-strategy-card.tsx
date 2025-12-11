@@ -5,7 +5,8 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
-import { PrimaryButton } from "@/components/ui/primary-button"
+import { Button } from "@/components/ui/button"
+import { AnimatedNumber } from "@/components/animations"
 
 export interface YieldStrategyCardProps {
   name: string
@@ -109,7 +110,13 @@ export function YieldStrategyCard({
           <p 
             className="font-normal text-[40px] leading-[normal] text-black"
           >
-            {apy.toFixed(2)}%
+            <AnimatedNumber 
+              value={apy} 
+              decimals={2} 
+              suffix="%" 
+              delay={0.1}
+              duration={1.2}
+            />
           </p>
           <p 
             className="font-normal text-[12px] leading-[normal] text-black opacity-50"
@@ -120,15 +127,15 @@ export function YieldStrategyCard({
       </div>
 
       <div className="absolute left-[24px] top-[184px] w-[270px]">
-        <PrimaryButton
-          variant={variant}
+        <Button
+          variant="blue"
           size="sm"
           showDepositIcon
           className="w-full"
           onClick={handleDepositClick}
         >
           Deposit
-        </PrimaryButton>
+        </Button>
       </div>
     </div>
   )

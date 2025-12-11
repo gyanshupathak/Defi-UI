@@ -55,26 +55,26 @@ export function UnifiedBarChart({
 }: UnifiedBarChartProps) {
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
 
-  // Calculate max value if not provided
+  
   const calculatedMaxValue = maxValue || Math.max(...data.map(d => d.value), 0)
 
-  // Format data for Recharts with index
+  
   const chartData = data.map((item, index) => ({
     ...item,
     index,
   }))
 
-  // Custom bar shape component that handles hover
-  // This function is called for each bar by Recharts
+  
+  
   const CustomBarShape = (props: any) => {
     const { payload, x, y, width, height } = props
     
-    // Find the index from the payload
+    
     let barIndex = -1
     if (payload?.index !== undefined) {
       barIndex = payload.index
     } else {
-      // Fallback: find by matching the data point
+      
       barIndex = chartData.findIndex(d => {
         return d.value === payload?.value && d.label === payload?.label
       })
@@ -83,8 +83,8 @@ export function UnifiedBarChart({
     const isHovered = hoveredIndex === barIndex
     const hasHover = hoveredIndex !== null
     
-    // If no bar is hovered, all bars are dark (opacity 1)
-    // If a bar is hovered, that bar is dark (opacity 1), others are light (opacity 0.25)
+    
+    
     const opacity = hasHover ? (isHovered ? 1 : 0.25) : 1
 
     const handleMouseEnter = () => {

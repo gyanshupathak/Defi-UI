@@ -9,7 +9,7 @@ interface FAQItem {
 }
 
 export function FAQsTab() {
-  const [openIndex, setOpenIndex] = React.useState<number | null>(1) // Second item open by default
+  const [openIndex, setOpenIndex] = React.useState<number | null>(1) 
 
   const faqs: FAQItem[] = [
     {
@@ -58,4 +58,3 @@ export function FAQsTab() {
     </div>
   )
 }
-

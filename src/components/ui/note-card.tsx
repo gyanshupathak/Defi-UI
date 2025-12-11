@@ -50,7 +50,7 @@ export function NoteCard({
         width: `${width}px`,
       }}
     >
-      {/* Card Background */}
+      {}
       <div 
         className="absolute inset-0 rounded-[16px]"
         style={{ 
@@ -59,7 +59,7 @@ export function NoteCard({
         }}
       />
       
-      {/* Note Text */}
+      {}
       <p 
         className={cn(
           typographyClasses.label1,
@@ -67,7 +67,7 @@ export function NoteCard({
         )}
         style={{ 
           color: designTokens.colors.text.primary,
-          width: `${width - 48}px`, // 24px padding on each side
+          width: `${width - 48}px`, 
         }}
       >
         <span className="font-semibold">Note: </span>
@@ -76,4 +76,3 @@ export function NoteCard({
     </div>
   )
 }
-

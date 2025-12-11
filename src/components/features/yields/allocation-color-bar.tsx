@@ -18,4 +18,3 @@ export function AllocationColorBar({ color, className }: AllocationColorBarProps
     />
   )
 }
-

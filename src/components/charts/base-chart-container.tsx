@@ -30,7 +30,7 @@ export function BaseChartContainer({
   opacity = 1,
   variant = "simple"
 }: BaseChartContainerProps) {
-  // Neumorphic variant (for home page TVL chart)
+  
   if (variant === "neumorphic") {
     const containerWidth = width || designTokens.spacing.graph.tvlChart.width
     const containerHeight = height || designTokens.spacing.graph.tvlChart.height
@@ -45,7 +45,7 @@ export function BaseChartContainer({
           borderRadius: designTokens.spacing.graph.tvlChart.outerRadius,
         }}
       >
-        {/* Outer Container - Drop Shadow */}
+        {}
         <div 
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ 
@@ -57,7 +57,7 @@ export function BaseChartContainer({
           }}
         />
         
-        {/* Inner Container - Border + Inset Shadow */}
+        {}
         <div 
           className="absolute left-1/2 -translate-x-1/2 border-2 border-solid"
           style={{ 
@@ -72,13 +72,13 @@ export function BaseChartContainer({
           }}
         />
         
-        {/* Content */}
+        {}
         {children}
       </div>
     )
   }
 
-  // Dashboard variant (for yields dashboard tabs)
+  
   if (variant === "dashboard") {
     return (
       <div 
@@ -96,7 +96,7 @@ export function BaseChartContainer({
     )
   }
 
-  // Simple variant (default)
+  
   return (
     <div 
       className={cn("relative overflow-hidden", className)}
@@ -110,4 +110,3 @@ export function BaseChartContainer({
     </div>
   )
 }
-

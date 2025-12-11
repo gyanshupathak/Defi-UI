@@ -110,4 +110,3 @@ export function calculateDomain(
     max: max + range * padding,
   }
 }
-

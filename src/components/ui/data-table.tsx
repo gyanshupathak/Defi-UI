@@ -5,90 +5,35 @@ import { Info, ChevronsUpDown } from "lucide-react"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export interface TableColumn<T = any> {
-  /** Unique identifier for the column */
   id: string
-  /** Header label text */
   label: string
-  /** Width of the column (e.g., "180px", "90px", or "flex-1" for flexible) */
   width?: string | number
-  /** Alignment of content in the column */
   align?: "left" | "right" | "center"
-  /** Whether the column header is sortable */
   sortable?: boolean
-  /** Custom header content (overrides label if provided) */
   headerContent?: React.ReactNode
-  /** Info icon in header */
   showInfoIcon?: boolean
-  /** Callback when header is clicked (for sorting) */
   onHeaderClick?: () => void
-  /** Custom padding right for this column (overrides default logic) */
   paddingRight?: string
 }
 
 export interface DataTableProps<T = any> {
-  /** Column definitions */
   columns: TableColumn<T>[]
-  /** Row data */
   data: T[]
-  /** Function to render a cell content */
   renderCell: (column: TableColumn<T>, row: T, rowIndex: number) => React.ReactNode
-  /** Optional custom row renderer (for complex rows) */
   renderRow?: (row: T, rowIndex: number, cells: React.ReactNode[]) => React.ReactNode
-  /** Optional row key extractor */
   getRowKey?: (row: T, index: number) => string | number
-  /** Custom className for the table container */
   className?: string
-  /** Custom style for the table container */
   style?: React.CSSProperties
-  /** Empty state message */
   emptyStateMessage?: string
-  /** Show empty state when no data */
   showEmptyState?: boolean
-  /** Custom row className */
   rowClassName?: (row: T, index: number) => string
-  /** Custom row style */
   rowStyle?: (row: T, index: number) => React.CSSProperties
-  /** Minimum row height */
   minRowHeight?: string | number
-  /** Show border bottom on header */
   headerBorderBottom?: boolean
-  /** Custom header style */
   headerStyle?: React.CSSProperties
-  /** Maximum height for scrollable body */
   maxBodyHeight?: string
 }
-
-// ============================================================================
-// COMPONENT
-// ============================================================================
-
-/**
- * DataTable Component - Reusable table component based on allocation table design
- * 
- * Maintains the exact UI styling of the allocation table while being flexible
- * enough to be used for different table types (allocation, activity, etc.)
- * 
- * @example
- * ```tsx
- * <DataTable
- *   columns={[
- *     { id: "strategy", label: "Strategy", width: "180px" },
- *     { id: "amount", label: "Amount", width: "flex-1", align: "right" },
- *   ]}
- *   data={myData}
- *   renderCell={(column, row) => {
- *     if (column.id === "strategy") return row.name
- *     if (column.id === "amount") return row.amount
- *     return null
- *   }}
- * />
- * ```
- */
 export function DataTable<T = any>({
   columns,
   data,
@@ -117,7 +62,6 @@ export function DataTable<T = any>({
         ...style 
       }}
     >
-      {/* Table Header */}
       <div
         className="flex items-center rounded-[99px] w-full flex-shrink-0"
         style={{
@@ -204,7 +148,6 @@ export function DataTable<T = any>({
         })}
       </div>
 
-      {/* Table Body */}
       <div 
         className={cn("flex flex-col items-start w-full", maxBodyHeight && "custom-scrollbar")}
         style={{
@@ -234,13 +177,10 @@ export function DataTable<T = any>({
             const isLast = rowIndex === data.length - 1
             const key = getRowKey(row, rowIndex)
 
-            // Render cells
             const cells = columns.map((column, colIndex) => {
               const isFirst = colIndex === 0
               const isLast = colIndex === columns.length - 1
               
-              // Determine padding based on column position and width
-              // Use custom paddingRight if specified, otherwise use default logic
               let paddingRight: string
               if (column.paddingRight !== undefined) {
                 paddingRight = column.paddingRight
@@ -251,7 +191,6 @@ export function DataTable<T = any>({
               } else if (column.width === "flex-1") {
                 paddingRight = "16px"
               } else {
-                // Fixed width middle columns get 16px padding
                 paddingRight = "16px"
               }
               
@@ -266,8 +205,8 @@ export function DataTable<T = any>({
                       : {}),
                     paddingLeft: isFirst ? "16px" : "8px",
                     paddingRight,
-                    paddingTop: "12px",
-                    paddingBottom: "12px",
+                    paddingTop: "10px",
+                    paddingBottom: "10px",
                     ...(column.align === "right"
                       ? { textAlign: "right", display: "flex", justifyContent: "flex-end", alignItems: "center" }
                       : column.align === "center"
@@ -280,7 +219,6 @@ export function DataTable<T = any>({
               )
             })
 
-            // Use custom renderer if provided, otherwise use default
             if (renderRow) {
               return (
                 <React.Fragment key={key}>
@@ -289,7 +227,6 @@ export function DataTable<T = any>({
               )
             }
 
-            // Default row renderer
             return (
               <div
                 key={key}
@@ -314,5 +251,3 @@ export function DataTable<T = any>({
     </div>
   )
 }
-
-

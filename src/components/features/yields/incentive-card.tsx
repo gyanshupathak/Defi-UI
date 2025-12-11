@@ -45,7 +45,7 @@ export function IncentiveCard({ multiplier, title, description, logoPath, redire
         />
       </div>
 
-      {/* Multiplier Badge */}
+      {}
       <div 
         className="absolute flex items-center justify-center overflow-clip"
         style={{
@@ -171,4 +171,3 @@ export function IncentiveCard({ multiplier, title, description, logoPath, redire
     </div>
   )
 }
-

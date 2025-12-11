@@ -4,6 +4,8 @@ export { PortfolioTabs } from "./portfolio-tabs"
 export { PortfolioActivity } from "./portfolio-activity"
 export { PortfolioRequests } from "./portfolio-requests"
 export { WithdrawalRequestCard } from "./withdrawal-request-card"
+export { PortfolioDashboardEmptyState } from "./portfolio-dashboard-empty-state"
+export type { PortfolioDashboardEmptyStateProps } from "./portfolio-dashboard-empty-state"
 export type {
   Transaction,
   TransactionStatus,
@@ -17,4 +19,3 @@ export type {
   PortfolioRequestsProps,
 } from "./portfolio-requests"
 export type { WithdrawalRequestCardProps } from "./withdrawal-request-card"
-

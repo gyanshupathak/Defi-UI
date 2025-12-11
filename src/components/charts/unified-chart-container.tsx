@@ -40,7 +40,7 @@ export function UnifiedChartContainer({
         borderRadius: designTokens.spacing.graph.tvlChart.outerRadius,
       }}
     >
-      {/* Outer Container - Drop Shadow */}
+      {}
       <div 
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[16px]"
         style={{ 
@@ -51,7 +51,7 @@ export function UnifiedChartContainer({
         }}
       />
       
-      {/* Inner Container - Border + Inset Shadow */}
+      {}
       <div 
         className="absolute left-1/2 -translate-x-1/2 border-2 border-solid rounded-[12px]"
         style={{ 
@@ -65,9 +65,8 @@ export function UnifiedChartContainer({
         }}
       />
       
-      {/* Content */}
+      {}
       {children}
     </div>
   )
 }
-

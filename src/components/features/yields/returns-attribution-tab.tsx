@@ -69,4 +69,3 @@ export function ReturnsAttributionTab({ className }: ReturnsAttributionTabProps)
     </>
   )
 }
-

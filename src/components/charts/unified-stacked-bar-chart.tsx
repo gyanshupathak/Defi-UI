@@ -14,7 +14,7 @@ import {
 
 export interface StackedBarChartDataPoint {
   [key: string]: number | string | undefined
-  // Common fields
+  
   label?: string
   date?: string
   formattedValue?: string
@@ -23,14 +23,14 @@ export interface StackedBarChartDataPoint {
 
 export interface UnifiedStackedBarChartProps {
   data: StackedBarChartDataPoint[]
-  stackKeys: string[] // e.g., ["segment1", "segment2", "segment3"]
-  colors: string[] // Colors for each stack segment
+  stackKeys: string[] 
+  colors: string[] 
   onHover?: (dataPoint: StackedBarChartDataPoint | null, index: number | null) => void
   className?: string
   height?: number
   maxValue?: number
   barGap?: string
-  radius?: { [key: string]: [number, number, number, number] } // Radius for each stack key
+  radius?: { [key: string]: [number, number, number, number] } 
 }
 
 /**
@@ -55,7 +55,7 @@ export function UnifiedStackedBarChart({
 }: UnifiedStackedBarChartProps) {
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
 
-  // Calculate max value if not provided (sum of all segments)
+  
   const calculatedMaxValue = maxValue || Math.max(
     ...data.map(d => 
       stackKeys.reduce((sum, key) => sum + (typeof d[key] === 'number' ? d[key] : 0), 0)
@@ -63,13 +63,13 @@ export function UnifiedStackedBarChart({
     0
   )
 
-  // Format data for Recharts with index
+  
   const chartData = data.map((item, index) => ({
     ...item,
     index,
   }))
 
-  // Custom cell component for hover states
+  
   const CustomCell = ({ 
     index, 
     fill 
@@ -80,8 +80,8 @@ export function UnifiedStackedBarChart({
     const isHovered = hoveredIndex === index
     const hasHover = hoveredIndex !== null
     
-    // If no bar is hovered, all bars are dark (opacity 1)
-    // If a bar is hovered, that bar is dark (opacity 1), others are light (opacity 0.25)
+    
+    
     const opacity = hasHover ? (isHovered ? 1 : 0.25) : 1
 
     return (
@@ -97,17 +97,17 @@ export function UnifiedStackedBarChart({
     )
   }
 
-  // Handle mouse enter on bar - works for any segment of the stacked bar
+  
   const handleMouseEnter = (data: any, index?: number) => {
-    // Find index from data if not provided
+    
     let barIndex = index
     if (barIndex === undefined && data) {
-      // Find by matching index property or by comparing data
+      
       barIndex = chartData.findIndex(d => {
         if (d.index !== undefined && data.index !== undefined) {
           return d.index === data.index
         }
-        // Try to match by comparing all stack key values
+        
         return stackKeys.every(key => d[key] === data[key])
       })
     }
@@ -121,7 +121,7 @@ export function UnifiedStackedBarChart({
     }
   }
 
-  // Handle mouse leave from bar
+  
   const handleMouseLeave = () => {
     setHoveredIndex(null)
     if (onHover) {
@@ -175,4 +175,3 @@ export function UnifiedStackedBarChart({
     </div>
   )
 }
-

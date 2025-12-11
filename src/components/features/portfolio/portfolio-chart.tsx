@@ -4,6 +4,10 @@ import * as React from "react"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { UnifiedChartContainer } from "@/components/charts/unified-chart-container"
 import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-selector"
+import { EmptyChart } from "@/components/charts/empty-chart"
+import { PortfolioMetricTag } from "@/components/ui/portfolio-metric-tag"
+import { FilterTabSelector } from "@/components/ui/filter-tab-selector"
+import { AnimatedNumber } from "@/components/animations"
 import {
   BarChart,
   Bar,
@@ -24,10 +28,10 @@ interface StackedBarChartDataPoint {
   formattedDate?: string
   index?: number
 }
-import { cn } from "@/lib/utils"
 
 interface PortfolioChartProps {
   className?: string
+  isEmpty?: boolean
 }
 
 const filterTabs = [
@@ -99,8 +103,6 @@ const chartData = [
 
 const barColor = designTokens.colors.primary
 const dates = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
-
-// Format chart data with dates
 const formatPortfolioData = (): StackedBarChartDataPoint[] => {
   const rawData = [
     { segment1: 56, segment2: 142, segment3: 81 },
@@ -159,11 +161,11 @@ const formatPortfolioData = (): StackedBarChartDataPoint[] => {
     { segment1: 111, segment2: 138, segment3: 83 },
   ]
 
-  // Group bars by date (8 bars per day for first 6 days, 6 bars for last day)
+  
   const barsPerDay = [8, 8, 8, 8, 8, 8, 6]
   
   return rawData.map((item, index) => {
-    // Find which date this bar belongs to
+    
     let dateIndex = 0
     let cumulativeBars = 0
     for (let i = 0; i < barsPerDay.length; i++) {
@@ -185,19 +187,98 @@ const formatPortfolioData = (): StackedBarChartDataPoint[] => {
   })
 }
 
-export function PortfolioChart({ className }: PortfolioChartProps) {
+export function PortfolioChart({ className, isEmpty = false }: PortfolioChartProps) {
   const [activeFilter, setActiveFilter] = React.useState("total")
   const [timePeriod, setTimePeriod] = React.useState("1M")
   const [displayValue, setDisplayValue] = React.useState("$15,289.28")
   const [displayDate, setDisplayDate] = React.useState("")
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
 
+  const numericValue = parseFloat(displayValue.replace(/[^0-9.]/g, "")) || 0
+  const showEmpty = isEmpty || numericValue === 0
+
+  const timeRangeOptions: DropdownOption<string>[] = [
+    { id: "1M", label: "1M" },
+    { id: "3M", label: "3M" },
+    { id: "6M", label: "6M" },
+    { id: "1Y", label: "1Y" },
+  ]
+
+  const filterOptions: DropdownOption<string>[] = [
+    { id: "total", label: "Total Portfolio Value" },
+    { id: "syusd", label: "syUSD" },
+    { id: "syeth", label: "syETH" },
+    { id: "sybtc", label: "syBTC" },
+  ]
+
+  if (showEmpty) {
+    return (
+      <UnifiedChartContainer className={className}>
+        {}
+        <EmptyChart
+          barCount={54}
+          barHeight={250}
+          maxDomain={500}
+          barsLeft="36px"
+          barsTop="156px"
+          barsWidth="596px"
+          barsHeight="500px"
+          dateLabelsLeft="36px"
+          dateLabelsTop="668px"
+          dateLabelsWidth="596px"
+        />
+
+        {}
+        <div 
+          className="absolute flex flex-col z-10"
+          style={{ 
+            left: '36px',
+            top: '32px',
+            width: '596px',
+            gap: '12px',
+          }}
+        >
+          <div className="flex items-center justify-between w-full">
+            <FilterTabSelector
+              options={filterOptions}
+              activeValue={activeFilter}
+              onValueChange={setActiveFilter}
+            />
+
+            <div className="flex items-center gap-[8px]">
+              <DropdownSelector
+                selectedValue={timePeriod}
+                onValueChange={setTimePeriod}
+                options={timeRangeOptions}
+                minWidth="80px"
+              />
+
+              <PortfolioMetricTag value="+0.00%" />
+            </div>
+          </div>
+
+          <div className="flex flex-col items-start w-full">
+            <div className="flex items-center gap-[8px]">
+              <p 
+                className={typographyClasses.heading1}
+                style={{ color: designTokens.colors.text.primary }}
+              >
+                <span style={{ opacity: 0.5 }}>$</span>0.00
+              </p>
+              <PortfolioMetricTag value="$0.00" />
+            </div>
+          </div>
+        </div>
+      </UnifiedChartContainer>
+    )
+  }
+
   const chartData = formatPortfolioData().map((item, index) => ({
     ...item,
     index,
   }))
 
-  // Custom bar shapes for each segment with hover handling and vertical gaps
+  
   const createCustomBarShape = (fill: string, radius: [number, number, number, number], segmentKey: 'segment1' | 'segment2' | 'segment3') => {
     return (props: any) => {
       const { payload, x, y, width, height } = props
@@ -208,28 +289,28 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
       )
       const isHovered = hoveredIndex === barIndex
       
-      // All bars start light (opacity 0.25)
-      // On hover: hovered bar becomes dark (opacity 1), others stay light (opacity 0.25)
+      
+      
       const opacity = isHovered ? 1 : 0.25
 
-      // Calculate gap adjustments for 2px vertical gaps between segments
-      // In Recharts, y is the top coordinate and segments stack from bottom to top
-      // segment3 (bottom): reduce height by 1px to create gap above
-      // segment2 (middle): move down 1px and reduce height by 2px (gaps above and below)
-      // segment1 (top): move down 1px and reduce height by 1px (gap below)
+      
+      
+      
+      
+      
       let adjustedY = y
       let adjustedHeight = height
       
       if (segmentKey === 'segment3') {
-        // Bottom segment: reduce height by 1px to create gap above
+        
         adjustedY = y + 1
         adjustedHeight = height - 1
       } else if (segmentKey === 'segment2') {
-        // Middle segment: move down 1px (gap after segment3) and reduce height by 2px (gaps above and below)
+        
         adjustedY = y + 1
         adjustedHeight = height - 2
       } else if (segmentKey === 'segment1') {
-        // Top segment: move down 1px (gap after segment2) and reduce height by 1px
+        
         adjustedY = y + 1
         adjustedHeight = height - 1
       }
@@ -269,20 +350,6 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
       )
     }
   }
-
-  const timeRangeOptions: DropdownOption<string>[] = [
-    { id: "1M", label: "1M" },
-    { id: "3M", label: "3M" },
-    { id: "6M", label: "6M" },
-    { id: "1Y", label: "1Y" },
-  ]
-
-  const filterOptions: DropdownOption<string>[] = [
-    { id: "total", label: "Total Portfolio Value" },
-    { id: "syusd", label: "syUSD" },
-    { id: "syeth", label: "syETH" },
-    { id: "sybtc", label: "syBTC" },
-  ]
 
   return (
     <UnifiedChartContainer className={className}>
@@ -333,7 +400,7 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
         </ResponsiveContainer>
       </div>
 
-      {/* Date Labels */}
+      {}
       <div 
         className="absolute flex items-center justify-between text-center"
         style={{ 
@@ -354,7 +421,7 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
         ))}
       </div>
 
-      {/* Header Section - Filter Tabs and Controls */}
+      {}
       <div 
         className="absolute flex flex-col z-10"
         style={{ 
@@ -365,41 +432,11 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
         }}
       >
         <div className="flex items-center justify-between w-full">
-          <div 
-            className="flex items-center rounded-[99px] border border-solid h-[24px]"
-            style={{ 
-              borderColor: designTokens.colors.border.separator,
-              backgroundColor: designTokens.colors.background.main,
-              gap: '4px',
-            }}
-          >
-            {filterOptions.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => setActiveFilter(option.id)}
-                className={cn(
-                  "flex items-center justify-center rounded-[99px] h-full px-[12px] py-[4px] transition-all cursor-pointer border border-solid bg-transparent",
-                  activeFilter === option.id ? "" : "border-transparent"
-                )}
-                style={{
-                  borderColor: activeFilter === option.id ? designTokens.colors.primary : 'transparent',
-                }}
-              >
-                <p 
-                  className={typographyClasses.label1}
-                  style={{
-                    color: activeFilter === option.id 
-                      ? designTokens.colors.primary 
-                      : designTokens.colors.text.muted,
-                    fontWeight: activeFilter === option.id ? 500 : 400,
-                  }}
-                >
-                  {option.label}
-                </p>
-              </button>
-            ))}
-          </div>
+          <FilterTabSelector
+            options={filterOptions}
+            activeValue={activeFilter}
+            onValueChange={setActiveFilter}
+          />
 
           <div className="flex items-center gap-[8px]">
             <DropdownSelector
@@ -409,23 +446,7 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
               minWidth="80px"
             />
 
-            <div 
-              className="flex items-center justify-center rounded-[99px] px-[6px] py-[2px] border border-solid"
-              style={{
-                backgroundColor: `${designTokens.colors.status.success}1A`,
-                borderColor: designTokens.colors.status.success,
-              }}
-            >
-              <p 
-                className={typographyClasses.label1}
-                style={{ 
-                  color: designTokens.colors.status.success,
-                  fontWeight: 500,
-                }}
-              >
-                +2.23%
-              </p>
-            </div>
+            <PortfolioMetricTag value="+2.23%" />
           </div>
         </div>
 
@@ -435,25 +456,10 @@ export function PortfolioChart({ className }: PortfolioChartProps) {
               className={typographyClasses.heading1}
               style={{ color: designTokens.colors.text.primary }}
             >
-              <span style={{ opacity: 0.5 }}>$</span>{displayValue.replace('$', '')}
+              <span style={{ opacity: 0.5 }}>$</span>
+              <AnimatedNumber value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={2} delay={0.1} duration={1.2} />
             </p>
-            <div 
-              className="flex items-center justify-center rounded-[99px] px-[6px] py-[2px] border border-solid"
-              style={{
-                backgroundColor: `${designTokens.colors.status.success}1A`,
-                borderColor: designTokens.colors.status.success,
-              }}
-            >
-              <p 
-                className={typographyClasses.label1}
-                style={{ 
-                  color: designTokens.colors.status.success,
-                  fontWeight: 500,
-                }}
-              >
-                $289.28
-              </p>
-            </div>
+            <PortfolioMetricTag value="$289.28" />
           </div>
         </div>
       </div>

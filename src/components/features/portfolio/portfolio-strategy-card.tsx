@@ -5,9 +5,10 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { designTokens, typographyClasses, shadows, getPnlColor } from "@/lib/design-system"
+import { AnimatedNumber } from "@/components/animations"
 
 const { popIn, popInHover } = shadows
-import { PrimaryButton } from "@/components/ui/primary-button"
+import { Button } from "@/components/ui/button"
 
 export interface PortfolioStrategyCardProps {
   name: string
@@ -109,7 +110,7 @@ export function PortfolioStrategyCard({
               className={typographyClasses.display1}
               style={{ color: pnlColor }}
             >
-              {Math.abs(pnl).toFixed(2)}%
+              <AnimatedNumber value={Math.abs(pnl)} decimals={2} suffix="%" delay={0.1} duration={1.2} />
             </p>
           </div>
           <p 
@@ -152,10 +153,10 @@ export function PortfolioStrategyCard({
         </div>
 
         <div className="absolute left-[24px] top-[207px] w-[270px]">
-          <PrimaryButton
-            variant="withdraw"
+          <Button
+            variant="outline"
             size="sm"
-            showDepositIcon
+            showWithdrawIcon
             className="w-full"
             onClick={(e) => {
               e.stopPropagation()
@@ -163,10 +164,9 @@ export function PortfolioStrategyCard({
             }}
           >
             Withdraw
-          </PrimaryButton>
+          </Button>
         </div>
       </div>
     </div>
   )
 }
-

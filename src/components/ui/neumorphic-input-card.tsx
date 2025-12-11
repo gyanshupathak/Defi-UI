@@ -35,7 +35,7 @@ export interface NeumorphicInputCardProps {
   label: string
   /**
    * Optional component to render on the right side of the header
-   * (e.g., NetworkSelector, TokenSelector, badge)
+   * (e.g., UnifiedSelector, badge)
    */
   rightElement?: React.ReactNode
   /**
@@ -67,11 +67,11 @@ export interface NeumorphicInputCardProps {
  * - Configurable dimensions and positioning
  * 
  * @example
- * // Single inset container (deposit/withdraw)
+ * 
  * <NeumorphicInputCard
  *   height={189}
  *   label="Deposit assets from"
- *   rightElement={<NetworkSelector />}
+ *   rightElement={<UnifiedSelector type="network" selectedValue="Base" />}
  *   insetContainers={{ top: 52, height: 125 }}
  * >
  *   <input />
@@ -79,18 +79,18 @@ export interface NeumorphicInputCardProps {
  * </NeumorphicInputCard>
  * 
  * @example
- * // Multiple inset containers (bridge)
+ * 
  * <NeumorphicInputCard
  *   height={325}
  *   width={426}
  *   label="Bridge"
- *   rightElement={<BridgeTokenSelector />}
+ *   rightElement={<UnifiedSelector type="token" selectedValue="syUSD" />}
  *   insetContainers={[
  *     { top: 52, height: 96 },
  *     { top: 160, height: 125 }
  *   ]}
  * >
- *   <NetworkSelectors />
+ *   <UnifiedSelector type="network" selectedValue="Base" />
  *   <AmountInput />
  * </NeumorphicInputCard>
  */
@@ -103,10 +103,10 @@ export function NeumorphicInputCard({
   children,
   className,
 }: NeumorphicInputCardProps) {
-  // Normalize insetContainers to array for consistent handling
+  
   const containers = Array.isArray(insetContainers) ? insetContainers : [insetContainers]
   
-  // Calculate default inner container width (24px padding = 12px each side)
+  
   const defaultInnerWidth = width - 24
 
   return (
@@ -117,7 +117,7 @@ export function NeumorphicInputCard({
         width: `${width}px`,
       }}
     >
-      {/* Card Background - Outer Shadow */}
+      {}
       <div 
         className="absolute left-1/2 top-0 -translate-x-1/2 rounded-[16px]"
         style={{ 
@@ -128,11 +128,11 @@ export function NeumorphicInputCard({
         }}
       />
 
-      {/* Header Section */}
+      {}
       <div 
         className="absolute left-[24px] top-[12px] flex items-center justify-between"
         style={{ 
-          width: `${width - 48}px` // 24px padding on each side
+          width: `${width - 48}px` 
         }}
       >
         <p 
@@ -151,7 +151,7 @@ export function NeumorphicInputCard({
         )}
       </div>
 
-      {/* Inner Inset Container(s) */}
+      {}
       {containers.map((container, index) => (
         <div
           key={index}
@@ -166,11 +166,10 @@ export function NeumorphicInputCard({
         />
       ))}
 
-      {/* Content - Positioned relatively for absolute children */}
+      {}
       <div className="relative w-full h-full">
         {children}
       </div>
     </div>
   )
 }
-

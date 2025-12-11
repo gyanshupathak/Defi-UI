@@ -1,13 +1,15 @@
 "use client"
 
 import * as React from "react"
-import { ChevronDown } from "lucide-react"
+import { Check, ChevronDown } from "lucide-react"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 
 export interface DropdownOption<T = string> {
   id: T
   label: string
+  iconSrc?: string
+  icon?: React.ReactNode
 }
 
 interface DropdownSelectorProps<T = string> {
@@ -29,6 +31,7 @@ export function DropdownSelector<T extends string = string>({
 }: DropdownSelectorProps<T>) {
   const [isOpen, setIsOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
+  const [hoveredId, setHoveredId] = React.useState<T | null>(null)
 
   const selectedOption = options.find(opt => opt.id === selectedValue) || options[0]
 
@@ -39,12 +42,20 @@ export function DropdownSelector<T extends string = string>({
       }
     }
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false)
+      }
+    }
+
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("keydown", handleKeyDown)
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
+      document.removeEventListener("keydown", handleKeyDown)
     }
   }, [isOpen])
 
@@ -64,17 +75,21 @@ export function DropdownSelector<T extends string = string>({
           }
         }}
         disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
         className={cn(
-          "relative flex items-center justify-center border border-solid rounded-[99px] transition-opacity bg-transparent z-10",
-          disabled ? "opacity-50 cursor-not-allowed" : "hover:opacity-80 cursor-pointer"
+          "relative flex items-center justify-center border border-solid rounded-[99px] transition-opacity z-10",
+          disabled ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 cursor-pointer"
         )}
         style={{
-          height: '24px',
-          paddingLeft: '12px',
-          paddingRight: '12px',
-          paddingTop: '4px',
-          paddingBottom: '4px',
-          borderColor: designTokens.colors.border.default,
+          paddingLeft: "12px",
+          paddingRight: "12px",
+          paddingTop: "4px",
+          paddingBottom: "4px",
+          minHeight: "24px",
+          borderColor: designTokens.colors.border.separator,
+          backgroundColor: designTokens.colors.background.main,
+          boxShadow: "none",
         }}
       >
         <div className="flex items-center gap-[4px]">
@@ -102,16 +117,17 @@ export function DropdownSelector<T extends string = string>({
 
       {isOpen && !disabled && (
         <div
-          className="absolute top-full right-0 mt-1 z-50 rounded-[8px] border border-solid"
+          role="listbox"
+          className="absolute top-full right-0 mt-2 z-50 rounded-[12px] border border-solid"
           style={{
             backgroundColor: designTokens.colors.background.main,
-            borderColor: designTokens.colors.border.separator,
             boxShadow: shadows.dropdown,
             minWidth,
+            borderColor: designTokens.colors.border.white,
             padding: '8px',
           }}
         >
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-[8px]">
             {options.map((option) => (
               <button
                 key={option.id}
@@ -120,16 +136,62 @@ export function DropdownSelector<T extends string = string>({
                   e.stopPropagation()
                   handleOptionSelect(option.id)
                 }}
-                className="px-3 py-2 text-left rounded-[4px] hover:bg-opacity-10 transition-colors border-none cursor-pointer"
+                onMouseEnter={() => setHoveredId(option.id)}
+                onMouseLeave={() => setHoveredId(null)}
+                role="option"
+                aria-selected={selectedValue === option.id}
+                className={cn(
+                  "relative w-full flex items-center justify-between rounded-[99px] transition-all cursor-pointer"
+                )}
                 style={{
-                  backgroundColor: selectedValue === option.id 
-                    ? `${designTokens.colors.primary}20` 
-                    : "transparent",
+                  paddingLeft: designTokens.spacing.dropdown.paddingX,
+                  paddingRight: designTokens.spacing.dropdown.paddingX,
+                  paddingTop: designTokens.spacing.dropdown.paddingY,
+                  paddingBottom: designTokens.spacing.dropdown.paddingY,
+                  backgroundColor:
+                    hoveredId === option.id
+                      ? designTokens.colors.background.gradient
+                      : "transparent",
                 }}
               >
-                <p className={typographyClasses.label1}>
-                  {option.label}
-                </p>
+                <div className="flex items-center gap-[8px] min-w-0">
+                  {(option.icon || option.iconSrc) && (
+                    <div
+                      className="flex items-center justify-center rounded-full overflow-hidden shrink-0"
+                      style={{ width: '20px', height: '20px' }}
+                    >
+                      {option.icon
+                        ? option.icon
+                        : (
+                          <img
+                            src={option.iconSrc}
+                            alt=""
+                            className="object-cover w-full h-full"
+                            loading="lazy"
+                          />
+                        )}
+                    </div>
+                  )}
+                  <p
+                  className={cn(
+                    "truncate text-[16px] leading-[20px] font-sans",
+                    selectedValue === option.id || hoveredId === option.id ? "font-medium" : "font-normal"
+                  )}
+                  style={{
+                    color: designTokens.colors.text.primary,
+                    opacity: selectedValue === option.id || hoveredId === option.id ? 1 : 0.8,
+                  }}
+                  >
+                    {option.label}
+                  </p>
+                </div>
+                {selectedValue === option.id && (
+                  <Check
+                    size={12}
+                    strokeWidth={2}
+                    style={{ color: designTokens.colors.status.success }}
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -138,4 +200,3 @@ export function DropdownSelector<T extends string = string>({
     </div>
   )
 }
-

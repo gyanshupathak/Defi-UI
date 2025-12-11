@@ -1,20 +1,37 @@
+"use client"
+
+import * as React from "react"
 import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
 import { TVLChart } from "@/components/charts/tvl-chart"
 import { YieldStrategyCard } from "@/components/features/yields/yield-strategy-card"
 import { PageContainer } from "@/components/ui/page-container"
-import { designTokens, typographyClasses } from "@/lib/design-system"
-
+import { DashboardTabs } from "@/components/ui/dashboard-tabs"
+import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
+import { Flame } from "lucide-react"
 
 export default function Home() {
+  const [activeTab, setActiveTab] = React.useState("top-yields")
+
+  const tabs = [
+    { id: "top-yields", label: "Top Yields" },
+    { id: "flagship", label: "Flagship" },
+    { id: "delta-neutral", label: "Delta neutral" },
+    { id: "leverage-looping", label: "Leverage Looping" },
+  ]
+
   return (
     <div 
-      className="relative w-full h-screen overflow-hidden flex flex-col"
-      style={{ backgroundColor: designTokens.colors.background.main }}
+      className="relative w-full h-screen flex flex-col"
+      style={{ 
+        backgroundColor: designTokens.colors.background.main,
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      }}
     >
-      {/* Navigation */}
-      <NeumorphicNav activeMenuItem="none" />
+      <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
+        <NeumorphicNav activeMenuItem="none" />
+      </div>
 
-      {/* Main Content - Consistent spacing with PageContainer */}
       <PageContainer>
         <div 
           className="flex-1 flex"
@@ -22,47 +39,58 @@ export default function Home() {
             gap: designTokens.spacing.card.gap 
           }}
         >
-        {/* Left Column - Chart */}
         <div className="flex-shrink-0 flex items-start">
           <TVLChart 
+            isEmpty={false}
             totalValue="$585,937"
             date="12 November 2025"
           />
         </div>
 
-        {/* Right Column - Yields Section */}
         <div 
           className="flex-1 flex flex-col"
           style={{ 
             maxWidth: designTokens.spacing.layout.yieldsMaxWidth,
           }}
         >
-          {/* Section Header */}
-          <div style={{ marginBottom: designTokens.spacing.text.sectionHeaderMargin }}>
-            <h1 
-              className={typographyClasses.heading1}
-              style={{ 
-                color: designTokens.colors.text.primary,
-                marginBottom: designTokens.spacing.text.labelHeadingGap 
-              }}
-            >
-              Explore Yields
-            </h1>
-            <p 
-              className={`${typographyClasses.subtext} whitespace-pre-wrap opacity-60`}
-              style={{ color: designTokens.colors.text.primary }}
-            >
-              Maximize your investment returns and diversify your portfolio.{"\n"}
-              Unlock higher earnings with smart yield strategies.
-            </p>
+          <DashboardTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+          />
+
+          <div 
+            className="relative rounded-[12px] mt-[24px]"
+            style={{
+              width: '668px',
+              height: '42px',
+              backgroundColor: designTokens.colors.background.main,
+              boxShadow: '4px 4px 4px 0px rgba(127,86,217,0.15), -4px -4px 4px 0px #fff',
+            }}
+          >
+            <div className="absolute inset-0 flex items-center px-[24px]">
+              <p 
+                className="flex-1 text-[12px] leading-[18px] tracking-[0.15px] whitespace-pre-wrap"
+                style={{ 
+                  color: designTokens.colors.text.primary,
+                  fontFamily: "'Hanken Grotesk', sans-serif",
+                }}
+              >
+                <span className="font-semibold">Note: </span>
+                <span className="font-normal">By initiating a withdrawal, your vault shares (syUSD) will be converted into the underlying asset</span>
+              </p>
+              <Flame 
+                size={24}
+                className="shrink-0 ml-[24px]"
+                style={{ color: "#F7931A" }}
+              />
+            </div>
           </div>
 
-          {/* Strategy Cards Grid - Fits remaining space */}
           <div 
-            className="flex-1 flex flex-col justify-start"
+            className="flex-1 flex flex-col justify-start mt-[32px]"
             style={{ gap: designTokens.spacing.card.gapInternal }}
           >
-            {/* Row 1 */}
             <div 
               className="flex"
               style={{ gap: designTokens.spacing.card.gap }}
@@ -81,7 +109,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Row 2 */}
             <div 
               className="flex"
               style={{ gap: designTokens.spacing.card.gap }}
@@ -93,8 +120,8 @@ export default function Home() {
                 variant="btc"
               />
             </div>
-            </div>
           </div>
+        </div>
         </div>
       </PageContainer>
     </div>

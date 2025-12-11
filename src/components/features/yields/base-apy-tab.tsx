@@ -4,6 +4,7 @@ import * as React from "react"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { ChartContainerWrapper } from "./chart-container-wrapper"
 import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-selector"
+import { AnimatedNumber } from "@/components/animations"
 import {
   AreaChart,
   Area,
@@ -18,12 +19,15 @@ type TimeRange = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y" | "ALL"
 
 interface BaseAPYTabProps {
   currentDate?: string
+  isEmpty?: boolean
 }
 
 export function BaseAPYTab({ 
-  currentDate = "Current Date"
+  currentDate = "Current Date",
+  isEmpty = false,
 }: BaseAPYTabProps) {
   const [timeRange, setTimeRange] = React.useState<TimeRange>("1M")
+  const displayValue = isEmpty ? "0.00%" : "16.23%"
 
   const timeRangeOptions: DropdownOption<TimeRange>[] = [
     { id: "1M", label: "1M" },
@@ -89,6 +93,16 @@ export function BaseAPYTab({
     { x: 53, value: 16.23 },
   ]
 
+  const emptyValue = 200
+  const emptyAreaChartData = areaChartData.map((point) => ({
+    ...point,
+    value: emptyValue,
+  }))
+
+  const chartData = isEmpty ? emptyAreaChartData : areaChartData
+  const yAxisDomain = isEmpty ? [0, 400] : ["auto", "auto"]
+  const gradientId = isEmpty ? "colorBaseAPYEmpty" : "colorBaseAPY"
+
   return (
     <>
       <div 
@@ -105,7 +119,7 @@ export function BaseAPYTab({
             color: designTokens.colors.text.primary,
           }}
         >
-          16.23%
+          <AnimatedNumber value={displayValue.replace('%', '')} decimals={2} suffix="%" delay={0.1} duration={1.2} />
         </p>
         <p 
           className={typographyClasses.label1}
@@ -133,29 +147,38 @@ export function BaseAPYTab({
         />
         </div>
 
-      <ChartContainerWrapper opacity={0.5}>
+      <ChartContainerWrapper className="relative" opacity={isEmpty ? 1 : 0.5}>
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
-            data={areaChartData}
+            data={chartData}
             margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
           >
             <defs>
-              <linearGradient id="colorBaseAPY" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={designTokens.colors.primary} stopOpacity={0.5} />
-                <stop offset="100%" stopColor={designTokens.colors.primary} stopOpacity={0.2} />
+              <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                <stop 
+                  offset="0%" 
+                  stopColor={isEmpty ? "rgba(0, 0, 0, 0.15)" : designTokens.colors.primary} 
+                  stopOpacity={isEmpty ? 0.35 : 0.5} 
+                />
+                <stop 
+                  offset="100%" 
+                  stopColor={isEmpty ? "rgba(0, 0, 0, 0.05)" : designTokens.colors.primary} 
+                  stopOpacity={isEmpty ? 0.15 : 0.2} 
+                />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="none" stroke="transparent" />
             <XAxis hide />
-            <YAxis hide />
+            <YAxis hide domain={yAxisDomain as [number | "auto", number | "auto"]} />
             <Tooltip contentStyle={{ display: 'none' }} />
             <Area
               type="monotone"
               dataKey="value"
               stroke="transparent"
               strokeWidth={0}
-              fill="url(#colorBaseAPY)"
+              fill={`url(#${gradientId})`}
               fillOpacity={1}
+              isAnimationActive={!isEmpty}
             />
           </AreaChart>
         </ResponsiveContainer>

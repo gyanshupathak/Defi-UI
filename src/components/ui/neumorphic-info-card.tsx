@@ -66,11 +66,11 @@ export function NeumorphicInfoCard({
   children,
   className,
 }: NeumorphicInfoCardProps) {
-  // Calculate inner border dimensions (12px from top, 24px total padding)
-  const innerBorderHeight = height - 24 // 12px top + 12px bottom
-  const innerBorderWidth = width - 24 // 12px left + 12px right
   
-  // Use design system defaults
+  const innerBorderHeight = height - 24 
+  const innerBorderWidth = width - 24 
+  
+  
   const defaultBorderColor = innerBorderColor || designTokens.colors.border.white
 
   return (
@@ -81,7 +81,7 @@ export function NeumorphicInfoCard({
         height: `${height}px`,
       }}
     >
-      {/* Card Background - Outer Shadow */}
+      {}
       <div 
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[16px]"
         style={{ 
@@ -92,11 +92,11 @@ export function NeumorphicInfoCard({
         }}
       />
       
-      {/* Inner Border */}
+      {}
       {showInnerBorder && (
         <>
           {useGradientBorder ? (
-            // Gradient Border (used in deposit page)
+            
             <div 
               className="absolute left-1/2 top-[12px] -translate-x-1/2 rounded-[12px]"
               style={{ 
@@ -114,7 +114,7 @@ export function NeumorphicInfoCard({
               />
             </div>
           ) : (
-            // Solid Border (used in withdrawal page)
+            
             <div 
               className="absolute left-1/2 top-[12px] -translate-x-1/2 rounded-[12px] border-2 border-solid"
               style={{ 
@@ -128,11 +128,10 @@ export function NeumorphicInfoCard({
         </>
       )}
 
-      {/* Content */}
+      {}
       <div className="relative w-full h-full">
         {children}
       </div>
     </div>
   )
 }
-

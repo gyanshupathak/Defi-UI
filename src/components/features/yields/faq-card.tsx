@@ -100,4 +100,3 @@ export function FAQCard({ item, isOpen, onToggle }: FAQCardProps) {
     </div>
   )
 }
-

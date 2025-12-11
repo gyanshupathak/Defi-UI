@@ -4,10 +4,10 @@ import { designTokens } from "@/lib/design-system"
 interface CurvedMetricSectionProps {
   label: string
   value: string
-  labelStartAngle: number // Starting angle for the label text (in degrees, 0° = top)
-  valueStartAngle: number // Starting angle for the value text (in degrees, 0° = top)
-  labelRadius: number // Radius for label (outer)
-  valueRadius: number // Radius for value (inner)
+  labelStartAngle: number 
+  valueStartAngle: number 
+  labelRadius: number 
+  valueRadius: number 
   centerX: number
   centerY: number
 }
@@ -28,7 +28,7 @@ export function CurvedMetricSection({
   centerY,
 }: CurvedMetricSectionProps) {
   
-  // Character width approximations - more precise for better spacing
+  
   const getCharWidth = (char: string, fontSize: number): number => {
     if (char === " ") return fontSize * 0.3
     if (char === ".") return fontSize * 0.25
@@ -42,7 +42,7 @@ export function CurvedMetricSection({
     return fontSize * 0.6
   }
 
-  // Render a single character at a specific position along the curve
+  
   const renderChar = (
     char: string,
     index: number,
@@ -54,34 +54,34 @@ export function CurvedMetricSection({
     opacity: number,
     color: string
   ) => {
-    // Skip rendering spaces but account for their width
+    
     if (char === " ") return null
 
-    // Calculate cumulative distance along the arc up to this character
+    
     let cumulativeDistance = 0
     for (let i = 0; i < index; i++) {
       cumulativeDistance += getCharWidth(text[i], fontSize)
     }
-    // Add half the current character width to center it
+    
     cumulativeDistance += getCharWidth(char, fontSize) / 2
 
-    // Convert distance to angle (arc length = radius * angle in radians)
+    
     const angleRad = cumulativeDistance / radius
     const angleDeg = (angleRad * 180) / Math.PI
     const currentAngle = startAngle + angleDeg
 
-    // Convert angle to radians for position calculation
-    // In CSS/math: 0° is right (3 o'clock), but we want 0° at top (12 o'clock)
-    // So we subtract 90° to convert
+    
+    
+    
     const angleForPosition = currentAngle - 90
     const angleRadFinal = (angleForPosition * Math.PI) / 180
 
-    // Calculate position on circle
+    
     const x = centerX + radius * Math.cos(angleRadFinal)
     const y = centerY + radius * Math.sin(angleRadFinal)
 
-    // Rotation: text should be perpendicular to the radius to follow the curve
-    // The rotation angle should match the angle at that point on the circle
+    
+    
     const rotation = currentAngle
 
     const fontFamily = "'Hanken Grotesk', sans-serif"
@@ -115,7 +115,7 @@ export function CurvedMetricSection({
 
   return (
     <>
-      {/* Label - "LIFETIME RETURNS" - Outer arc */}
+      {}
       {label.split("").map((char, index) =>
         renderChar(
           char,
@@ -130,7 +130,7 @@ export function CurvedMetricSection({
         )
       )}
 
-      {/* Value - "$5.6K" - Inner arc */}
+      {}
       {value.split("").map((char, index) =>
         renderChar(
           char,

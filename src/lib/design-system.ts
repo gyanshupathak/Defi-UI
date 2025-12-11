@@ -118,7 +118,7 @@ export const typography = {
 export const typographyClasses = {
   display1: "font-medium text-[40px] leading-normal font-sans",
   display2: "font-medium text-[32px] leading-normal font-sans",
-  display3: "font-medium text-[28px] leading-normal font-sans",
+  display3: "font-bold text-[24px] leading-normal font-sans",
   heading1: "font-medium text-[24px] leading-normal font-sans",
   heading2: "font-medium text-[20px] leading-[24px] font-sans",
   button: "font-normal text-[16px] leading-[26px] font-sans",
@@ -150,8 +150,8 @@ export const shadows = {
   yieldCardInner: 'inset -4px -4px 4px 0 rgba(0, 0, 0, 0.08), inset 4px 4px 4px 0 #FFFFFF',
   graphOuter: '4px 4px 12px 0 rgba(127, 86, 217, 0.12), -4px -4px 10px 0 #FFF',
   graphInner: '10px 10px 18px 0 rgba(127, 86, 217, 0.12) inset, -8px -8px 10px 0 rgba(255, 255, 255, 0.80) inset',
-  button: '-4px -4px 4px #FFF, 4px 4px 8px rgba(127, 86, 217, 0.15)',
-  buttonSmall: '-4px -4px 4px #FFF, 4px 4px 8px rgba(127, 86, 217, 0.15)',
+  button: '0px 12px 26px rgba(127, 86, 217, 0.35)',
+  buttonSmall: '0px 10px 22px rgba(127, 86, 217, 0.28)',
   navIcon: '4px 4px 5px 0px rgba(0,0,0,0.08), -4px -4px 5px 0px #FFFFFF',
   navButton: '4px 4px 8px 0px rgba(0,0,0,0.08), -4px -4px 8px 0px #FFFFFF',
   navContainer: 'inset 4px 4px 4px 0px rgba(0,0,0,0.08), inset -4px -4px 4px 0px #FFFFFF',
@@ -331,4 +331,3 @@ export const designTokens = {
 } as const
 
 export default designTokens
-

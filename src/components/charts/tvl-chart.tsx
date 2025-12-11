@@ -3,6 +3,9 @@
 import * as React from "react"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { UnifiedChartContainer } from "./unified-chart-container"
+import { ChartContainerWrapper } from "@/components/features/yields/chart-container-wrapper"
+import { EmptyChart } from "./empty-chart"
+import { AnimatedNumber } from "@/components/animations"
 import {
   BarChart,
   Bar,
@@ -11,7 +14,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts"
 
 interface ChartDataPoint {
@@ -24,35 +26,52 @@ interface ChartDataPoint {
 }
 
 interface TVLChartProps {
+  
   data?: number[]
+  
   totalValue?: string
+  
   date?: string
+  
   className?: string
+  
+  variant?: "home" | "yields"
+  
+  isEmpty?: boolean
 }
-
-// Default data - exact heights from Figma (in pixels, max 500px)
-const defaultData = [
-  100, 100, 100, 100, 100, 100, 100, 100, // First 8 bars at 100px
-  378, 319, 319, 419, 319, 319, 334, 334, 219, 387, 378, // Bars 9-19
-  425, 425, 413, 244, 244, 319, 169, 419, 419, 375, 354, // Bars 20-30
-  354, 419, 378, 257, 366, 500, 225, 225, 253, 253, 213, // Bars 31-41 (bar 36 is tallest at 500px)
-  260, 260, 249, 249, 369, 369, 433, 449, 470, 481, 487, 492, 492 // Bars 42-54 (ending high)
+const defaultHomeData = [
+  100, 100, 100, 100, 100, 100, 100, 100, 
+  378, 319, 319, 419, 319, 319, 334, 334, 219, 387, 378, 
+  425, 425, 413, 244, 244, 319, 169, 419, 419, 375, 354, 
+  354, 419, 378, 257, 366, 500, 225, 225, 253, 253, 213, 
+  260, 260, 249, 249, 369, 369, 433, 449, 470, 481, 487, 492, 492 
 ]
+const defaultYieldsData = [
+  73, 73, 73, 73, 73, 73, 73, 73,
+  274, 232, 232, 304, 232, 232, 242, 242,
+  158, 281, 274, 308, 308, 300, 177, 177,
+  232, 123, 304, 304, 272, 257, 257, 304,
+  274, 186, 266, 400, 163, 163, 183, 183,
+  155, 189, 189, 120, 120, 268, 268, 274,
+  232, 232, 304, 304, 272, 257,
+]
+const emptyStateData = Array(54).fill(200)
 
 const dates = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
-
-// Convert data array to ChartDataPoint format
 const formatDataForChart = (
   data: number[],
   defaultTotalValue: string,
-  defaultDate: string
+  defaultDate: string,
+  variant: "home" | "yields"
 ): ChartDataPoint[] => {
-  // Group bars by date (8 bars per day for first 6 days, 6 bars for last day)
+  
   const barsPerDay = [8, 8, 8, 8, 8, 8, 6]
-  let barIndex = 0
+  
+  
+  const maxBarHeight = variant === "home" ? 500 : 400
   
   return data.map((value, index) => {
-    // Find which date this bar belongs to
+    
     let dateIndex = 0
     let cumulativeBars = 0
     for (let i = 0; i < barsPerDay.length; i++) {
@@ -63,9 +82,7 @@ const formatDataForChart = (
       }
     }
     
-    // Calculate approximate value based on bar height (scaled to TVL)
-    // Assuming max bar height (500px) corresponds to max TVL
-    const maxBarHeight = 500
+    
     const scaleFactor = parseFloat(defaultTotalValue.replace(/[^0-9.]/g, '')) / maxBarHeight
     const calculatedValue = value * scaleFactor
     
@@ -80,57 +97,78 @@ const formatDataForChart = (
 }
 
 /**
- * TVLChart Component - Exact Figma Implementation with Hover States
+ * Unified TVLChart Component
  * 
- * Displays Total Value Locked with bar chart
- * All measurements, colors, and shadows from Figma design system
+ * Displays Total Value Locked with bar chart. Supports both home page and yields tab variants.
+ * Includes empty state handling with placeholder bars.
  * 
  * Props:
- * - data: Array of bar heights (default: 54 bars from Figma)
- * - dataPoints: Pre-formatted data points with dates/values (for yields page)
- * - totalValue: Default TVL amount to display (default: "$585,937")
- * - date: Default date to display (default: "12 November 2025")
+ * - variant: "home" (default) for home page, "yields" for yields tab
+ * - isEmpty: Show empty state with placeholder bars
+ * - data: Array of bar heights (optional, uses defaults per variant)
+ * - totalValue: Default TVL amount to display
+ * - date: Default date to display
  * - className: Additional CSS classes
- * - variant: "home" for home page (total TVL), "yields" for yields page (strategy TVL)
- * 
- * Exact Figma Specifications:
- * - Container: 668px × 716px
- * - Outer border radius: 16px
- * - Inner border radius: 12px
- * - Gap between containers: 12px
- * - Border: 2px solid rgba(255,255,255,0.64)
- * - Bar width: 10px, gap: 2px, max height: 500px
- * - Hover states: All bars dark initially, hovered bar stays dark, others lighten
  */
 export function TVLChart({ 
-  data = defaultData, 
-  totalValue = "$585,937",
-  date = "12 November 2025",
+  variant = "home",
+  isEmpty = false,
+  data,
+  totalValue = variant === "home" ? "$585,937" : "$185,053",
+  date = variant === "home" ? "12 November 2025" : "Current Date",
   className
 }: TVLChartProps) {
-  const [displayValue, setDisplayValue] = React.useState(totalValue)
+  
+  const initialValue = isEmpty ? "$0" : totalValue
+  const [displayValue, setDisplayValue] = React.useState(initialValue)
   const [displayDate, setDisplayDate] = React.useState(date)
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
+  
+  // Mark as no longer initial load after animation completes
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 1500) // After animation completes
+    return () => clearTimeout(timer)
+  }, [])
 
-  // Format data with index
-  const chartData = formatDataForChart(data, totalValue, date).map((item, index) => ({
+  
+  const chartDataArray = isEmpty 
+    ? emptyStateData 
+    : data || (variant === "home" ? defaultHomeData : defaultYieldsData)
+
+  
+  const chartData = formatDataForChart(chartDataArray, totalValue, date, variant).map((item, index) => ({
     ...item,
     index,
   }))
 
-  // Custom bar shape that handles hover directly
+  
   const CustomBarShape = (props: any) => {
     const { payload, x, y, width, height } = props
     const barIndex = payload?.index ?? chartData.findIndex(d => d.value === payload?.value && d.label === payload?.label)
     const isHovered = hoveredIndex === barIndex
-    const hasHover = hoveredIndex !== null
     
-    // All bars start light (opacity 0.25)
-    // On hover: hovered bar becomes dark (opacity 1), others stay light (opacity 0.25)
-    const opacity = isHovered ? 1 : 0.25
+    
+    
+    const getBarFill = () => {
+      if (isEmpty) {
+        
+        return "rgba(0, 0, 0, 0.15)"
+      }
+      return designTokens.colors.primary
+    }
+    
+    const getBarOpacity = () => {
+      if (isEmpty) {
+        return 1 
+      }
+      return isHovered ? 1 : 0.25
+    }
 
     const handleMouseEnter = () => {
-      if (barIndex >= 0 && barIndex < chartData.length) {
+      if (!isEmpty && barIndex >= 0 && barIndex < chartData.length) {
         setHoveredIndex(barIndex)
         const dataPoint = chartData[barIndex]
         if (dataPoint.formattedValue && dataPoint.formattedDate) {
@@ -141,9 +179,11 @@ export function TVLChart({
     }
 
     const handleMouseLeave = () => {
+      if (!isEmpty) {
       setHoveredIndex(null)
       setDisplayValue(totalValue)
       setDisplayDate(date)
+      }
     }
 
     return (
@@ -152,13 +192,13 @@ export function TVLChart({
         y={y}
         width={width}
         height={height}
-        fill={designTokens.colors.primary}
-        opacity={opacity}
+        fill={getBarFill()}
+        opacity={isEmpty ? 1 : getBarOpacity()}
         rx={2}
         ry={2}
         style={{
-          transition: "opacity 0.2s ease-in-out",
-          cursor: "pointer",
+          transition: isEmpty ? "none" : "opacity 0.2s ease-in-out",
+          cursor: isEmpty ? "default" : "pointer",
         }}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
@@ -166,9 +206,132 @@ export function TVLChart({
     )
   }
 
+  
+  if (isEmpty && variant === "yields") {
+    return (
+      <>
+        {}
+        <div 
+          className="absolute flex flex-col items-start"
+          style={{
+            left: designTokens.spacing.card.paddingX,
+            top: designTokens.spacing.card.paddingY,
+            gap: designTokens.spacing.text.headingTickerGap,
+          }}
+        >
+          <p 
+            className={typographyClasses.display1}
+            style={{ 
+              color: designTokens.colors.text.primary,
+            }}
+          >
+            {isInitialLoad && displayValue === initialValue ? (
+              displayValue.startsWith('$') ? (
+                <>
+                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+                </>
+              ) : (
+                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+              )
+            ) : (
+              displayValue
+            )}
+          </p>
+          <p 
+            className={typographyClasses.label1}
+            style={{ 
+              color: designTokens.colors.text.primary,
+              opacity: 0.5,
+            }}
+          >
+            {displayDate}
+          </p>
+        </div>
+
+        {}
+        <ChartContainerWrapper>
+          <EmptyChart
+            barCount={54}
+            barHeight={200}
+            maxDomain={400}
+            barsLeft="0"
+            barsTop="0"
+            barsWidth="100%"
+            barsHeight="100%"
+            dateLabelsLeft="24px"
+            dateLabelsTop="519.26px"
+            dateLabelsWidth="620px"
+          />
+        </ChartContainerWrapper>
+      </>
+    )
+  }
+
+  
+  if (isEmpty && variant === "home") {
+    return (
+      <UnifiedChartContainer className={className}>
+        <EmptyChart
+          barCount={54}
+          barHeight={200}
+          maxDomain={500}
+        />
+
+        {}
+        <div 
+          className="absolute flex flex-col"
+          style={{ 
+            left: designTokens.spacing.graph.tvlChart.contentPaddingX,
+            top: designTokens.spacing.graph.tvlChart.contentTop,
+            width: designTokens.spacing.graph.tvlChart.contentWidth,
+            gap: designTokens.spacing.text.labelHeadingGap,
+          }}
+        >
+          <div className="flex items-end w-full">
+            <p 
+              className={`flex-1 ${typographyClasses.label1}`}
+              style={{ color: designTokens.colors.graph.labelMuted }}
+            >
+              Total Value Locked
+            </p>
+          </div>
+          
+          <div 
+            className="flex flex-col items-start w-full leading-normal whitespace-pre-wrap"
+            style={{ 
+              gap: designTokens.spacing.graph.tvlChart.headerGap,
+              color: designTokens.colors.graph.heading,
+            }}
+          >
+            <p 
+              className={`${typographyClasses.display1} w-full`}
+              style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
+            >
+              {displayValue.startsWith('$') ? (
+                <>
+                  $<AnimatedNumber key={displayValue} value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+                </>
+              ) : (
+                <AnimatedNumber key={displayValue} value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+              )}
+            </p>
+            <p 
+              className={`${typographyClasses.label1} w-full`}
+              style={{ opacity: designTokens.spacing.graph.tvlChart.labelOpacity }}
+            >
+              {displayDate}
+            </p>
+          </div>
+        </div>
+      </UnifiedChartContainer>
+    )
+  }
+
+  
+  if (variant === "home") {
   return (
     <UnifiedChartContainer className={className}>
-      {/* Chart Bars Container - Direct Recharts Implementation */}
+        {}
       <div 
         className="absolute overflow-hidden"
         style={{ 
@@ -203,7 +366,7 @@ export function TVLChart({
         </ResponsiveContainer>
       </div>
 
-      {/* Date Labels - Exact Figma Position */}
+        {}
       <div 
         className="absolute flex items-center justify-between text-center"
         style={{ 
@@ -227,7 +390,7 @@ export function TVLChart({
         ))}
       </div>
 
-      {/* TVL Header - Exact Figma Position */}
+        {}
       <div 
         className="absolute flex flex-col"
         style={{ 
@@ -237,7 +400,6 @@ export function TVLChart({
           gap: designTokens.spacing.text.labelHeadingGap,
         }}
       >
-        {/* Label */}
         <div className="flex items-end w-full">
           <p 
             className={`flex-1 ${typographyClasses.label1}`}
@@ -247,7 +409,6 @@ export function TVLChart({
           </p>
         </div>
         
-        {/* Value and Date - Updates on hover */}
         <div 
           className="flex flex-col items-start w-full leading-normal whitespace-pre-wrap"
           style={{ 
@@ -259,7 +420,17 @@ export function TVLChart({
             className={`${typographyClasses.display1} w-full`}
             style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
           >
-            {displayValue}
+            {isInitialLoad && displayValue === initialValue ? (
+              displayValue.startsWith('$') ? (
+                <>
+                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+                </>
+              ) : (
+                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+              )
+            ) : (
+              displayValue
+            )}
           </p>
           <p 
             className={`${typographyClasses.label1} w-full`}
@@ -270,5 +441,79 @@ export function TVLChart({
         </div>
       </div>
     </UnifiedChartContainer>
+    )
+  }
+
+  
+  return (
+    <>
+      {}
+      <div 
+        className="absolute flex flex-col items-start"
+        style={{
+          left: designTokens.spacing.card.paddingX,
+          top: designTokens.spacing.card.paddingY,
+          gap: designTokens.spacing.text.headingTickerGap,
+        }}
+      >
+        <p 
+          className={typographyClasses.display1}
+          style={{ 
+            color: designTokens.colors.text.primary,
+          }}
+        >
+          {isInitialLoad && displayValue === initialValue ? (
+            displayValue.startsWith('$') ? (
+              <>
+                $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+              </>
+            ) : (
+              <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+            )
+          ) : (
+            displayValue
+          )}
+        </p>
+        <p 
+          className={typographyClasses.label1}
+          style={{ 
+            color: designTokens.colors.text.primary,
+            opacity: 0.5,
+          }}
+        >
+          {displayDate}
+        </p>
+      </div>
+
+      <ChartContainerWrapper>
+        <div
+          onMouseLeave={() => {
+            setHoveredIndex(null)
+            setDisplayValue(totalValue)
+            setDisplayDate(date)
+          }}
+          style={{ width: "100%", height: "100%" }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+              barCategoryGap="4px"
+            >
+              <CartesianGrid strokeDasharray="none" stroke="transparent" />
+              <XAxis hide />
+              <YAxis hide domain={[0, 400]} />
+              <Tooltip contentStyle={{ display: 'none' }} />
+              <Bar
+                dataKey="value"
+                fill={designTokens.colors.primary}
+                shape={CustomBarShape}
+                barSize={10}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </ChartContainerWrapper>
+    </>
   )
 }

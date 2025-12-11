@@ -5,15 +5,14 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { NavMenu, NavMenuItem } from "./nav-menu"
+import { Button } from "@/components/ui/button"
 
 interface NeumorphicNavProps {
   logoImage?: string
   settingsIcon?: string
   ethereumLogo?: string
-  activeMenuItem?: NavMenuItem
+  activeMenuItem?: NavMenuItem // Optional - will auto-detect from pathname if not provided
 }
-
-// Local images (downloaded from Figma)
 const DEFAULT_IMAGES = {
   logo: "/images/icons/logo.svg",
   settings: "/images/icons/setting-icon.svg",
@@ -33,23 +32,40 @@ export function NeumorphicNav({
   }
 
   return (
-    <nav 
-      className="relative w-full"
+    <div 
+      className="relative w-full z-10" 
       style={{ 
-        height: designTokens.spacing.navigation.height,
-        backgroundColor: designTokens.colors.background.main 
+        marginTop: '-12px',
+        marginBottom: '-12px',
+        paddingTop: '12px',
+        paddingBottom: '12px',
+        overflow: 'visible',
+        isolation: 'isolate',
+        transform: 'translateZ(0)',
       }}
     >
-      {/* Container with same padding and max-width as page content */}
-      <div 
-        className="relative w-full h-full flex items-center justify-center"
-        style={{ paddingLeft: designTokens.spacing.navigation.paddingX, paddingRight: designTokens.spacing.navigation.paddingX }}
+      <nav 
+        className="relative w-full"
+        style={{ 
+          height: designTokens.spacing.navigation.height,
+          backgroundColor: designTokens.colors.background.main,
+          overflow: 'visible',
+        }}
       >
+        {}
         <div 
-          className="relative w-full h-full flex items-center justify-between"
+          className="relative w-full h-full flex items-center justify-center"
+          style={{ 
+            paddingLeft: designTokens.spacing.layout.containerPadding, 
+            paddingRight: designTokens.spacing.layout.containerPadding,
+            overflow: 'visible',
+          }}
+        >
+        <div 
+          className="relative w-full h-full flex items-center justify-between mx-auto"
           style={{ maxWidth: designTokens.spacing.layout.maxWidth }}
         >
-        {/* Logo - Left Side */}
+        {}
         <button
           onClick={handleLogoClick}
           className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
@@ -87,15 +103,15 @@ export function NeumorphicNav({
           </p>
         </button>
 
-        {/* Navigation Items - Right Side */}
+        {}
         <div 
           className="flex items-center flex-shrink-0"
           style={{ gap: designTokens.spacing.navigation.itemsGap }}
         >
-          {/* Nav Menu Component - Reusable with all variants */}
+          {}
           <NavMenu activeItem={activeMenuItem} className="flex-shrink-0" />
 
-        {/* Settings Button */}
+        {}
         <button
           className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
           style={{ 
@@ -121,7 +137,7 @@ export function NeumorphicNav({
           />
         </button>
 
-        {/* Divider */}
+        {}
         <div className="flex flex-row items-center self-stretch">
           <div 
             className="h-full shrink-0"
@@ -132,7 +148,7 @@ export function NeumorphicNav({
           />
         </div>
 
-        {/* Ethereum Chain Button */}
+        {}
         <button
           className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
           style={{ 
@@ -158,30 +174,18 @@ export function NeumorphicNav({
           />
         </button>
 
-        {/* Connect Wallet Button */}
-        <button
-          className="flex items-center shrink-0 hover:opacity-90 transition-all active:scale-95"
-          style={{ 
-            height: designTokens.spacing.navigation.walletButtonHeight,
-            paddingLeft: designTokens.spacing.navigation.walletButtonPaddingX,
-            paddingRight: designTokens.spacing.navigation.walletButtonPaddingX,
-            paddingTop: designTokens.spacing.navigation.walletButtonPaddingY,
-            paddingBottom: designTokens.spacing.navigation.walletButtonPaddingY,
-            borderRadius: designTokens.spacing.navigation.walletButtonRadius,
-            backgroundColor: `${designTokens.colors.primary}26`, // 15% opacity (26 in hex)
-            boxShadow: designTokens.shadows.connectWallet
-          }}
+        {}
+        <Button
+          variant="outline"
+          size="sm"
+          className="shrink-0"
         >
-          <p 
-            className={typographyClasses.button}
-            style={{ color: designTokens.colors.primary }}
-          >
-            Connect Wallet
-          </p>
-        </button>
+          Connect Wallet
+        </Button>
         </div>
         </div>
       </div>
     </nav>
+    </div>
   )
 }

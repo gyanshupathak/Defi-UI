@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { designTokens, typographyClasses } from "@/lib/design-system"
+import { designTokens, shadows, typographyClasses } from "@/lib/design-system"
 import { WithdrawalRequestCard } from "./withdrawal-request-card"
+import { Button } from "@/components/ui/button"
 
 export interface WithdrawalRequest {
   id: string
@@ -20,6 +21,8 @@ export interface PortfolioRequestsProps {
   className?: string
   showEmptyState?: boolean
   emptyStateMessage?: string
+  emptyStateDescription?: string
+  onDepositClick?: () => void
 }
 
 const defaultRequests: WithdrawalRequest[] = [
@@ -51,7 +54,9 @@ export function PortfolioRequests({
   onCancelRequest,
   className,
   showEmptyState = true,
-  emptyStateMessage = "No withdrawal requests",
+  emptyStateMessage = "No Pending Withdrawals",
+  emptyStateDescription = "Ready to grow your funds? Start a secure on-chain deposit",
+  onDepositClick,
 }: PortfolioRequestsProps) {
   const handleCancel = (requestId: string) => {
     onCancelRequest?.(requestId)
@@ -60,20 +65,108 @@ export function PortfolioRequests({
   if (requests.length === 0 && showEmptyState) {
     return (
       <div
-        className={cn("flex items-center justify-center", className)}
+        className={cn(
+          "flex flex-col items-center justify-center text-center",
+          className
+        )}
         style={{
-          minHeight: "232px",
+          minHeight: "360px",
+          gap: "16px",
         }}
       >
-        <p
-          className={typographyClasses.label1}
+        <div
+          className="flex items-center justify-center rounded-full"
           style={{
-            color: designTokens.colors.text.primary,
-            opacity: 0.5,
+            width: "96px",
+            height: "96px",
+            backgroundColor: "rgba(127, 86, 217, 0.12)",
+            boxShadow: shadows.buttonSmall,
           }}
         >
-          {emptyStateMessage}
-        </p>
+          <div
+            className="flex flex-col items-center justify-center rounded-[12px]"
+            style={{
+              width: "64px",
+              height: "64px",
+              backgroundColor: designTokens.colors.background.white,
+              boxShadow: shadows.cardDefault,
+              gap: "6px",
+            }}
+          >
+            <div
+              className="flex flex-col items-center justify-center"
+              style={{ gap: "4px" }}
+            >
+              <div
+                className="rounded-[8px]"
+                style={{
+                  width: "24px",
+                  height: "14px",
+                  border: `2px solid ${designTokens.colors.primary}`,
+                  borderBottomWidth: "4px",
+                }}
+              />
+              <div
+                className="grid grid-cols-1 gap-[4px]"
+                style={{ width: "26px" }}
+              >
+                <div
+                  style={{
+                    height: "3px",
+                    backgroundColor: designTokens.colors.primary,
+                    borderRadius: "6px",
+                  }}
+                />
+                <div
+                  style={{
+                    height: "3px",
+                    backgroundColor: designTokens.colors.primary,
+                    borderRadius: "6px",
+                  }}
+                />
+                <div
+                  style={{
+                    height: "3px",
+                    backgroundColor: designTokens.colors.primary,
+                    borderRadius: "6px",
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className="flex flex-col items-center"
+          style={{ gap: "8px" }}
+        >
+          <p
+            className={typographyClasses.heading2}
+            style={{ color: designTokens.colors.text.primary }}
+          >
+            {emptyStateMessage}
+          </p>
+          <p
+            className={`${typographyClasses.label1} opacity-60`}
+            style={{
+              color: designTokens.colors.text.primary,
+              maxWidth: "280px",
+            }}
+          >
+            {emptyStateDescription}
+          </p>
+        </div>
+
+        <div style={{ marginTop: "8px" }}>
+          <Button
+            variant="blue"
+            showDepositIcon
+            style={{ width: "260px" }}
+            onClick={onDepositClick}
+          >
+            Make a Deposit
+          </Button>
+        </div>
       </div>
     )
   }
@@ -99,4 +192,3 @@ export function PortfolioRequests({
     </div>
   )
 }
-

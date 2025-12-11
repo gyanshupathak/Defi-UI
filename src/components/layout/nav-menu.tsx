@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 
@@ -40,15 +40,32 @@ const NAV_ITEMS: Exclude<NavMenuItem, "none">[] = [
 ]
 
 export function NavMenu({ 
-  activeItem = "none", 
+  activeItem: propActiveItem, 
   onItemClick,
   className 
 }: NavMenuProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const buttonRefs = React.useRef<Record<NavMenuItem, HTMLButtonElement | null>>(
     {} as Record<NavMenuItem, HTMLButtonElement | null>
   )
+
+  // Automatically determine active item from pathname if not provided
+  const activeItem = React.useMemo(() => {
+    if (propActiveItem !== undefined) {
+      return propActiveItem
+    }
+    
+    // Match pathname to menu item
+    for (const [key, config] of Object.entries(menuConfig)) {
+      if (pathname === config.path || pathname.startsWith(config.path + '/')) {
+        return key as NavMenuItem
+      }
+    }
+    
+    return "none"
+  }, [propActiveItem, pathname])
 
   const [activeRect, setActiveRect] = React.useState<{ left: number; width: number } | null>(null)
 
@@ -72,12 +89,12 @@ export function NavMenu({
     })
   }, [activeItem])
 
-  // Ensure container starts at the beginning to show leftmost tabs
+  
   React.useEffect(() => {
     const container = containerRef.current
     if (!container) return
     
-    // Start at scrollLeft 0 to show Yields and other left tabs
+    
     container.scrollLeft = 0
   }, [])
 
@@ -89,22 +106,22 @@ export function NavMenu({
 
     if (!container || !btn) return
 
-    // Use requestAnimationFrame to ensure layout is complete
+    
     requestAnimationFrame(() => {
       const containerScrollLeft = container.scrollLeft
       const containerWidth = container.clientWidth
       const btnOffsetLeft = btn.offsetLeft
       const btnWidth = btn.offsetWidth
       
-      // Calculate padding to ensure full visibility
+      
       const padding = 16
       
-      // Check if button is fully visible
+      
       const btnRight = btnOffsetLeft + btnWidth
       const visibleLeft = containerScrollLeft
       const visibleRight = containerScrollLeft + containerWidth
       
-      // If button is cut off on the right, scroll to show it fully
+      
       if (btnRight > visibleRight - padding) {
         const newScrollLeft = btnRight - containerWidth + padding
         const maxScroll = container.scrollWidth - containerWidth
@@ -113,7 +130,7 @@ export function NavMenu({
           behavior: "smooth",
         })
       }
-      // If button is cut off on the left, scroll to show it fully
+      
       else if (btnOffsetLeft < visibleLeft + padding) {
         const newScrollLeft = Math.max(0, btnOffsetLeft - padding)
         container.scrollTo({
@@ -136,7 +153,7 @@ export function NavMenu({
     <div
       ref={containerRef}
       className={cn(
-        "relative overflow-x-auto overflow-y-hidden scrollbar-hide",
+        "relative overflow-x-auto overflow-y-visible scrollbar-hide",
         className
       )}
       style={{
@@ -153,12 +170,17 @@ export function NavMenu({
         style={{
           height: designTokens.spacing.navigation.menu.height,
           paddingLeft: "4px",
-          paddingRight: "20px", // Increased padding to ensure last item is fully visible
+          paddingRight: "20px",
+          marginTop: '-12px',
+          marginBottom: '-12px',
+          paddingTop: '12px',
+          paddingBottom: '12px',
+          overflow: 'visible',
         }}
       >
-        {/* Neumorphic background pill */}
+        {}
         <div
-          className="absolute inset-0 overflow-hidden"
+          className="absolute inset-0"
           style={{
             borderRadius: designTokens.spacing.navigation.menu.radius,
             backgroundColor: designTokens.colors.background.main,
@@ -166,24 +188,26 @@ export function NavMenu({
           }}
         />
 
-        {/* Active tab pill – width & position come from measured button rect */}
+        {}
         {activeItem !== "none" && activeRect && (
           <div
-            className="absolute top-0 bottom-0 transition-all duration-200 z-10"
+            className="absolute transition-all duration-200 z-10"
             style={{
               left: activeRect.left,
               width: activeRect.width,
+              top: '-4px',
+              bottom: '-4px',
               borderRadius: designTokens.spacing.navigation.menu.radius,
               paddingTop: designTokens.spacing.navigation.menu.activeTabPaddingY,
               paddingBottom:
                 designTokens.spacing.navigation.menu.activeTabPaddingY,
               backgroundColor: designTokens.colors.background.main,
-              boxShadow: designTokens.shadows.navButton,
+              boxShadow: '-4px -4px 8px 0px #FFFFFF, 4px 4px 8px 0px rgba(0,0,0,0.08)',
             }}
           />
         )}
 
-        {/* Nav items */}
+        {}
         {NAV_ITEMS.map((key) => {
           const item = menuConfig[key]
           const isActive = activeItem === key

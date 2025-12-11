@@ -33,4 +33,3 @@ export function YieldsDateLabels({ dates = DEFAULT_DATES, className }: YieldsDat
     </div>
   )
 }
-

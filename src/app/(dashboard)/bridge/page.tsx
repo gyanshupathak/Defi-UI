@@ -3,16 +3,13 @@
 import * as React from "react"
 import Image from "next/image"
 import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
-import { PrimaryButton } from "@/components/ui/primary-button"
+import { Button } from "@/components/ui/button"
 import { PageContainer } from "@/components/ui/page-container"
 import { CircularPercentageSelector } from "@/components/ui/circular-percentage-selector"
-import { NetworkSelector, type Network } from "@/components/ui/network-selector"
-import { BridgeTokenSelector, type BridgeToken } from "@/components/ui/bridge-token-selector"
+import { UnifiedSelector, type Network, type BridgeToken } from "@/components/ui/unified-selector"
 import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
-
-// Token icon mapping
 const TOKEN_ICONS: Record<BridgeToken, string> = {
   syUSD: "/images/icons/USD-stable.svg",
   syETH: "/images/icons/ETH-stable.svg",
@@ -24,9 +21,9 @@ export default function BridgePage() {
   const [sourceNetwork, setSourceNetwork] = React.useState<Network>("Base")
   const [destNetwork, setDestNetwork] = React.useState<Network>("Katana")
   const [selectedToken, setSelectedToken] = React.useState<BridgeToken>("syUSD")
-  const balance = 115447.00 // Numeric balance for calculations
+  const balance = 115447.00 
 
-  // Calculate percentage based on amount
+  
   const percentage = React.useMemo(() => {
     const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
     if (amountNum === 0 || balance <= 0) return 0
@@ -34,7 +31,7 @@ export default function BridgePage() {
     return Math.min(100, Math.max(0, pct))
   }, [amount, balance])
 
-  // Handle amount input change
+  
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '')
 
@@ -42,52 +39,64 @@ export default function BridgePage() {
       setAmount('')
       return
     }
-    // Parse and format
+    
     const numValue = parseFloat(value)
     if (!isNaN(numValue) && numValue >= 0) {
-      // Limit to balance
+      
       const limitedValue = Math.min(numValue, balance)
       setAmount(limitedValue.toFixed(2))
     }
   }
 
-  // Handle percentage change from circular selector
+  
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
     setAmount(newAmount.toFixed(2))
   }
 
-  // Format balance for display
+  
   const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
     <div 
-      className="relative w-full h-screen overflow-hidden flex flex-col"
-      style={{ backgroundColor: designTokens.colors.background.main }}
+      className="relative w-full h-screen flex flex-col"
+      style={{ 
+        backgroundColor: designTokens.colors.background.main,
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      }}
     >
-      {/* Navigation */}
-      <NeumorphicNav activeMenuItem="bridge" />
+      {}
+      <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
+        <NeumorphicNav activeMenuItem="bridge" />
+      </div>
 
-      {/* Main Content */}
+      {}
       <PageContainer>
-        <div className="flex flex-col items-center pt-[80px] w-full">
-        {/* Bridge Card */}
+        <div 
+          className="flex w-full justify-center"
+          style={{ paddingTop: '80px' }}
+        >
+          <div className="flex flex-col items-start" style={{ width: '426px' }}>
+        {}
         <NeumorphicInputCard
           height={325}
           width={426}
           label="Bridge"
           rightElement={
-            <BridgeTokenSelector 
-              selectedToken={selectedToken}
-              onTokenChange={setSelectedToken}
+            <UnifiedSelector 
+              type="token"
+              selectedValue={selectedToken}
+              onValueChange={(value) => setSelectedToken(value as BridgeToken)}
+              tokenFilter="yields-only"
             />
           }
           insetContainers={[
-            { top: 52, height: 96, width: 402 },  // Network Selectors Area
-            { top: 160, height: 125, width: 402 }  // Amount Input Area
+            { top: 52, height: 96, width: 402 },  
+            { top: 160, height: 125, width: 402 }  
           ]}
         >
-          {/* Network Selectors */}
+          {}
           <div className="absolute left-[36px] top-[72px] flex flex-col gap-[8px] items-start">
             <div className="flex gap-[8px] items-center">
               <p 
@@ -100,7 +109,7 @@ export default function BridgePage() {
               >
                 Source Network
               </p>
-              {/* Info Icon */}
+              {}
               <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
                 <svg 
                   width="12" 
@@ -126,13 +135,14 @@ export default function BridgePage() {
                 </svg>
               </div>
             </div>
-            <NetworkSelector
-              selectedNetwork={sourceNetwork}
-              onNetworkChange={setSourceNetwork}
+            <UnifiedSelector
+              type="network"
+              selectedValue={sourceNetwork}
+              onValueChange={(value) => setSourceNetwork(value as Network)}
             />
           </div>
 
-          {/* Destination Network */}
+          {}
           <div className="absolute left-[230px] top-[72px] flex flex-col gap-[8px] items-start">
             <div className="flex gap-[8px] items-center">
               <p 
@@ -145,7 +155,7 @@ export default function BridgePage() {
               >
                 Destination Network
               </p>
-              {/* Info Icon */}
+              {}
               <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
                 <svg 
                   width="12" 
@@ -171,13 +181,14 @@ export default function BridgePage() {
                 </svg>
               </div>
             </div>
-            <NetworkSelector
-              selectedNetwork={destNetwork}
-              onNetworkChange={setDestNetwork}
+            <UnifiedSelector
+              type="network"
+              selectedValue={destNetwork}
+              onValueChange={(value) => setDestNetwork(value as Network)}
             />
           </div>
 
-          {/* Amount Input */}
+          {}
           <div className="absolute left-[36px] top-[190px] z-10">
             <input
               type="text"
@@ -192,9 +203,9 @@ export default function BridgePage() {
             />
           </div>
 
-          {/* Balance Display */}
+          {}
           <div className="absolute left-[36px] top-[245px] flex gap-[4px] items-center z-10">
-            {/* Wallet Icon */}
+            {}
             <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
               <Image
                 src="/images/icons/wallet-logo.svg"
@@ -212,7 +223,7 @@ export default function BridgePage() {
             </p>
           </div>
 
-          {/* Circular Percentage Selector */}
+          {}
           <div className="absolute left-[314px] top-[180px]">
           <CircularPercentageSelector 
             value={percentage}
@@ -221,7 +232,7 @@ export default function BridgePage() {
           />
           </div>
 
-          {/* Bridge Fee */}
+          {}
           <p 
             className={cn("absolute left-[24px] top-[297px] h-[16px] opacity-50", typographyClasses.label1)}
             style={{ 
@@ -232,9 +243,9 @@ export default function BridgePage() {
           </p>
         </NeumorphicInputCard>
 
-        {/* Bridge Button */}
+        {}
         <div className="relative mt-[32px] w-[426px]">
-          <PrimaryButton
+          <Button
             className="w-full"
             variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "default"}
             disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
@@ -242,7 +253,8 @@ export default function BridgePage() {
             size="sm"
           >
             Bridge
-          </PrimaryButton>
+          </Button>
+        </div>
         </div>
       </div>
       </PageContainer>

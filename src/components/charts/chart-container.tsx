@@ -46,7 +46,7 @@ export function ChartContainer({
         borderRadius: designTokens.spacing.graph.tvlChart.outerRadius,
       }}
     >
-      {/* Outer Container - Drop Shadow */}
+      {}
       <div 
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ 
@@ -58,7 +58,7 @@ export function ChartContainer({
         }}
       />
       
-      {/* Inner Container - Border + Inset Shadow */}
+      {}
       <div 
         className="absolute left-1/2 -translate-x-1/2 border-2 border-solid"
         style={{ 
@@ -73,9 +73,8 @@ export function ChartContainer({
         }}
       />
       
-      {/* Content */}
+      {}
       {children}
     </div>
   )
 }
-

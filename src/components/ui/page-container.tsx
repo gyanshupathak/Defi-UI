@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 interface PageContainerProps {
   children: React.ReactNode
   className?: string
-  /** Use absolute positioning for children (like portfolio page) */
+  
   useAbsolutePositioning?: boolean
 }
 
@@ -40,20 +40,20 @@ export function PageContainer({
       }}
     >
       {useAbsolutePositioning ? (
-        // For absolute positioning layouts (like portfolio)
-        // Ensure container has enough height for content + bottom padding
+        
+        
         <div 
           className="relative w-full"
           style={{ 
             maxWidth: designTokens.spacing.layout.maxWidth,
             margin: '0 auto',
-            minHeight: 'calc(100% - 48px)', // Account for top and bottom padding (24px each)
+            minHeight: 'calc(100% - 48px)', 
           }}
         >
           {children}
         </div>
       ) : (
-        // For flexbox layouts (like home, yields)
+        
         <div 
           className="flex-1 flex mx-auto"
           style={{ 
@@ -66,4 +66,3 @@ export function PageContainer({
     </div>
   )
 }
-

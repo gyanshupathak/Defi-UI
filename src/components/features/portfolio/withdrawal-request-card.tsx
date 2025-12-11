@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 
 const { popIn, popInHover } = shadows
-import { PrimaryButton } from "@/components/ui/primary-button"
+import { Button } from "@/components/ui/button"
 
 export interface WithdrawalRequestCardProps {
   date: string
@@ -148,7 +148,7 @@ export function WithdrawalRequestCard({
               width: "154px",
             }}
           >
-            <PrimaryButton
+            <Button
               variant="cancel"
               size="xs"
               onClick={onCancel}
@@ -156,11 +156,10 @@ export function WithdrawalRequestCard({
               className="w-full"
             >
               Cancel Request
-            </PrimaryButton>
+            </Button>
           </div>
         )}
       </div>
     </div>
   )
 }
-

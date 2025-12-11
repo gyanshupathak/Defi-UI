@@ -40,4 +40,3 @@ export function YieldsNoteCard({ label = "Note: ", content, className }: YieldsN
     </>
   )
 }
-

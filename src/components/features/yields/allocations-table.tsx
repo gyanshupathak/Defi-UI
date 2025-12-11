@@ -100,7 +100,7 @@ export function AllocationsTable({
       label: "Collateral",
       width: "90px",
       align: "right",
-      paddingRight: "8px", // Special padding for Collateral column
+      paddingRight: "8px",
     },
     {
       id: "collateralAmount",
@@ -127,7 +127,7 @@ export function AllocationsTable({
       switch (column.id) {
         case "strategy":
           return (
-            <div className="flex items-center gap-[8px]" style={{ minHeight: "48px", width: "100%" }}>
+            <div className="flex items-center gap-[8px]" style={{ minHeight: "40px", width: "100%" }}>
               <AllocationColorBar color={row.colorBar} />
               <div className="flex flex-col gap-[2px] items-start justify-center">
                 <p
@@ -234,7 +234,7 @@ export function AllocationsTable({
         getRowKey={(row) => row.id}
         renderCell={renderCellWithPadding}
         width="620px"
-        minRowHeight="48px"
+        minRowHeight="40px"
       />
     </div>
   )

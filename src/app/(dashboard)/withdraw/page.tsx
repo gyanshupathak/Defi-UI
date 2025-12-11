@@ -5,17 +5,17 @@ import { Suspense } from "react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
-import { PrimaryButton } from "@/components/ui/primary-button"
+import { Button } from "@/components/ui/button"
 import { PageContainer } from "@/components/ui/page-container"
-import { NetworkSelector, type Network } from "@/components/ui/network-selector"
+import { UnifiedSelector, type Network } from "@/components/ui/unified-selector"
 import { CircularPercentageSelector } from "@/components/ui/circular-percentage-selector"
 import { NeumorphicInfoCard } from "@/components/ui/neumorphic-info-card"
 import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
 import { NoteCard } from "@/components/ui/note-card"
 import { designTokens, typographyClasses, getPnlColor, shadows } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
+import { AnimatedNumber } from "@/components/animations"
 
-// Local image paths
 const USD_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const USDC_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const WALLET_ICON = "/images/icons/wallet-logo.svg"
@@ -29,7 +29,7 @@ function WithdrawPageContent() {
   const [amount, setAmount] = React.useState("120.00")
   const [selectedNetwork, setSelectedNetwork] = React.useState<Network>("Base")
   const balance = 115447.00
-  const exchangeRate = 1.03 // 1 syUSD = 1.03 USDC
+  const exchangeRate = 1.03
 
   const strategyConfig = {
     usd: {
@@ -63,7 +63,6 @@ function WithdrawPageContent() {
 
   const config = strategyConfig[variant]
 
-  // Calculate percentage based on amount
   const percentage = React.useMemo(() => {
     const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
     if (amountNum === 0 || balance <= 0) return 0
@@ -71,13 +70,11 @@ function WithdrawPageContent() {
     return Math.min(100, Math.max(0, pct))
   }, [amount, balance])
 
-  // Calculate received amount
   const receivedAmount = React.useMemo(() => {
     const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
     return (amountNum * exchangeRate).toFixed(2)
   }, [amount, exchangeRate])
 
-  // Handle amount input change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '')
     if (value === '') {
@@ -91,42 +88,42 @@ function WithdrawPageContent() {
     }
   }
 
-  // Handle percentage change from circular selector
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
     setAmount(newAmount.toFixed(2))
   }
 
-  // Format balance for display
   const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
     <div 
-      className="relative w-full h-screen overflow-hidden flex flex-col"
-      style={{ backgroundColor: designTokens.colors.background.main }}
+      className="relative w-full h-screen flex flex-col"
+      style={{ 
+        backgroundColor: designTokens.colors.background.main,
+        overflowX: 'hidden',
+        overflowY: 'auto',
+      }}
     >
-      {/* Navigation */}
-      <NeumorphicNav activeMenuItem="portfolio" />
+      <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
+        <NeumorphicNav activeMenuItem="portfolio" />
+      </div>
 
-      {/* Main Content*/}
       <PageContainer useAbsolutePositioning>
-
         <div 
           className="absolute flex flex-col gap-[32px]"
           style={{ 
-            left: '214px', 
-            top: '106px', 
+            left: '214px',
+            top: '106px',
             width: '356px',
           }}
         >
-          {/* Strategy Info Card*/}
+          {}
           <NeumorphicInfoCard
             height={228}
             width={356}
             showInnerBorder={true}
             useGradientBorder={false}
           >
-            {/* Token Info */}
             <div 
               className="absolute top-[40px] flex gap-[16px] items-center"
               style={{ 
@@ -134,7 +131,6 @@ function WithdrawPageContent() {
                 transform: 'translateX(-50%)'
               }}
             >
-              {/* Token Icon with neumorphic shadow */}
               <div 
                 className="flex items-center justify-center rounded-full w-[48px] h-[48px]"
                 style={{ 
@@ -179,7 +175,6 @@ function WithdrawPageContent() {
               </div>
             </div>
 
-            {/* PNL $ Display*/}
             <div 
               className="absolute left-[60px] top-[123px] flex flex-col gap-[2px] items-start"
             >
@@ -187,7 +182,7 @@ function WithdrawPageContent() {
                 className={cn(typographyClasses.display1, "text-right")}
                 style={{ color: getPnlColor(config.pnl) }}
               >
-                ${Math.abs(config.pnlAmount).toLocaleString()}
+                $<AnimatedNumber value={Math.abs(config.pnlAmount)} decimals={0} delay={0.1} duration={1.2} />
               </p>
               <p 
                 className={cn(typographyClasses.label1, "opacity-50")}
@@ -197,17 +192,16 @@ function WithdrawPageContent() {
               </p>
             </div>
 
-            {/* PNL % and syUSD Balance */}
             <div 
               className="absolute left-[197px] top-[108px] flex flex-col gap-[12px] items-end justify-center w-[107px]"
             >
-              {/* PNL % */}
               <div className="flex flex-col gap-[2px] items-end text-right">
                 <p 
                   className={cn(typographyClasses.label1, "leading-[20px]")}
                   style={{ color: getPnlColor(config.pnl) }}
                 >
-                  {config.pnl >= 0 ? '+' : ''}{config.pnl.toFixed(2)}%
+                  {config.pnl >= 0 ? '+' : ''}
+                  <AnimatedNumber value={Math.abs(config.pnl)} decimals={2} suffix="%" delay={0.1} duration={1.2} />
                 </p>
                 <p 
                   className={cn(typographyClasses.label1, "opacity-50")}
@@ -216,7 +210,6 @@ function WithdrawPageContent() {
                   PNL %
                 </p>
               </div>
-              {/* syUSD Balance */}
               <div className="flex flex-col gap-[2px] items-end text-right">
                 <p 
                   className={cn(typographyClasses.label1, "leading-[20px]")}
@@ -234,7 +227,7 @@ function WithdrawPageContent() {
             </div>
           </NeumorphicInfoCard>
 
-          {/* Note Card */}
+          {}
           <NoteCard
             height={112}
             width={356}
@@ -242,130 +235,141 @@ function WithdrawPageContent() {
           />
         </div>
 
-        {/* Withdrawal Form */}
+          {}
         <div 
-          className="absolute flex flex-col gap-[32px]"
+          className="absolute"
           style={{ 
-            left: '786px', 
-            top: '106px', 
-            width: '400px',
+            left: '620px',
+            top: '0px',
+            width: '756px',
+            height: '828px',
           }}
         >
-          {/* Withdraw Assets Card */}
-          <NeumorphicInputCard
-            height={189}
-            width={400}
-            label="Withdraw assets from"
-            rightElement={
-              <NetworkSelector 
-                selectedNetwork={selectedNetwork}
-                onNetworkChange={setSelectedNetwork}
-              />
-            }
-            insetContainers={{ top: 52, height: 125, width: 376 }}
+          <div 
+            className="absolute flex flex-col gap-[32px]"
+            style={{ 
+              left: '86px',
+              top: '106px',
+              width: '400px',
+            }}
           >
-            {/* Amount Input */}
-            <div className="absolute left-[36px] top-[82px] z-10">
-              <input
-                type="text"
-                value={amount}
-                onChange={handleAmountChange}
-                placeholder="0.00"
-                className={cn(
-                  typographyClasses.heading1,
-                  "font-bold bg-transparent border-none outline-none w-[101px]"
-                )}
-                style={{ 
-                  color: designTokens.colors.text.primary,
-                  caretColor: designTokens.colors.primary,
-                }}
-              />
-            </div>
-
-            {/* Balance Display */}
-            <div className="absolute left-[36px] top-[137px] flex gap-[4px] items-center z-10">
-              <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
-                <Image
-                  src={WALLET_ICON}
-                  alt="Wallet"
-                  width={16}
-                  height={16}
-                  className="object-contain w-full h-full"
+            {}
+            <NeumorphicInputCard
+              height={189}
+              width={400}
+              label="Withdraw assets from"
+              rightElement={
+                <UnifiedSelector 
+                  type="network"
+                  selectedValue={selectedNetwork}
+                  onValueChange={(value) => setSelectedNetwork(value as Network)}
+                />
+              }
+              insetContainers={{ top: 52, height: 125, width: 376 }}
+            >
+              {}
+              <div className="absolute left-[36px] top-[82px] z-10">
+                <input
+                  type="text"
+                  value={amount}
+                  onChange={handleAmountChange}
+                  placeholder="0.00"
+                  className={cn(
+                    typographyClasses.display3,
+                    "bg-transparent border-none outline-none w-[101px]"
+                  )}
+                  style={{ 
+                    color: designTokens.colors.text.primary,
+                    caretColor: designTokens.colors.primary,
+                  }}
                 />
               </div>
-              <p 
-                className={typographyClasses.label1}
-                style={{ color: designTokens.colors.text.primary }}
-              >
-                {formattedBalance}
-              </p>
-            </div>
 
-            {/* Circular Percentage Selector */}
-            <div className="absolute left-[288px] top-[72px]">
-              <CircularPercentageSelector 
-                value={percentage}
-                onValueChange={handlePercentageChange}
-                tokenIcon={config.icon}
-              />
-            </div>
-          </NeumorphicInputCard>
-
-          {/* You Will Receive Card */}
-          <NeumorphicInputCard
-            height={135}
-            width={400}
-            label="You will receive"
-            rightElement={
-              <div 
-                className="flex items-center px-[8px] py-[6px] rounded-[99px]"
-                style={{
-                  backgroundColor: designTokens.colors.background.main,
-                  boxShadow: shadows.tokenBadge
-                }}
-              >
-                <div className="flex gap-[8px] items-center">
-                  <div className="relative w-[16px] h-[16px]">
-                    <Image
-                      src={USDC_TOKEN_IMAGE}
-                      alt="USDC"
-                      width={16}
-                      height={16}
-                      className="object-contain w-full h-full"
-                    />
-                  </div>
-                  <p className={cn(typographyClasses.label1)}>
-                    USDC
-                  </p>
+              {}
+              <div className="absolute left-[36px] top-[137px] flex gap-[4px] items-center z-10">
+                <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
+                  <Image
+                    src={WALLET_ICON}
+                    alt="Wallet"
+                    width={16}
+                    height={16}
+                    className="object-contain w-full h-full"
+                  />
                 </div>
+                <p 
+                  className={typographyClasses.label1}
+                  style={{ color: designTokens.colors.text.primary }}
+                >
+                  {formattedBalance}
+                </p>
               </div>
-            }
-            insetContainers={{ top: 52, height: 71, width: 376 }}
-          >
-            {/* Received Amount Display */}
-            <div className="absolute left-[36px] top-[72px] w-[340px] z-10">
-              <p 
-                className={cn(typographyClasses.heading1, "whitespace-pre-wrap")}
-                style={{ color: designTokens.colors.text.primary }}
-              >
-                {receivedAmount}
-              </p>
-            </div>
-          </NeumorphicInputCard>
 
-          {/* Request Withdrawal Button */}
-          <div className="relative h-[56px] w-full">
-              <PrimaryButton
+              {}
+              <div className="absolute left-[288px] top-[72px]">
+                <CircularPercentageSelector 
+                  value={percentage}
+                  onValueChange={handlePercentageChange}
+                  tokenIcon={config.icon}
+                />
+              </div>
+            </NeumorphicInputCard>
+
+            {}
+            <NeumorphicInputCard
+              height={135}
+              width={400}
+              label="You will receive"
+              rightElement={
+                <div 
+                  className="flex items-center px-[8px] py-[6px] rounded-[99px]"
+                  style={{
+                    backgroundColor: designTokens.colors.background.main,
+                    boxShadow: shadows.tokenBadge
+                  }}
+                >
+                  <div className="flex gap-[8px] items-center">
+                    <div className="relative w-[16px] h-[16px]">
+                      <Image
+                        src={USDC_TOKEN_IMAGE}
+                        alt="USDC"
+                        width={16}
+                        height={16}
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
+                    <p className={cn(typographyClasses.label1)}>
+                      USDC
+                    </p>
+                  </div>
+                </div>
+              }
+              insetContainers={{ top: 52, height: 71, width: 376 }}
+            >
+              {}
+              <div className="absolute left-[36px] top-[72px] w-[340px] z-10">
+                <p 
+                  className={cn(typographyClasses.display3, "whitespace-pre-wrap")}
+                  style={{ color: designTokens.colors.text.primary }}
+                >
+                  {receivedAmount}
+                </p>
+              </div>
+            </NeumorphicInputCard>
+
+            {}
+            <div className="relative h-[56px] w-full">
+              <Button
                 className="w-full h-full"
-                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "withdraw"}
+                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "outline"}
                 disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
                 loading={false}
                 size="default"
-                showDepositIcon={true}
+                showWithdrawIcon={true}
               >
                 Request Withdrawal
-              </PrimaryButton>
+              </Button>
             </div>
+          </div>
         </div>
       </PageContainer>
     </div>

@@ -119,7 +119,7 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
           overflow: 'hidden',
         }}
       >
-        {/* Asset Exposure Section */}
+        {}
         <div className="flex flex-col gap-[8px] items-start justify-end" style={{ width: '170px', maxWidth: '170px', overflow: 'hidden' }}>
           <div className="flex items-start pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
             {tokenImages.map((img, index) => (
@@ -183,12 +183,12 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
           </p>
         </div>
 
-        {/* Divider */}
+        {}
         <div className="flex flex-row items-center self-stretch">
           <div className="bg-[#d9d9d9] h-full shrink-0 w-px" />
         </div>
 
-        {/* Protocol Exposure Section */}
+        {}
         <div className="flex items-start">
           <div className="flex flex-col gap-[8px] items-start justify-end" style={{ width: '170px', maxWidth: '170px', overflow: 'hidden' }}>
             <div className="flex items-start pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
