@@ -421,7 +421,7 @@ export function PortfolioActivity({
             top: "56px",
             right: "24px",
             backgroundColor: designTokens.colors.background.main,
-              boxShadow: "4px 4px 4px 0px rgba(127,86,217,0.15), -4px -4px 4px 0px #ffffff",
+              boxShadow: designTokens.shadows.cardDefault,
               minWidth: "381px",
             maxWidth: "calc(100% - 48px)",
               padding: "16px",
@@ -586,7 +586,7 @@ export function PortfolioActivity({
                   className="rounded-[99px] px-[24px] py-[8px] transition-all"
                   style={{
                     backgroundColor: designTokens.colors.background.main,
-                    boxShadow: "2px 2px 4px 0px rgba(127,86,217,0.15), -2px -2px 4px 0px #ffffff",
+                    boxShadow: designTokens.shadows.tokenBadge,
                   }}
                 >
                   <p
@@ -640,7 +640,6 @@ export function PortfolioActivity({
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                {/* Inbox/Tray base */}
                 <rect
                   x="20"
                   y="28"
@@ -651,8 +650,6 @@ export function PortfolioActivity({
                   stroke="#7F56D9"
                   strokeWidth="2"
                 />
-                
-                {/* Inbox top opening */}
                 <path
                   d="M20 32L40 20L60 20L80 32"
                   stroke="#7F56D9"
@@ -661,8 +658,6 @@ export function PortfolioActivity({
                   strokeLinejoin="round"
                   fill="none"
                 />
-                
-                {/* Inbox divider lines */}
                 <line
                   x1="30"
                   y1="48"
@@ -681,8 +676,6 @@ export function PortfolioActivity({
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
-                
-                {/* Exclamation mark badge circle */}
                 <circle
                   cx="28"
                   cy="72"
@@ -696,8 +689,6 @@ export function PortfolioActivity({
                   strokeWidth="2"
                   strokeLinecap="round"
                 />
-                
-                {/* Decorative lines above */}
                 <line
                   x1="68"
                   y1="20"

@@ -386,7 +386,7 @@ function DepositPageContent() {
             <div className="relative h-[56px] w-full">
               <Button
                 className="w-full h-full"
-                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "blue"}
+                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "default"}
                 disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
                 loading={false}
                 size="default"

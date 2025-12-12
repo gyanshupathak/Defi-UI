@@ -10,13 +10,9 @@ export interface AnimatedNumberPartialProps {
   className?: string
   delay?: number
   duration?: number
-  animateLastDigits?: number // Number of digits from the end to animate
+  animateLastDigits?: number
 }
 
-/**
- * AnimatedNumberPartial component that only animates the last N digits
- * Other digits stay fixed
- */
 export function AnimatedNumberPartial({
   value,
   decimals = 2,
@@ -26,12 +22,10 @@ export function AnimatedNumberPartial({
   duration = 1.2,
   animateLastDigits = 2,
 }: AnimatedNumberPartialProps) {
-  // Convert number to string with proper formatting
   const formattedValue = React.useMemo(() => {
     if (typeof value === "number") {
       return value.toFixed(decimals)
     }
-    // If it's a string, try to parse it as a number first to ensure proper formatting
     const numValue = parseFloat(value.toString())
     if (!isNaN(numValue)) {
       return numValue.toFixed(decimals)
@@ -39,13 +33,11 @@ export function AnimatedNumberPartial({
     return value.toString()
   }, [value, decimals])
 
-  // Split into digits and non-digits
   const parts = React.useMemo(() => {
     const result: Array<{ type: "digit" | "char"; value: string; index: number; shouldAnimate: boolean }> = []
     let digitIndex = 0
     const digits: Array<{ value: string; index: number }> = []
     
-    // First pass: collect all digits
     for (const char of formattedValue) {
       if (/\d/.test(char)) {
         digits.push({ value: char, index: digitIndex })
@@ -53,7 +45,6 @@ export function AnimatedNumberPartial({
       }
     }
     
-    // Second pass: build result with animation flags
     let currentDigitIndex = 0
     for (const char of formattedValue) {
       if (/\d/.test(char)) {
@@ -78,7 +69,6 @@ export function AnimatedNumberPartial({
     return result
   }, [formattedValue, animateLastDigits])
 
-  // Calculate the y-offset for each digit to show the target number
   const getDigitOffset = (targetDigit: string, digitIndex: number): string => {
     const target = parseInt(targetDigit, 10)
     const rotations = 0.5 + digitIndex * 0.1
@@ -105,10 +95,7 @@ export function AnimatedNumberPartial({
             </motion.span>
           )
         }
-
-        // Digit: animate only if shouldAnimate is true
         if (!part.shouldAnimate) {
-          // Static digit - no animation
           return (
             <span
               key={`digit-${partIndex}`}
@@ -118,8 +105,6 @@ export function AnimatedNumberPartial({
             </span>
           )
         }
-
-        // Animated digit
         const targetDigit = parseInt(part.value, 10)
         const digitIndex = part.index
 

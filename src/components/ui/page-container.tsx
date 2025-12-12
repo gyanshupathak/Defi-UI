@@ -11,15 +11,6 @@ interface PageContainerProps {
   useAbsolutePositioning?: boolean
 }
 
-/**
- * PageContainer Component
- * 
- * Provides consistent spacing across all pages:
- * - Top and bottom padding: 24px (contentPaddingY)
- * - Left and right padding: 56px (containerPadding)
- * - Max width: 1440px
- * - Ensures all pages start and end at the same point
- */
 export function PageContainer({ 
   children, 
   className,
@@ -40,8 +31,6 @@ export function PageContainer({
       }}
     >
       {useAbsolutePositioning ? (
-        
-        
         <div 
           className="relative w-full"
           style={{ 
@@ -53,7 +42,6 @@ export function PageContainer({
           {children}
         </div>
       ) : (
-        
         <div 
           className="flex-1 flex mx-auto"
           style={{ 

@@ -14,6 +14,9 @@ const TOKEN_ICONS: Record<BridgeToken, string> = {
   syUSD: "/images/icons/USD-stable.svg",
   syETH: "/images/icons/ETH-stable.svg",
   syBTC: "/images/icons/BTC Stable (1).svg",
+  USDC: "/images/icons/USD-stable.svg",
+  USDS: "/images/icons/USD-stable.svg",
+  SUSD: "/images/icons/USD-stable.svg",
 }
 
 export default function BridgePage() {

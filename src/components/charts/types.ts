@@ -1,8 +1,3 @@
-/**
- * Chart Types and Interfaces
- * Centralized type definitions for all chart components
- */
-
 export interface ChartDataPoint {
   x: number | string
   y: number

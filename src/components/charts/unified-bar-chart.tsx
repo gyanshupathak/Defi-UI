@@ -33,15 +33,6 @@ export interface UnifiedBarChartProps {
   radius?: [number, number, number, number]
 }
 
-/**
- * Unified Bar Chart Component with Hover States
- * 
- * Features:
- * - All bars start dark (full opacity)
- * - On hover: hovered bar stays dark, others lighten to opacity 0.2
- * - Supports dynamic value/date updates via onHover callback
- * - Can be used for TVL charts (home page and yields page)
- */
 export function UnifiedBarChart({
   data,
   barColor = designTokens.colors.primary,

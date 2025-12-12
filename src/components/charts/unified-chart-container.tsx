@@ -11,19 +11,6 @@ interface UnifiedChartContainerProps {
   height?: string | number
 }
 
-/**
- * UnifiedChartContainer Component
- * 
- * Provides the neumorphic box UI for both TVL and Portfolio charts.
- * This ensures consistent styling and spacing across all chart components.
- * 
- * Exact Figma Specifications:
- * - Outer container: 668px × 716px with 16px border radius
- * - Outer shadow: 4px 4px 12px 0px rgba(127,86,217,0.12), -4px -4px 10px 0px #ffffff
- * - Inner container: 644px × 692px with 12px border radius, 12px from top
- * - Inner border: 2px solid rgba(255,255,255,0.64)
- * - Inner shadow: inset 10px 10px 18px 0px rgba(127,86,217,0.12), inset -8px -8px 10px 0px rgba(255,255,255,0.8)
- */
 export function UnifiedChartContainer({ 
   children, 
   className,
@@ -40,7 +27,6 @@ export function UnifiedChartContainer({
         borderRadius: designTokens.spacing.graph.tvlChart.outerRadius,
       }}
     >
-      {}
       <div 
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-[16px]"
         style={{ 
@@ -50,8 +36,6 @@ export function UnifiedChartContainer({
           boxShadow: designTokens.shadows.graphOuter
         }}
       />
-      
-      {}
       <div 
         className="absolute left-1/2 -translate-x-1/2 border-2 border-solid rounded-[12px]"
         style={{ 
@@ -64,8 +48,6 @@ export function UnifiedChartContainer({
           boxShadow: designTokens.shadows.graphInner
         }}
       />
-      
-      {}
       {children}
     </div>
   )

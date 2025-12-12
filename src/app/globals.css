@@ -61,11 +61,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: var(--border-default);
   }
   
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
     font-family: 'Hanken Grotesk', sans-serif;
     overflow: hidden;
   }
@@ -142,7 +143,7 @@
   }
   
   .text-display-3 {
-    @apply font-medium text-[28px] leading-normal font-sans;
+    @apply font-medium text-[24px] leading-normal font-sans;
   }
   
   .text-heading-1 {
@@ -172,31 +173,18 @@
   .text-label-2 {
     @apply font-normal text-[8px] leading-normal font-sans;
   }
-}
-
-/* Custom Scrollbar Styling */
-@layer utilities {
-  /* Webkit browsers (Chrome, Safari, Edge) */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
+  
+  /* Button Icon Hover Animation - Only animates icon on hover, nothing else changes */
+  @keyframes iconFloat {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
   }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
-  }
-
-  /* Firefox */
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  
+  .button-icon-animate {
+    animation: iconFloat 0.6s ease-in-out infinite;
   }
 }

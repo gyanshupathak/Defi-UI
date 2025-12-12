@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { NavMenu, NavMenuItem } from "./nav-menu"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ interface NeumorphicNavProps {
   logoImage?: string
   settingsIcon?: string
   ethereumLogo?: string
-  activeMenuItem?: NavMenuItem // Optional - will auto-detect from pathname if not provided
+  activeMenuItem?: NavMenuItem
 }
 const DEFAULT_IMAGES = {
   logo: "/images/icons/logo.svg",
@@ -26,6 +26,10 @@ export function NeumorphicNav({
   activeMenuItem = "none",
 }: NeumorphicNavProps) {
   const router = useRouter()
+  const pathname = usePathname()
+
+  // Check if we're on bridge, deposit, or withdraw pages
+  const isBridgeContext = pathname === "/bridge" || pathname === "/deposit" || pathname === "/withdraw"
 
   const handleLogoClick = () => {
     router.push("/")
@@ -52,7 +56,6 @@ export function NeumorphicNav({
           overflow: 'visible',
         }}
       >
-        {}
         <div 
           className="relative w-full h-full flex items-center justify-center"
           style={{ 
@@ -65,7 +68,6 @@ export function NeumorphicNav({
           className="relative w-full h-full flex items-center justify-between mx-auto"
           style={{ maxWidth: designTokens.spacing.layout.maxWidth }}
         >
-        {}
         <button
           onClick={handleLogoClick}
           className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
@@ -102,16 +104,11 @@ export function NeumorphicNav({
             LUCIDLY
           </p>
         </button>
-
-        {}
         <div 
           className="flex items-center flex-shrink-0"
           style={{ gap: designTokens.spacing.navigation.itemsGap }}
         >
-          {}
           <NavMenu activeItem={activeMenuItem} className="flex-shrink-0" />
-
-        {}
         <button
           className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
           style={{ 
@@ -136,8 +133,6 @@ export function NeumorphicNav({
             }}
           />
         </button>
-
-        {}
         <div className="flex flex-row items-center self-stretch">
           <div 
             className="h-full shrink-0"
@@ -147,8 +142,6 @@ export function NeumorphicNav({
             }}
           />
         </div>
-
-        {}
         <button
           className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
           style={{ 
@@ -173,11 +166,9 @@ export function NeumorphicNav({
             }}
           />
         </button>
-
-        {}
         <Button
-          variant="outline"
-          size="sm"
+          variant="connectWallet"
+          isBridgeContext={isBridgeContext}
           className="shrink-0"
         >
           Connect Wallet

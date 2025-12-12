@@ -1,9 +1,4 @@
-/**
- * Charts Module - Centralized Exports
- * Following feature-sliced architecture
- */
 export { BaseChartContainer } from "./base-chart-container"
-export { ChartContainer } from "./chart-container" 
 export { UnifiedChartContainer } from "./unified-chart-container"
 export { TVLChart } from "./tvl-chart"
 export { UnifiedBarChart } from "./unified-bar-chart"

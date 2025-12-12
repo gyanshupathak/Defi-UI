@@ -33,15 +33,6 @@ export interface UnifiedStackedBarChartProps {
   radius?: { [key: string]: [number, number, number, number] } 
 }
 
-/**
- * Unified Stacked Bar Chart Component with Hover States
- * 
- * Features:
- * - All bars start dark (full opacity)
- * - On hover: hovered bar stays dark, others lighten to opacity 0.2
- * - Supports dynamic value/date updates via onHover callback
- * - Can be used for Portfolio and Allocations charts
- */
 export function UnifiedStackedBarChart({
   data,
   stackKeys,
@@ -155,7 +146,7 @@ export function UnifiedStackedBarChart({
               key={key}
               dataKey={key}
               stackId="a"
-              fill={colors[stackIndex] || "#7F56D9"}
+              fill={colors[stackIndex] || designTokens.colors.primary}
               radius={radius[key] || [0, 0, 0, 0]}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}

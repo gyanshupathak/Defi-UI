@@ -1564,8 +1564,8 @@ function Frame() {
 
 function RibbonBase() {
   return (
-    <div className="bg-gradient-to-b content-stretch flex from-[#e91e63] items-start justify-center px-[10.529px] py-[3.396px] relative shrink-0 to-[#aa0808]" data-name="Ribbon Base">
-      <p className="font-['Poppins:Bold',sans-serif] leading-[10.529px] not-italic relative shrink-0 text-[7.132px] text-center text-nowrap text-white whitespace-pre">Leverage Looping</p>
+    <div className="bg-gradient-to-b content-stretch flex from-[#9071fb] items-start justify-center px-[10.529px] py-[3.396px] relative shrink-0 to-[#5433c7]" data-name="Ribbon Base">
+      <p className="font-['Poppins:Bold',sans-serif] leading-[10.529px] not-italic relative shrink-0 text-[7.132px] text-center text-nowrap text-white whitespace-pre">Flagship</p>
     </div>
   );
 }
@@ -1592,8 +1592,8 @@ function RibbonBottom() {
         </g>
         <defs>
           <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1_478" x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
-            <stop stopColor="#E91E63" />
-            <stop offset="1" stopColor="#AA0808" />
+            <stop stopColor="#9071fb" />
+            <stop offset="1" stopColor="#5433c7" />
           </linearGradient>
         </defs>
       </svg>
@@ -1611,8 +1611,8 @@ function RibbonBottom1() {
         </g>
         <defs>
           <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1_491" x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
-            <stop stopColor="#E91E63" />
-            <stop offset="1" stopColor="#AA0808" />
+            <stop stopColor="#9071fb" />
+            <stop offset="1" stopColor="#5433c7" />
           </linearGradient>
         </defs>
       </svg>
@@ -1645,13 +1645,9 @@ function RibbonBottomsContainer() {
   );
 }
 
-function Ribbon() {
-  // Position ribbon directly above the central blue circle (Logo)
-  // Logo is positioned at top-[333px] and is 134px tall
-  // Logo top edge is at 333px, so ribbon should be positioned just above it
-  // Ribbon height is approximately 30px, so position it at around 300px to leave some space
+export function Ribbon() {
   return (
-    <div className="absolute content-stretch flex flex-col isolate items-center left-1/2 pb-[12.227px] pt-0 px-0 top-[300px] translate-x-[-50%]" data-name="Ribbon" style={{ zIndex: 20 }}>
+    <div className="relative content-stretch flex flex-col isolate items-center pb-[12.227px] pt-0 px-0" data-name="Ribbon">
       <RibbonBaseContainer />
       <RibbonBottomsContainer />
     </div>
@@ -1662,7 +1658,6 @@ export default function Frame2() {
   return (
     <div className="relative size-full">
       <Frame />
-      <Ribbon />
     </div>
   );
 }

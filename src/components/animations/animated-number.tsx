@@ -24,16 +24,13 @@ export function AnimatedNumber({
   const formattedValue = React.useMemo(() => {
     if (typeof value === "number") {
       const fixed = value.toFixed(decimals)
-      // Add comma formatting for whole numbers (when decimals = 0)
       if (decimals === 0) {
         return Math.floor(value).toLocaleString('en-US')
       }
-      // For decimal numbers, format the integer part with commas
       const parts = fixed.split('.')
       const integerPart = parseInt(parts[0], 10).toLocaleString('en-US')
       return parts.length > 1 ? `${integerPart}.${parts[1]}` : integerPart
     }
-    // If it's already a string, try to parse and format it
     const numValue = parseFloat(value.toString())
     if (!isNaN(numValue)) {
       if (decimals === 0) {
@@ -61,29 +58,16 @@ export function AnimatedNumber({
     return result
   }, [formattedValue])
 
-  // Calculate the y-offset for each digit to show the target number
   const getDigitOffset = (targetDigit: string, digitIndex: number): string => {
     const target = parseInt(targetDigit, 10)
-    // Add a subtle rotation (less than one full cycle) for a smooth effect
-    const rotations = 0.5 + digitIndex * 0.1 // Subtle stagger, less rotation
-    // Calculate total steps: 
-    // - Start at position 20 (showing digit 0 from our buffer)
-    // - Rotate by rotations * 10 steps (e.g., 0.5 * 10 = 5 steps)
-    // - Then move to target digit (from current position to target)
-    // Since we start at position 20 showing digit 0, and after rotation we're still at a position showing 0,
-    // we need to move to the target: position 20 + rotationSteps - target
+    const rotations = 0.5 + digitIndex * 0.1
     const rotationSteps = Math.floor(rotations * 10)
-    // After rotation, we're at digit (rotationSteps % 10)
-    // To get to target, we need: rotationSteps + (target - (rotationSteps % 10))
-    // But we need to handle wrapping: if target < (rotationSteps % 10), we need to go forward
     const currentDigitAfterRotation = rotationSteps % 10
     let additionalSteps = target - currentDigitAfterRotation
     if (additionalSteps < 0) {
-      additionalSteps += 10 // Wrap around
+      additionalSteps += 10
     }
     const totalSteps = rotationSteps + additionalSteps
-    // Each step is 1em (the height of one digit)
-    // Negative because we're moving the container up to reveal the target digit
     return `${-totalSteps}em`
   }
 
@@ -91,7 +75,6 @@ export function AnimatedNumber({
     <span className={`inline-flex items-baseline ${className}`}>
       {parts.map((part, partIndex) => {
         if (part.type === "char") {
-          // Non-digit characters (decimal point, etc.) just fade in
           return (
             <motion.span
               key={`char-${partIndex}`}
@@ -107,8 +90,6 @@ export function AnimatedNumber({
             </motion.span>
           )
         }
-
-        // Digit: create odometer effect
         const targetDigit = parseInt(part.value, 10)
         const digitIndex = part.index
 
@@ -138,8 +119,6 @@ export function AnimatedNumber({
                 willChange: "transform",
               }}
             >
-              {/* Render digits 0-9 multiple times for smooth scrolling */}
-              {/* Render enough cycles to cover rotations + target */}
               {Array.from({ length: 50 }, (_, i) => (
                 <div
                   key={i}

@@ -62,10 +62,10 @@ export default function Home() {
           <div 
             className="relative rounded-[12px] mt-[24px]"
             style={{
-              width: '668px',
+              width: designTokens.spacing.layout.yieldsMaxWidth,
               height: '42px',
               backgroundColor: designTokens.colors.background.main,
-              boxShadow: '4px 4px 4px 0px rgba(127,86,217,0.15), -4px -4px 4px 0px #fff',
+              boxShadow: '4px 4px 4px 0px rgba(127,86,217,0.15), -4px -4px 4px 0px white',
             }}
           >
             <div className="absolute inset-0 flex items-center px-[24px]">
@@ -82,7 +82,7 @@ export default function Home() {
               <Flame 
                 size={24}
                 className="shrink-0 ml-[24px]"
-                style={{ color: "#F7931A" }}
+                style={{ color: designTokens.colors.strategy.btc }}
               />
             </div>
           </div>

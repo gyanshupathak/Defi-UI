@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { Check, ChevronDown } from "lucide-react"
-import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
+import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 
 export type Network = "Base" | "Ethereum" | "Arbitrum" | "Katana"
@@ -43,8 +43,6 @@ const ASSETS_TOKENS: BridgeTokenOption[] = [
 
 const ALL_TOKENS: BridgeTokenOption[] = [...YIELDS_TOKENS, ...ASSETS_TOKENS]
 
-const NEUMORPHIC_INSET_SHADOW =
-  "inset 2px 2px 4px 0px rgba(0,0,0,0.08), inset -2px -2px 4px 0px #ffffff"
 
 type UnifiedSelectorType = "network" | "token"
 
@@ -56,21 +54,9 @@ interface UnifiedSelectorProps {
   label?: string
   disabled?: boolean
   placeholder?: string
-  tokenFilter?: "all" | "yields-only" // Controls token display: "all" shows all 6 tokens, "yields-only" shows only yields (syUSD, syETH, syBTC)
+  tokenFilter?: "all" | "yields-only"
 }
 
-/**
- * UnifiedSelector Component
- * 
- * A unified dropdown selector that can handle both network and token selection.
- * Uses the same dropdown menu design as the base APY tab dropdown (DropdownSelector).
- * 
- * Supports:
- * - Network selection: Base, Ethereum, Arbitrum, Katana
- * - Token selection: 
- *   - Yields: syUSD, syETH, syBTC
- *   - Assets: USDC, USDS, SUSD
- */
 export function UnifiedSelector({
   type,
   selectedValue,
@@ -150,7 +136,7 @@ export function UnifiedSelector({
         )}
         style={{ 
           backgroundColor: designTokens.colors.background.main,
-          boxShadow: isOpen ? NEUMORPHIC_INSET_SHADOW : shadows.tokenBadge
+          boxShadow: isOpen ? designTokens.shadows.inputInset : designTokens.shadows.tokenBadge
         }}
       >
         {selectedOption && (
@@ -183,8 +169,7 @@ export function UnifiedSelector({
               "transition-transform",
               isOpen && "rotate-180"
             )}
-            color="#9c9da2"
-            style={{ opacity: 0.6 }}
+            style={{ color: designTokens.colors.text.secondary, opacity: 0.6 }}
           />
         </div>
       </button>
@@ -195,10 +180,10 @@ export function UnifiedSelector({
           className="absolute top-full right-0 mt-2 z-50 rounded-bl-[12px] rounded-br-[12px] rounded-tr-[12px]"
           style={{
             backgroundColor: designTokens.colors.background.main,
-            boxShadow: '4px 4px 8px 0px rgba(0,0,0,0.08), -4px -4px 8px 0px #ffffff',
+            boxShadow: designTokens.shadows.dropdown,
             minWidth: type === "network" ? "180px" : "180px",
             width: type === "network" ? "180px" : "180px",
-            padding: '16px',
+            padding: designTokens.spacing.dropdown.paddingY,
           }}
         >
           {type === "network" ? (
@@ -266,12 +251,11 @@ export function UnifiedSelector({
             </div>
           ) : (
             <div className="flex flex-col gap-[8px]">
-              {/* Yields Section */}
               <div className="flex flex-col gap-[8px]">
                 {tokenFilter === "all" && (
                   <p
                     className="font-semibold text-[12px] leading-normal font-sans"
-                    style={{ color: "#9c9da2" }}
+                    style={{ color: designTokens.colors.text.secondary }}
                   >
                     Yields
                   </p>
@@ -339,13 +323,11 @@ export function UnifiedSelector({
                   ))}
                 </div>
               </div>
-
-              {/* Assets Section - Only show if tokenFilter is "all" */}
               {tokenFilter === "all" && (
                 <div className="flex flex-col gap-[8px]">
                   <p
                     className="font-semibold text-[12px] leading-normal font-sans"
-                    style={{ color: "#9c9da2" }}
+                    style={{ color: designTokens.colors.text.secondary }}
                   >
                     Assets
                   </p>

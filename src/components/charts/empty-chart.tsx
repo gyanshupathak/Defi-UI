@@ -13,40 +13,22 @@ import {
 } from "recharts"
 
 interface EmptyChartProps {
-  
   barCount?: number
-  
   barHeight?: number
-  
   maxDomain?: number
-  
   dates?: string[]
-  
   dateLabelsWidth?: string
-  
   dateLabelsLeft?: string
-  
   dateLabelsTop?: string
-  
   barsLeft?: string
-  
   barsTop?: string
-  
   barsWidth?: string
-  
   barsHeight?: string
-  
   className?: string
 }
 
 const DEFAULT_DATES = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
 
-/**
- * EmptyChart Component
- * 
- * Displays placeholder bars with black color at 0.15 opacity for empty chart states.
- * Used across TVL charts (home and yields) and Portfolio chart.
- */
 export function EmptyChart({
   barCount = 54,
   barHeight = 200,
@@ -61,13 +43,10 @@ export function EmptyChart({
   barsHeight,
   className,
 }: EmptyChartProps) {
-  
   const emptyData = Array(barCount).fill(null).map((_, index) => ({
     value: barHeight,
     index,
   }))
-
-  
   const EmptyBarShape = (props: any) => {
     const { x, y, width, height } = props
 
@@ -77,7 +56,7 @@ export function EmptyChart({
         y={y}
         width={width}
         height={height}
-        fill="rgba(0, 0, 0, 0.15)"
+        fill={designTokens.colors.text.muted}
         rx={2}
         ry={2}
       />
@@ -86,7 +65,6 @@ export function EmptyChart({
 
   return (
     <div className={className}>
-      {}
       <div 
         className="absolute overflow-hidden"
         style={{ 
@@ -108,15 +86,13 @@ export function EmptyChart({
             <Tooltip contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
-              fill="rgba(0, 0, 0, 0.15)"
+              fill={designTokens.colors.text.muted}
               shape={EmptyBarShape}
               barSize={10}
             />
           </BarChart>
         </ResponsiveContainer>
       </div>
-
-      {}
       <div 
         className="absolute flex items-center justify-between text-center"
         style={{ 

@@ -2,40 +2,15 @@
 
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
+import { designTokens, typographyClasses } from "@/lib/design-system"
 
 export interface NoteCardProps {
-  /**
-   * The note text content
-   */
   text: string
-  /**
-   * Height of the card in pixels
-   */
   height: number
-  /**
-   * Width of the card in pixels
-   * @default 356
-   */
   width?: number
-  /**
-   * Additional CSS classes
-   */
   className?: string
 }
 
-/**
- * NoteCard Component
- * 
- * A simple card for displaying informational notes with "Note:" prefix.
- * Used in deposit and withdrawal pages to show important information to users.
- * 
- * Features:
- * - Neumorphic styling
- * - Bold "Note:" prefix with regular text
- * - Configurable height and width
- * - Wraps text automatically
- */
 export function NoteCard({
   text,
   height,
@@ -50,16 +25,13 @@ export function NoteCard({
         width: `${width}px`,
       }}
     >
-      {}
       <div 
         className="absolute inset-0 rounded-[16px]"
         style={{ 
           backgroundColor: designTokens.colors.background.main,
-          boxShadow: shadows.noteCard
+          boxShadow: designTokens.shadows.noteCard
         }}
       />
-      
-      {}
       <p 
         className={cn(
           typographyClasses.label1,

@@ -16,17 +16,6 @@ interface CircularPercentageSelectorProps {
   className?: string
 }
 
-/**
- * CircularPercentageSelector Component
- * 
- * An interactive circular percentage selector with:
- * - Draggable indicator around a circle
- * - Token icon in the center
- * - Percentage labels (0% and MAX) below the circle
- * - Smooth animations and neumorphic styling
- * 
- * The selector starts from the bottom (0%) and moves clockwise.
- */
 export function CircularPercentageSelector({
   value = 0,
   onValueChange,

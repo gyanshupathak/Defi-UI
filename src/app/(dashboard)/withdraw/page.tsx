@@ -360,7 +360,7 @@ function WithdrawPageContent() {
             <div className="relative h-[56px] w-full">
               <Button
                 className="w-full h-full"
-                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "outline"}
+                variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "default"}
                 disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
                 loading={false}
                 size="default"

@@ -64,13 +64,13 @@ export function YieldStrategyCard({
         style={{ 
           backgroundColor: designTokens.colors.background.main,
           boxShadow: isHovered 
-            ? '-6px -6px 16px 0 #FFFFFF, 6px 6px 16px 0 rgba(0, 0, 0, 0.15)'
-            : '-4px -4px 12px 0 #FFFFFF, 4px 4px 12px 0 rgba(0, 0, 0, 0.1)'
+            ? designTokens.shadows.yieldCardOuterHover
+            : designTokens.shadows.yieldCardOuter
         }}
       >
         <div 
           className="absolute inset-0 pointer-events-none rounded-[16px] transition-all duration-200"
-          style={{ boxShadow: isHovered ? shadows.popInHover : shadows.popIn }}
+          style={{ boxShadow: isHovered ? designTokens.shadows.popInHover : designTokens.shadows.popIn }}
         />
       </div>
 
@@ -107,7 +107,7 @@ export function YieldStrategyCard({
           className="absolute right-[24px] top-[20px] flex flex-col items-end"
           style={{ gap: '2px' }}
         >
-          <p 
+          <div 
             className="font-normal text-[40px] leading-[normal] text-black"
           >
             <AnimatedNumber 
@@ -117,7 +117,7 @@ export function YieldStrategyCard({
               delay={0.1}
               duration={1.2}
             />
-          </p>
+          </div>
           <p 
             className="font-normal text-[12px] leading-[normal] text-black opacity-50"
           >
@@ -128,7 +128,7 @@ export function YieldStrategyCard({
 
       <div className="absolute left-[24px] top-[184px] w-[270px]">
         <Button
-          variant="blue"
+          variant={variant}
           size="sm"
           showDepositIcon
           className="w-full"

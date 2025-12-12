@@ -13,15 +13,6 @@ interface BaseChartContainerProps {
   variant?: "neumorphic" | "simple" | "dashboard"
 }
 
-/**
- * Base Chart Container Component
- * Unified container for all charts following the architecture design
- * 
- * Variants:
- * - neumorphic: Full neumorphic styling (for home page TVL chart)
- * - simple: Simple container (for dashboard tabs)
- * - dashboard: Dashboard-specific positioning wrapper
- */
 export function BaseChartContainer({ 
   children, 
   className,
@@ -30,7 +21,6 @@ export function BaseChartContainer({
   opacity = 1,
   variant = "simple"
 }: BaseChartContainerProps) {
-  
   if (variant === "neumorphic") {
     const containerWidth = width || designTokens.spacing.graph.tvlChart.width
     const containerHeight = height || designTokens.spacing.graph.tvlChart.height
@@ -45,7 +35,6 @@ export function BaseChartContainer({
           borderRadius: designTokens.spacing.graph.tvlChart.outerRadius,
         }}
       >
-        {}
         <div 
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ 
@@ -56,8 +45,6 @@ export function BaseChartContainer({
             boxShadow: designTokens.shadows.graphOuter
           }}
         />
-        
-        {}
         <div 
           className="absolute left-1/2 -translate-x-1/2 border-2 border-solid"
           style={{ 
@@ -71,14 +58,10 @@ export function BaseChartContainer({
             boxShadow: designTokens.shadows.graphInner
           }}
         />
-        
-        {}
         {children}
       </div>
     )
   }
-
-  
   if (variant === "dashboard") {
     return (
       <div 
@@ -95,8 +78,6 @@ export function BaseChartContainer({
       </div>
     )
   }
-
-  
   return (
     <div 
       className={cn("relative overflow-hidden", className)}

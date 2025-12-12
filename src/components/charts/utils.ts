@@ -1,13 +1,5 @@
-/**
- * Chart Utility Functions
- * Shared utilities for data transformation, scaling, and formatting
- */
-
 import { ChartDataPoint, ChartConfig } from "./types"
 
-/**
- * Normalize data to fit chart dimensions
- */
 export function normalizeChartData(
   data: ChartDataPoint[],
   config: ChartConfig
@@ -29,9 +21,6 @@ export function normalizeChartData(
   }))
 }
 
-/**
- * Generate SVG path for line chart
- */
 export function generateLinePath(
   data: ChartDataPoint[],
   config: ChartConfig
@@ -44,9 +33,6 @@ export function generateLinePath(
     .join(' ')
 }
 
-/**
- * Generate SVG path for area chart
- */
 export function generateAreaPath(
   data: ChartDataPoint[],
   config: ChartConfig,
@@ -71,9 +57,6 @@ export function generateAreaPath(
   return `${linePath} L ${lastX} ${baseline} L ${firstX} ${baseline} Z`
 }
 
-/**
- * Format large numbers for display
- */
 export function formatChartValue(value: number): string {
   if (value >= 1000000) {
     return `$${(value / 1000000).toFixed(1)}M`
@@ -84,16 +67,10 @@ export function formatChartValue(value: number): string {
   return `$${value.toFixed(2)}`
 }
 
-/**
- * Format percentage for display
- */
 export function formatPercentage(value: number, decimals: number = 2): string {
   return `${value.toFixed(decimals)}%`
 }
 
-/**
- * Calculate chart domain (min/max) for scaling
- */
 export function calculateDomain(
   data: ChartDataPoint[],
   padding: number = 0.1

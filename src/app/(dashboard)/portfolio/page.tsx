@@ -17,8 +17,8 @@ export default function PortfolioPage() {
   const [activeTab, setActiveTab] = React.useState("deposited")
   
   const hasDeposits = false
-  const hasWithdrawalRequests = false // Set to false to test empty state
-  const hasActivity = false // Set to false to test empty state
+  const hasWithdrawalRequests = false
+  const hasActivity = false
 
   const handleCancelRequest = (requestId: string) => {
     console.log("Cancel request:", requestId)
@@ -255,7 +255,6 @@ export default function PortfolioPage() {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        {/* Inbox/Tray base */}
                         <rect
                           x="20"
                           y="28"
@@ -266,8 +265,6 @@ export default function PortfolioPage() {
                           stroke="#7F56D9"
                           strokeWidth="2"
                         />
-                        
-                        {/* Inbox top opening */}
                         <path
                           d="M20 32L40 20L60 20L80 32"
                           stroke="#7F56D9"
@@ -276,8 +273,6 @@ export default function PortfolioPage() {
                           strokeLinejoin="round"
                           fill="none"
                         />
-                        
-                        {/* Inbox divider lines */}
                         <line
                           x1="30"
                           y1="48"
@@ -296,8 +291,6 @@ export default function PortfolioPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                         />
-                        
-                        {/* Exclamation mark badge circle */}
                         <circle
                           cx="28"
                           cy="72"
@@ -311,8 +304,6 @@ export default function PortfolioPage() {
                           strokeWidth="2"
                           strokeLinecap="round"
                         />
-                        
-                        {/* Decorative lines above */}
                         <line
                           x1="68"
                           y1="20"

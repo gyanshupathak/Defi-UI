@@ -10,33 +10,27 @@ interface PortfolioMetricTagProps {
 }
 
 export function PortfolioMetricTag({ value, className }: PortfolioMetricTagProps) {
-  // Determine if the value is positive or negative based on the sign
   const isPositive = value.startsWith("+")
   const isNegative = value.startsWith("-")
   const isDollar = value.startsWith("$")
   
-  // Determine styling based on value type
   let backgroundColor: string = designTokens.colors.background.main
   let borderColor: string = designTokens.colors.border.separator
   let textColor: string = designTokens.colors.text.primary
   
   if (isPositive) {
-    // For positive values (like +2.23%), use green background with green border
-    backgroundColor = 'rgba(37, 153, 82, 0.1)'
+    backgroundColor = designTokens.colors.status.successBg
     borderColor = designTokens.colors.pnl.positive
     textColor = designTokens.colors.pnl.positive
   } else if (isNegative) {
-    // For negative values, use red styling
     backgroundColor = designTokens.colors.status.errorBg
     borderColor = designTokens.colors.pnl.negative
     textColor = designTokens.colors.pnl.negative
   } else if (isDollar) {
-    // For dollar values (like $289.28), use green background with green border
-    backgroundColor = 'rgba(37, 153, 82, 0.1)'
+    backgroundColor = designTokens.colors.status.successBg
     borderColor = designTokens.colors.pnl.positive
     textColor = designTokens.colors.pnl.positive
   } else {
-    // For other neutral values, use default styling
     backgroundColor = designTokens.colors.background.main
     borderColor = designTokens.colors.border.separator
     textColor = designTokens.colors.text.secondary
@@ -59,8 +53,8 @@ export function PortfolioMetricTag({ value, className }: PortfolioMetricTagProps
         )}
         style={{
           color: textColor,
-          fontSize: "12px",
-          lineHeight: "normal",
+          fontSize: designTokens.typography.label1.fontSize,
+          lineHeight: designTokens.typography.label1.lineHeight,
           letterSpacing: isPositive ? "0.33px" : "normal",
         }}
       >

@@ -96,20 +96,6 @@ const formatDataForChart = (
   })
 }
 
-/**
- * Unified TVLChart Component
- * 
- * Displays Total Value Locked with bar chart. Supports both home page and yields tab variants.
- * Includes empty state handling with placeholder bars.
- * 
- * Props:
- * - variant: "home" (default) for home page, "yields" for yields tab
- * - isEmpty: Show empty state with placeholder bars
- * - data: Array of bar heights (optional, uses defaults per variant)
- * - totalValue: Default TVL amount to display
- * - date: Default date to display
- * - className: Additional CSS classes
- */
 export function TVLChart({ 
   variant = "home",
   isEmpty = false,
@@ -125,11 +111,10 @@ export function TVLChart({
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [isInitialLoad, setIsInitialLoad] = React.useState(true)
   
-  // Mark as no longer initial load after animation completes
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoad(false)
-    }, 1500) // After animation completes
+    }, 1500)
     return () => clearTimeout(timer)
   }, [])
 
@@ -155,7 +140,7 @@ export function TVLChart({
     const getBarFill = () => {
       if (isEmpty) {
         
-        return "rgba(0, 0, 0, 0.15)"
+        return designTokens.colors.text.muted
       }
       return designTokens.colors.primary
     }
@@ -219,7 +204,7 @@ export function TVLChart({
             gap: designTokens.spacing.text.headingTickerGap,
           }}
         >
-          <p 
+          <div 
             className={typographyClasses.display1}
             style={{ 
               color: designTokens.colors.text.primary,
@@ -236,7 +221,7 @@ export function TVLChart({
             ) : (
               displayValue
             )}
-          </p>
+          </div>
           <p 
             className={typographyClasses.label1}
             style={{ 
@@ -303,7 +288,7 @@ export function TVLChart({
               color: designTokens.colors.graph.heading,
             }}
           >
-            <p 
+            <div 
               className={`${typographyClasses.display1} w-full`}
               style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
             >
@@ -314,7 +299,7 @@ export function TVLChart({
               ) : (
                 <AnimatedNumber key={displayValue} value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
               )}
-            </p>
+            </div>
             <p 
               className={`${typographyClasses.label1} w-full`}
               style={{ opacity: designTokens.spacing.graph.tvlChart.labelOpacity }}
@@ -416,7 +401,7 @@ export function TVLChart({
             color: designTokens.colors.graph.heading,
           }}
         >
-          <p 
+          <div 
             className={`${typographyClasses.display1} w-full`}
             style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
           >
@@ -431,7 +416,7 @@ export function TVLChart({
             ) : (
               displayValue
             )}
-          </p>
+          </div>
           <p 
             className={`${typographyClasses.label1} w-full`}
             style={{ opacity: designTokens.spacing.graph.tvlChart.labelOpacity }}
@@ -456,7 +441,7 @@ export function TVLChart({
           gap: designTokens.spacing.text.headingTickerGap,
         }}
       >
-        <p 
+        <div 
           className={typographyClasses.display1}
           style={{ 
             color: designTokens.colors.text.primary,
@@ -473,7 +458,7 @@ export function TVLChart({
           ) : (
             displayValue
           )}
-        </p>
+        </div>
         <p 
           className={typographyClasses.label1}
           style={{ 

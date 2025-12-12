@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { designTokens, shadows } from "@/lib/design-system"
+import { designTokens } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 
 interface DashboardCardProps {
@@ -31,7 +31,7 @@ export function DashboardCard({
           width,
           height,
           backgroundColor: designTokens.colors.background.main,
-          boxShadow: shadows.cardDefault,
+          boxShadow: designTokens.shadows.cardDefault,
         }}
       />
       {children}

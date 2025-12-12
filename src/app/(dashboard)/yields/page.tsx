@@ -60,10 +60,8 @@ export default function YieldsPage() {
                 </p>
               </div>
             </div>
-
-            {/* Base Circular Component - centered */}
             <div 
-              className="flex items-center justify-center"
+              className="flex items-center justify-center relative"
               style={{
                 width: "636px",
               }}
