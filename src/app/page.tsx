@@ -14,9 +14,9 @@ export default function Home() {
 
   const tabs = [
     { id: "top-yields", label: "Top Yields" },
-    { id: "flagship", label: "Flagship" },
-    { id: "delta-neutral", label: "Delta neutral" },
-    { id: "leverage-looping", label: "Leverage Looping" },
+    { id: "flagship", label: "Flagship", icon: "/images/icons/flagship-icon.svg" },
+    { id: "delta-neutral", label: "Delta neutral", icon: "/images/icons/delta-neutral-icon.svg" },
+    { id: "leverage-looping", label: "Leverage Looping", icon: "/images/icons/leverage-looping-icon.svg" },
   ]
 
   return (

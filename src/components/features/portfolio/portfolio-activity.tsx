@@ -579,14 +579,15 @@ export function PortfolioActivity({
               </div>
 
               {}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-[8px]">
                 <button
                   type="button"
                   onClick={() => setPendingFilter({})}
-                  className="rounded-[99px] px-[24px] py-[8px] transition-all"
+                  className="rounded-[99px] px-[24px] py-[8px] transition-all flex-1"
                   style={{
                     backgroundColor: designTokens.colors.background.main,
                     boxShadow: designTokens.shadows.tokenBadge,
+                    minWidth: "100px",
                   }}
                 >
                   <p
@@ -596,25 +597,17 @@ export function PortfolioActivity({
                     Reset All
                   </p>
                 </button>
-                <div className="flex items-center gap-[8px]">
-                  <Button
-                    variant="cancel"
-                    size="xs"
-                    onClick={() => setShowFilters(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="default"
-                    size="xs"
-                    onClick={() => {
-                      handleFilterChange(pendingFilter)
-                      setShowFilters(false)
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </div>
+                <Button
+                  variant="default"
+                  size="xs"
+                  onClick={() => {
+                    handleFilterChange(pendingFilter)
+                    setShowFilters(false)
+                  }}
+                  style={{ minWidth: "100px", flex: 1 }}
+                >
+                  Apply
+                </Button>
               </div>
             </div>
           </div>

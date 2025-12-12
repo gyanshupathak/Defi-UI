@@ -150,14 +150,14 @@ const sizeMap: Record<
     paddingX: 24,
     gap: 8,
     icon: 20,
-    font: "font-['Hanken_Grotesk',sans-serif] font-semibold leading-[24px] text-[16px]",
+    font: "font-['Hanken_Grotesk',sans-serif] font-medium leading-[24px] text-[16px]",
   },
   sm: {
     height: 40,
     paddingX: 16,
     gap: 8,
     icon: 20,
-    font: "font-['Hanken_Grotesk',sans-serif] font-semibold leading-[20px] text-[14px]",
+    font: "font-['Hanken_Grotesk',sans-serif] font-medium leading-[20px] text-[14px]",
   },
   xs: {
     height: 32,
@@ -176,16 +176,18 @@ const DepositIcon = ({ size, color, isHovered }: { size: number; color: string; 
     viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={cn("shrink-0", isHovered && "button-icon-animate")}
+    className="shrink-0"
     style={{ transformOrigin: "center" }}
   >
-    <path
-      d="M15.2513 10V3.33333M15.2513 3.33333L17.5846 5.83333M15.2513 3.33333L12.918 5.83333"
-      stroke={color}
-      strokeWidth="0.666667"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <g className={cn(isHovered && "deposit-arrow-animate")}>
+      <path
+        d="M15.2513 10V3.33333M15.2513 3.33333L17.5846 5.83333M15.2513 3.33333L12.918 5.83333"
+        stroke={color}
+        strokeWidth="0.666667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </g>
     <path
       d="M11.6667 9.29387C11.6667 10.2846 9.61464 11.0877 7.08333 11.0877C4.55203 11.0877 2.5 10.2846 2.5 9.29387M11.6667 9.29387C11.6667 8.30314 9.61464 7.5 7.08333 7.5C4.55203 7.5 2.5 8.30314 2.5 9.29387M11.6667 9.29387V14.9745M2.5 9.29387V14.9745M11.6667 12.0843C11.6667 13.075 9.61464 13.8782 7.08333 13.8782C4.55203 13.8782 2.5 13.075 2.5 12.0843M11.6667 14.8728C11.6667 15.8635 9.61464 16.6667 7.08333 16.6667C4.55203 16.6667 2.5 15.8635 2.5 14.8728"
       stroke={color}
@@ -204,16 +206,18 @@ const WithdrawIcon = ({ size, color, isHovered }: { size: number; color: string;
     viewBox="0 0 20 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className={cn("shrink-0", isHovered && "button-icon-animate")}
+    className="shrink-0"
     style={{ transformOrigin: "center" }}
   >
-    <path
-      d="M15.2513 10V16.6667M15.2513 16.6667L17.5846 14.1667M15.2513 16.6667L12.918 14.1667"
-      stroke={color}
-      strokeWidth="0.666667"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
+    <g className={cn(isHovered && "withdraw-arrow-animate")}>
+      <path
+        d="M15.2513 10V16.6667M15.2513 16.6667L17.5846 14.1667M15.2513 16.6667L12.918 14.1667"
+        stroke={color}
+        strokeWidth="0.666667"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </g>
     <path
       d="M11.6667 10.7061C11.6667 9.71539 9.61464 8.91228 7.08333 8.91228C4.55203 8.91228 2.5 9.71539 2.5 10.7061M11.6667 10.7061C11.6667 11.6969 9.61464 12.5 7.08333 12.5C4.55203 12.5 2.5 11.6969 2.5 10.7061M11.6667 10.7061V5.02554M2.5 10.7061V5.02554M11.6667 7.91572C11.6667 6.925 9.61464 6.12188 7.08333 6.12188C4.55203 6.12188 2.5 6.925 2.5 7.91572M11.6667 5.12723C11.6667 4.13651 9.61464 3.33339 7.08333 3.33339C4.55203 3.33339 2.5 4.13651 2.5 5.12723"
       stroke={color}
@@ -274,12 +278,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       }
     }, [isInactive, loading, isHovered, buttonState])
 
-    const hasBorder = variant === "outline" || variant === "withdraw"
+    const hasBorder = variant === "outline"
     const styles = getButtonStyles(buttonState, finalBgColor, finalTextColor, hasBorder, size, variant)
     // Connect wallet button has specific dimensions with reduced height
     const isConnectWallet = variant === "connectWallet"
     const sizeTokens = isConnectWallet 
-      ? { height: 0, paddingX: 16, paddingY: 10, gap: 8, icon: 20, font: "font-['Hanken_Grotesk',sans-serif] font-semibold leading-[16px] text-[16px]" }
+      ? { height: 0, paddingX: 16, paddingY: 10, gap: 8, icon: 20, font: "font-['Hanken_Grotesk',sans-serif] font-medium leading-[16px] text-[16px]" }
       : (sizeMap[size] ?? sizeMap.default)
 
     // Determine icon to display

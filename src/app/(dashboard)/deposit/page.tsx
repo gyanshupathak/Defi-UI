@@ -13,7 +13,7 @@ import { NeumorphicInfoCard } from "@/components/ui/neumorphic-info-card"
 import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
 import { NoteCard } from "@/components/ui/note-card"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
-import { cn } from "@/lib/utils"
+import { cn, formatNumberWithCommas } from "@/lib/utils"
 import { AnimatedNumberPartial } from "@/components/animations"
 const USD_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const WALLET_ICON = "/images/icons/wallet-logo.svg"
@@ -77,21 +77,38 @@ function DepositPageContent() {
   }, [amount, config.conversionRate])
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '')
+    let value = e.target.value.replace(/[^0-9.]/g, '')
     if (value === '') {
       setAmount('')
       return
     }
+    
+    // Prevent multiple decimal points
+    const parts = value.split('.')
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('')
+    }
+    
     const numValue = parseFloat(value)
     if (!isNaN(numValue) && numValue >= 0) {
       const limitedValue = Math.min(numValue, balance)
-      setAmount(limitedValue.toFixed(2))
+      
+      // Preserve decimal places if user is typing, otherwise format to 2 decimals
+      if (value.includes('.')) {
+        const decimalPlaces = value.split('.')[1]?.length || 0
+        const formatted = decimalPlaces > 0 
+          ? formatNumberWithCommas(limitedValue.toFixed(Math.min(decimalPlaces, 2)))
+          : formatNumberWithCommas(limitedValue.toFixed(2))
+        setAmount(formatted)
+      } else {
+        setAmount(formatNumberWithCommas(limitedValue.toFixed(2)))
+      }
     }
   }
 
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
-    setAmount(newAmount.toFixed(2))
+    setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
   }
 
   const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

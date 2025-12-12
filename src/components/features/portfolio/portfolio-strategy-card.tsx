@@ -154,10 +154,24 @@ export function PortfolioStrategyCard({
 
         <div className="absolute left-[24px] top-[207px] w-[270px]">
           <Button
-            variant="outline"
+            variant={variant === "usd" ? "withdraw" : "default"}
             size="sm"
             showWithdrawIcon
             className="w-full"
+            bgColor={
+              variant === "eth" 
+                ? "rgba(98, 126, 234, 0.15)" 
+                : variant === "btc" 
+                ? "rgba(247, 147, 26, 0.15)"
+                : undefined
+            }
+            textColor={
+              variant === "eth" 
+                ? "rgba(98, 126, 234, 1)" 
+                : variant === "btc" 
+                ? "rgba(247, 147, 26, 1)"
+                : undefined
+            }
             onClick={(e) => {
               e.stopPropagation()
               handleWithdraw()

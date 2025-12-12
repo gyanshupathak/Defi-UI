@@ -56,9 +56,14 @@ export function EmptyChart({
         y={y}
         width={width}
         height={height}
-        fill={designTokens.colors.text.muted}
+        fill="#000000"
+        fillOpacity={1}
         rx={2}
         ry={2}
+        style={{
+          fill: "#000000",
+          fillOpacity: 0.2,
+        }}
       />
     )
   }
@@ -83,12 +88,11 @@ export function EmptyChart({
             <CartesianGrid strokeDasharray="none" stroke="transparent" />
             <XAxis hide />
             <YAxis hide domain={[0, maxDomain]} />
-            <Tooltip contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
-              fill={designTokens.colors.text.muted}
               shape={EmptyBarShape}
               barSize={10}
+              activeBar={false}
             />
           </BarChart>
         </ResponsiveContainer>

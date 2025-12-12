@@ -27,7 +27,11 @@ export function BaseAPYTab({
   isEmpty = false,
 }: BaseAPYTabProps) {
   const [timeRange, setTimeRange] = React.useState<TimeRange>("1M")
-  const displayValue = isEmpty ? "0.00%" : "16.23%"
+  const initialValue = isEmpty ? "0.00%" : "16.23%"
+  const [displayValue, setDisplayValue] = React.useState(initialValue)
+  const [displayDate, setDisplayDate] = React.useState(currentDate)
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
 
   const timeRangeOptions: DropdownOption<TimeRange>[] = [
     { id: "1M", label: "1M" },
@@ -103,6 +107,33 @@ export function BaseAPYTab({
   const yAxisDomain = isEmpty ? [0, 400] : ["auto", "auto"]
   const gradientId = isEmpty ? "colorBaseAPYEmpty" : "colorBaseAPY"
 
+  // Set initial load to false after animation completes
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoad(false)
+    }, 1500) // Match animation duration
+    return () => clearTimeout(timer)
+  }, [])
+
+  // Custom tooltip component to handle hover
+  const CustomTooltip = ({ active, payload }: any) => {
+    React.useEffect(() => {
+      if (active && payload && payload.length > 0 && !isEmpty) {
+        const dataIndex = payload[0].payload.x
+        const value = payload[0].value
+        setHoveredIndex(dataIndex)
+        setDisplayValue(`${value.toFixed(2)}%`)
+        setDisplayDate(currentDate)
+      } else if (!active && !isEmpty) {
+        setHoveredIndex(null)
+        setDisplayValue(initialValue)
+        setDisplayDate(currentDate)
+      }
+    }, [active, payload, isEmpty, currentDate, initialValue])
+
+    return null // Don't render anything, we just use it for hover detection
+  }
+
   return (
     <>
       <div 
@@ -119,7 +150,11 @@ export function BaseAPYTab({
             color: designTokens.colors.text.primary,
           }}
         >
-          <AnimatedNumber value={displayValue.replace('%', '')} decimals={2} suffix="%" delay={0.1} duration={1.2} />
+          {isInitialLoad && hoveredIndex === null && displayValue === initialValue ? (
+            <AnimatedNumber value={displayValue.replace('%', '')} decimals={2} suffix="%" delay={0.1} duration={1.2} />
+          ) : (
+            displayValue
+          )}
         </p>
         <p 
           className={typographyClasses.label1}
@@ -128,7 +163,7 @@ export function BaseAPYTab({
             opacity: 0.5,
           }}
         >
-          {currentDate}
+          {displayDate}
         </p>
       </div>
 
@@ -170,7 +205,7 @@ export function BaseAPYTab({
             <CartesianGrid strokeDasharray="none" stroke="transparent" />
             <XAxis hide />
             <YAxis hide domain={yAxisDomain as [number | "auto", number | "auto"]} />
-            <Tooltip contentStyle={{ display: 'none' }} />
+            <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="value"

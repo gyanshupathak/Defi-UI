@@ -131,12 +131,17 @@ export function UnifiedSelector({
         disabled={disabled}
         aria-expanded={isOpen}
         className={cn(
-          "flex items-center gap-[8px] px-[12px] py-[8px] rounded-[99px] shrink-0 transition-all relative z-10",
+          "flex items-center gap-[8px] rounded-[99px] shrink-0 transition-all relative z-10",
           disabled ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 active:scale-95 cursor-pointer"
         )}
         style={{ 
           backgroundColor: designTokens.colors.background.main,
-          boxShadow: isOpen ? designTokens.shadows.inputInset : designTokens.shadows.tokenBadge
+          boxShadow: isOpen ? designTokens.shadows.inputInset : designTokens.shadows.tokenBadge,
+          height: "28px",
+          paddingLeft: "16px",
+          paddingRight: "16px",
+          paddingTop: "6px",
+          paddingBottom: "6px",
         }}
       >
         {selectedOption && (
@@ -154,7 +159,7 @@ export function UnifiedSelector({
           </div>
         )}
         <p 
-          className="font-normal text-[14px] leading-normal font-sans"
+          className="font-normal text-[16px] leading-normal font-sans"
           style={{ 
             color: selectedOption ? designTokens.colors.text.primary : designTokens.colors.text.muted,
             fontWeight: 600
@@ -177,17 +182,20 @@ export function UnifiedSelector({
       {isOpen && !disabled && (
         <div
           role="listbox"
-          className="absolute top-full right-0 mt-2 z-50 rounded-bl-[12px] rounded-br-[12px] rounded-tr-[12px]"
+          className="absolute top-full right-0 mt-3 z-50 rounded-bl-[12px] rounded-br-[12px] rounded-tr-[12px]"
           style={{
             backgroundColor: designTokens.colors.background.main,
             boxShadow: designTokens.shadows.dropdown,
             minWidth: type === "network" ? "180px" : "180px",
             width: type === "network" ? "180px" : "180px",
-            padding: designTokens.spacing.dropdown.paddingY,
+            paddingTop: "12px",
+            paddingBottom: "12px",
+            paddingLeft: "12px",
+            paddingRight: "12px",
           }}
         >
           {type === "network" ? (
-            <div className="flex flex-col gap-[8px]">
+            <div className="flex flex-col gap-[12px]">
               {options.map((option) => (
                 <button
                   key={option.id}
@@ -204,10 +212,10 @@ export function UnifiedSelector({
                     "relative w-full flex items-center rounded-[99px] transition-all cursor-pointer"
                   )}
                   style={{
-                    paddingLeft: '8px',
-                    paddingRight: '8px',
-                    paddingTop: '8px',
-                    paddingBottom: '8px',
+                    paddingLeft: '12px',
+                    paddingRight: '12px',
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
                     backgroundColor:
                       hoveredId === option.id
                         ? designTokens.colors.background.gradient
@@ -250,8 +258,8 @@ export function UnifiedSelector({
               ))}
             </div>
           ) : (
-            <div className="flex flex-col gap-[8px]">
-              <div className="flex flex-col gap-[8px]">
+            <div className="flex flex-col gap-[12px]">
+              <div className="flex flex-col gap-[12px]">
                 {tokenFilter === "all" && (
                   <p
                     className="font-semibold text-[12px] leading-normal font-sans"
@@ -260,7 +268,7 @@ export function UnifiedSelector({
                     Yields
                   </p>
                 )}
-                <div className="flex flex-col gap-[8px]">
+                <div className="flex flex-col gap-[12px]">
                   {YIELDS_TOKENS.map((option) => (
                     <button
                       key={option.id}
@@ -324,14 +332,14 @@ export function UnifiedSelector({
                 </div>
               </div>
               {tokenFilter === "all" && (
-                <div className="flex flex-col gap-[8px]">
+                <div className="flex flex-col gap-[12px]">
                   <p
                     className="font-semibold text-[12px] leading-normal font-sans"
                     style={{ color: designTokens.colors.text.secondary }}
                   >
                     Assets
                   </p>
-                  <div className="flex flex-col gap-[8px]">
+                  <div className="flex flex-col gap-[12px]">
                     {ASSETS_TOKENS.map((option) => (
                     <button
                       key={option.id}

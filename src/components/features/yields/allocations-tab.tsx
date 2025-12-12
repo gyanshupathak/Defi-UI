@@ -15,7 +15,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts"
 
@@ -163,22 +162,25 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
       }
 
       return (
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          fill={fill}
-          opacity={opacity}
-          rx={radius[0]}
-          ry={radius[1]}
-          style={{
-            transition: "opacity 0.2s ease-in-out",
-            cursor: "pointer",
-          }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
+        <g style={{ pointerEvents: "none" }}>
+          <rect
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            fill={fill}
+            opacity={opacity}
+            rx={radius[0]}
+            ry={radius[1]}
+            style={{
+              transition: "opacity 0.2s ease-in-out",
+              cursor: "pointer",
+              pointerEvents: "auto",
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </g>
       )
     }
   }
@@ -279,25 +281,27 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
                 <CartesianGrid strokeDasharray="none" stroke="transparent" />
                 <XAxis hide />
                 <YAxis hide />
-                <Tooltip contentStyle={{ display: 'none' }} />
                 <Bar
                   dataKey="blue"
                   stackId="a"
                   fill="#2b66ff"
                   shape={createCustomBarShape("#2b66ff", [0, 0, 2, 2])}
                   barSize={10}
+                  activeBar={false}
                 />
                 <Bar
                   dataKey="purple"
                   stackId="a"
                   fill="#8198ee"
                   shape={createCustomBarShape("#8198ee", [0, 0, 0, 0])}
+                  activeBar={false}
                 />
                 <Bar
                   dataKey="orange"
                   stackId="a"
                   fill="#f9b666"
                   shape={createCustomBarShape("#f9b666", [2, 2, 0, 0])}
+                  activeBar={false}
                 />
               </BarChart>
             </ResponsiveContainer>

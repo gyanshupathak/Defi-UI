@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
+import { designTokens, typographyClasses } from "@/lib/design-system"
 import { UnifiedChartContainer } from "@/components/charts/unified-chart-container"
 import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-selector"
 import { EmptyChart } from "@/components/charts/empty-chart"
@@ -14,7 +14,6 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts"
 
@@ -33,13 +32,6 @@ interface PortfolioChartProps {
   className?: string
   isEmpty?: boolean
 }
-
-const filterTabs = [
-  { id: "total", label: "Total Portfolio Value" },
-  { id: "syusd", label: "syUSD" },
-  { id: "syeth", label: "syETH" },
-  { id: "sybtc", label: "syBTC" },
-]
 
 const chartData = [
   { segment1: 56, segment2: 142, segment3: 81 },
@@ -234,40 +226,14 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           style={{ 
             left: '36px',
             top: '32px',
-            width: '596px',
-            gap: '12px',
           }}
         >
-          <div className="flex items-center justify-between w-full">
-            <FilterTabSelector
-              options={filterOptions}
-              activeValue={activeFilter}
-              onValueChange={setActiveFilter}
-            />
-
-            <div className="flex items-center gap-[8px]">
-              <DropdownSelector
-                selectedValue={timePeriod}
-                onValueChange={setTimePeriod}
-                options={timeRangeOptions}
-                minWidth="80px"
-              />
-
-              <PortfolioMetricTag value="+0.00%" />
-            </div>
-          </div>
-
-          <div className="flex flex-col items-start w-full">
-            <div className="flex items-center gap-[8px]">
-              <p 
-                className={typographyClasses.heading1}
-                style={{ color: designTokens.colors.text.primary }}
-              >
-                <span style={{ opacity: 0.5 }}>$</span>0.00
-              </p>
-              <PortfolioMetricTag value="$0.00" />
-            </div>
-          </div>
+          <p 
+            className={typographyClasses.heading1}
+            style={{ color: designTokens.colors.text.primary }}
+          >
+            <span style={{ opacity: 0.5 }}>$</span>0.00
+          </p>
         </div>
       </UnifiedChartContainer>
     )
@@ -331,22 +297,25 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
       }
 
       return (
-        <rect
-          x={x}
-          y={adjustedY}
-          width={width}
-          height={adjustedHeight}
-          fill={fill}
-          opacity={opacity}
-          rx={radius[0]}
-          ry={radius[1]}
-          style={{
-            transition: "opacity 0.2s ease-in-out",
-            cursor: "pointer",
-          }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
+        <g style={{ pointerEvents: "none" }}>
+          <rect
+            x={x}
+            y={adjustedY}
+            width={width}
+            height={adjustedHeight}
+            fill={fill}
+            opacity={opacity}
+            rx={radius[0]}
+            ry={radius[1]}
+            style={{
+              transition: "opacity 0.2s ease-in-out",
+              cursor: "pointer",
+              pointerEvents: "auto",
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </g>
       )
     }
   }
@@ -376,25 +345,27 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
             <CartesianGrid strokeDasharray="none" stroke="transparent" />
             <XAxis hide />
             <YAxis hide domain={[0, 500]} />
-            <Tooltip contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="segment3"
               stackId="a"
               fill="transparent"
               shape={createCustomBarShape(barColor, [0, 0, 2, 2], 'segment3')}
               barSize={10}
+              activeBar={false}
             />
             <Bar
               dataKey="segment2"
               stackId="a"
               fill="transparent"
               shape={createCustomBarShape(barColor, [0, 0, 0, 0], 'segment2')}
+              activeBar={false}
             />
             <Bar
               dataKey="segment1"
               stackId="a"
               fill="transparent"
               shape={createCustomBarShape(barColor, [2, 2, 0, 0], 'segment1')}
+              activeBar={false}
             />
           </BarChart>
         </ResponsiveContainer>

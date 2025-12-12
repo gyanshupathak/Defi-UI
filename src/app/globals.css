@@ -187,4 +187,82 @@
   .button-icon-animate {
     animation: iconFloat 0.6s ease-in-out infinite;
   }
+
+  /* Deposit Arrow Animation - moves up and disappears, then appears from below */
+  @keyframes depositArrowHover {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    40% {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    41% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Withdraw Arrow Animation - moves down and disappears, then appears from above */
+  @keyframes withdrawArrowHover {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    40% {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    41% {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .deposit-arrow-animate {
+    animation: depositArrowHover 0.6s ease-in-out;
+  }
+
+  .withdraw-arrow-animate {
+    animation: withdrawArrowHover 0.6s ease-in-out;
+  }
+
+  /* Hide Recharts hover overlays that extend beyond bar height */
+  .recharts-active-bar,
+  .recharts-bar-rectangle[class*="active"],
+  .recharts-tooltip-wrapper,
+  .recharts-tooltip-cursor {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  /* Hide any Recharts-generated hover areas and overlays */
+  .recharts-bar > .recharts-active-bar,
+  .recharts-bar .recharts-active-bar,
+  .recharts-active-shape {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  /* Prevent Recharts from creating full-height hover areas */
+  /* But allow pointer events on custom bar shapes (rect elements inside g) */
+  .recharts-bar {
+    pointer-events: none;
+  }
+  
+  /* Allow pointer events on the actual bar rectangles - this overrides the parent */
+  .recharts-bar g > rect {
+    pointer-events: auto !important;
+  }
 }

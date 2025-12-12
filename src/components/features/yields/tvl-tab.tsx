@@ -16,7 +16,7 @@ export function TVLTab({
   return (
     <TVLChart
       variant="yields"
-      isEmpty={isEmpty}
+      isEmpty={false}
       totalValue={currentValue}
       date={currentDate}
     />

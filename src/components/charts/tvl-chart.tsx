@@ -105,18 +105,51 @@ export function TVLChart({
   className
 }: TVLChartProps) {
   
-  const initialValue = isEmpty ? "$0" : totalValue
-  const [displayValue, setDisplayValue] = React.useState(initialValue)
+  const defaultTotalValue = variant === "home" ? "$585,937" : "$185,053"
+  // Ensure initialValue is never "$0" unless isEmpty is true
+  const initialValue = isEmpty ? "$0" : (totalValue || defaultTotalValue)
+  const [displayValue, setDisplayValue] = React.useState(() => {
+    // Initialize with the correct value, never "$0" unless empty
+    if (isEmpty) return "$0"
+    return totalValue || defaultTotalValue
+  })
   const [displayDate, setDisplayDate] = React.useState(date)
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [isInitialLoad, setIsInitialLoad] = React.useState(true)
   
+  // Initialize displayValue on mount if it's "$0" or incorrect
+  React.useEffect(() => {
+    if (!isEmpty && (displayValue === "$0" || !displayValue)) {
+      const valueToUse = totalValue || defaultTotalValue
+      setDisplayValue(valueToUse)
+      setDisplayDate(date)
+    }
+  }, [isEmpty, totalValue, defaultTotalValue, date, displayValue])
+  
+  // Update displayValue when totalValue prop changes (but only if not hovered)
+  React.useEffect(() => {
+    if (!isEmpty && hoveredIndex === null) {
+      const newValue = totalValue || defaultTotalValue
+      // Only update if current value is "$0" or if totalValue changed
+      if (displayValue === "$0" || displayValue !== newValue) {
+        setDisplayValue(newValue)
+        setDisplayDate(date)
+      }
+    }
+  }, [totalValue, date, isEmpty, hoveredIndex, variant, defaultTotalValue, displayValue])
+  
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoad(false)
+      // Ensure displayValue is correct when animation completes
+      if (!isEmpty && (displayValue === "$0" || !displayValue)) {
+        const valueToUse = totalValue || defaultTotalValue
+        setDisplayValue(valueToUse)
+        setDisplayDate(date)
+      }
     }, 1500)
     return () => clearTimeout(timer)
-  }, [])
+  }, [isEmpty, displayValue, totalValue, defaultTotalValue, date])
 
   
   const chartDataArray = isEmpty 
@@ -140,7 +173,7 @@ export function TVLChart({
     const getBarFill = () => {
       if (isEmpty) {
         
-        return designTokens.colors.text.muted
+        return "rgba(0, 0, 0, 1)"
       }
       return designTokens.colors.primary
     }
@@ -156,38 +189,50 @@ export function TVLChart({
       if (!isEmpty && barIndex >= 0 && barIndex < chartData.length) {
         setHoveredIndex(barIndex)
         const dataPoint = chartData[barIndex]
-        if (dataPoint.formattedValue && dataPoint.formattedDate) {
-          setDisplayValue(dataPoint.formattedValue)
-          setDisplayDate(dataPoint.formattedDate)
+        // Always update, even if formattedValue might be missing
+        if (dataPoint) {
+          if (dataPoint.formattedValue) {
+            setDisplayValue(dataPoint.formattedValue)
+          }
+          if (dataPoint.formattedDate) {
+            setDisplayDate(dataPoint.formattedDate)
+          }
         }
       }
     }
 
     const handleMouseLeave = () => {
       if (!isEmpty) {
-      setHoveredIndex(null)
-      setDisplayValue(totalValue)
-      setDisplayDate(date)
+        setHoveredIndex(null)
+        const valueToUse = totalValue || defaultTotalValue
+        setDisplayValue(valueToUse)
+        setDisplayDate(date)
       }
     }
 
     return (
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        fill={getBarFill()}
-        opacity={isEmpty ? 1 : getBarOpacity()}
-        rx={2}
-        ry={2}
-        style={{
-          transition: isEmpty ? "none" : "opacity 0.2s ease-in-out",
-          cursor: isEmpty ? "default" : "pointer",
-        }}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      />
+      <g style={{ pointerEvents: "none" }}>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={isEmpty ? "#000000" : getBarFill()}
+          fillOpacity={isEmpty ? 1 : undefined}
+          opacity={isEmpty ? 1 : getBarOpacity()}
+          rx={2}
+          ry={2}
+          style={{
+            fill: isEmpty ? "#000000" : undefined,
+            fillOpacity: isEmpty ? 1 : undefined,
+            transition: isEmpty ? "none" : "opacity 0.2s ease-in-out",
+            cursor: isEmpty ? "default" : "pointer",
+            pointerEvents: "auto",
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
+      </g>
     )
   }
 
@@ -340,12 +385,12 @@ export function TVLChart({
             <CartesianGrid strokeDasharray="none" stroke="transparent" />
             <XAxis hide />
             <YAxis hide domain={[0, 500]} />
-            <Tooltip contentStyle={{ display: 'none' }} />
             <Bar
               dataKey="value"
-              fill={designTokens.colors.primary}
+              fill="transparent"
               shape={CustomBarShape}
               barSize={10}
+              activeBar={false}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -448,15 +493,30 @@ export function TVLChart({
           }}
         >
           {isInitialLoad && displayValue === initialValue ? (
-            displayValue.startsWith('$') ? (
-              <>
-                $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-              </>
-            ) : (
-              <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-            )
+            (() => {
+              // Use totalValue prop if available, otherwise use displayValue, otherwise use default
+              const valueToParse = totalValue || displayValue || defaultTotalValue
+              let numericValue = parseFloat(valueToParse.replace(/[^0-9.]/g, ''))
+              
+              // Fallback to default if parsing fails or value is 0
+              if (!numericValue || isNaN(numericValue) || numericValue === 0) {
+                numericValue = 185053 // Default for yields variant
+              }
+              
+              return displayValue.startsWith('$') || valueToParse.startsWith('$') ? (
+                <>
+                  $<AnimatedNumber key="initial" value={numericValue} decimals={0} delay={0.1} duration={1.2} />
+                </>
+              ) : (
+                <AnimatedNumber key="initial" value={numericValue} decimals={0} delay={0.1} duration={1.2} />
+              )
+            })()
           ) : (
-            displayValue
+            (() => {
+              // When not initial load, ensure we never show "$0"
+              const valueToShow = displayValue && displayValue !== "$0" ? displayValue : (totalValue || defaultTotalValue)
+              return valueToShow
+            })()
           )}
         </div>
         <p 
@@ -488,12 +548,12 @@ export function TVLChart({
               <CartesianGrid strokeDasharray="none" stroke="transparent" />
               <XAxis hide />
               <YAxis hide domain={[0, 400]} />
-              <Tooltip contentStyle={{ display: 'none' }} />
               <Bar
                 dataKey="value"
                 fill={designTokens.colors.primary}
                 shape={CustomBarShape}
                 barSize={10}
+                activeBar={false}
               />
             </BarChart>
           </ResponsiveContainer>

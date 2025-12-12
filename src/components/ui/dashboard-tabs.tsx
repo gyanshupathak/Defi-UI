@@ -3,11 +3,13 @@
 import * as React from "react"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
+import { Icon } from "./icon"
 
 export interface Tab {
   id: string
   label: string
   badge?: number
+  icon?: string
 }
 
 export interface DashboardTabsProps {
@@ -50,15 +52,29 @@ export function DashboardTabs({
           }}
         >
           <div 
-            className="flex items-center gap-[4px] justify-center h-full mb-[-3px] px-[3px] py-0 whitespace-nowrap"
+            className="flex items-center gap-[8px] justify-center h-full mb-[-3px] px-[3px] py-0 whitespace-nowrap"
             style={{
               fontFamily: "'Hanken Grotesk', sans-serif",
               fontSize: '14px',
               fontWeight: 400,
               lineHeight: 'normal',
               color: activeTab === tab.id ? designTokens.colors.primary : '#1d2d3e',
+              opacity: activeTab === tab.id ? 1 : 0.6,
             }}
           >
+            {tab.icon && (
+              <Icon
+                src={tab.icon}
+                className="shrink-0"
+                style={{
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              />
+            )}
             <p className="leading-[normal]">{tab.label}</p>
             {tab.badge !== undefined && tab.badge > 0 && (
               <div 

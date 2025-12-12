@@ -9,7 +9,7 @@ import { CircularPercentageSelector } from "@/components/ui/circular-percentage-
 import { UnifiedSelector, type Network, type BridgeToken } from "@/components/ui/unified-selector"
 import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
 import { designTokens, typographyClasses } from "@/lib/design-system"
-import { cn } from "@/lib/utils"
+import { cn, formatNumberWithCommas } from "@/lib/utils"
 const TOKEN_ICONS: Record<BridgeToken, string> = {
   syUSD: "/images/icons/USD-stable.svg",
   syETH: "/images/icons/ETH-stable.svg",
@@ -36,25 +36,40 @@ export default function BridgePage() {
 
   
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '')
+    let value = e.target.value.replace(/[^0-9.]/g, '')
 
     if (value === '') {
       setAmount('')
       return
     }
     
+    // Prevent multiple decimal points
+    const parts = value.split('.')
+    if (parts.length > 2) {
+      value = parts[0] + '.' + parts.slice(1).join('')
+    }
+    
     const numValue = parseFloat(value)
     if (!isNaN(numValue) && numValue >= 0) {
-      
       const limitedValue = Math.min(numValue, balance)
-      setAmount(limitedValue.toFixed(2))
+      
+      // Preserve decimal places if user is typing, otherwise format to 2 decimals
+      if (value.includes('.')) {
+        const decimalPlaces = value.split('.')[1]?.length || 0
+        const formatted = decimalPlaces > 0 
+          ? formatNumberWithCommas(limitedValue.toFixed(Math.min(decimalPlaces, 2)))
+          : formatNumberWithCommas(limitedValue.toFixed(2))
+        setAmount(formatted)
+      } else {
+        setAmount(formatNumberWithCommas(limitedValue.toFixed(2)))
+      }
     }
   }
 
   
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
-    setAmount(newAmount.toFixed(2))
+    setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
   }
 
   
@@ -247,13 +262,13 @@ export default function BridgePage() {
         </NeumorphicInputCard>
 
         {}
-        <div className="relative mt-[32px] w-[426px]">
+        <div className="relative h-[56px] w-[426px] mt-[32px]">
           <Button
-            className="w-full"
+            className="w-full h-full"
             variant={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0 ? "inactive" : "default"}
             disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
             loading={false}
-            size="sm"
+            size="default"
           >
             Bridge
           </Button>
