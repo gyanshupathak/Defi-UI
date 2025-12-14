@@ -178,7 +178,7 @@ export function BaseAPYTab({
           selectedValue={timeRange}
           onValueChange={setTimeRange}
           options={timeRangeOptions}
-          minWidth="80px"
+          minWidth="120px"
         />
         </div>
 

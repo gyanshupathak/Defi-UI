@@ -27,7 +27,7 @@ export function DropdownSelector<T extends string = string>({
   options,
   className,
   disabled = false,
-  minWidth = "120px",
+  minWidth = "320px",
 }: DropdownSelectorProps<T>) {
   const [isOpen, setIsOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -118,13 +118,15 @@ export function DropdownSelector<T extends string = string>({
       {isOpen && !disabled && (
         <div
           role="listbox"
-          className="absolute top-full right-0 mt-2 z-50 rounded-[12px] border border-solid"
+          className="absolute top-full right-0 mt-2 z-50 rounded-bl-[12px] rounded-br-[12px] rounded-tl-[12px]"
           style={{
             backgroundColor: designTokens.colors.background.main,
-            boxShadow: shadows.dropdown,
-            minWidth,
-            borderColor: designTokens.colors.border.white,
-            padding: '8px',
+            boxShadow: designTokens.shadows.dropdown,
+            width: minWidth,
+            paddingTop: "16px",
+            paddingBottom: "16px",
+            paddingLeft: "16px",
+            paddingRight: "16px",
           }}
         >
           <div className="flex flex-col gap-[8px]">
@@ -141,24 +143,26 @@ export function DropdownSelector<T extends string = string>({
                 role="option"
                 aria-selected={selectedValue === option.id}
                 className={cn(
-                  "relative w-full flex items-center justify-between rounded-[99px] transition-all cursor-pointer"
+                  "relative flex items-center justify-between rounded-[99px] transition-all cursor-pointer"
                 )}
                 style={{
-                  paddingLeft: designTokens.spacing.dropdown.paddingX,
-                  paddingRight: designTokens.spacing.dropdown.paddingX,
-                  paddingTop: designTokens.spacing.dropdown.paddingY,
-                  paddingBottom: designTokens.spacing.dropdown.paddingY,
+                  width: '100%',
+                  height: '36px',
+                  paddingLeft: '8px',
+                  paddingRight: '8px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
                   backgroundColor:
                     hoveredId === option.id
                       ? designTokens.colors.background.gradient
                       : "transparent",
                 }}
               >
-                <div className="flex items-center gap-[8px] min-w-0">
+                <div className="flex items-center min-w-0 flex-1">
                   {(option.icon || option.iconSrc) && (
                     <div
                       className="flex items-center justify-center rounded-full overflow-hidden shrink-0"
-                      style={{ width: '20px', height: '20px' }}
+                      style={{ width: '20px', height: '20px', marginRight: '8px' }}
                     >
                       {option.icon
                         ? option.icon
@@ -173,24 +177,26 @@ export function DropdownSelector<T extends string = string>({
                     </div>
                   )}
                   <p
-                  className={cn(
-                    "truncate text-[16px] leading-[20px] font-sans",
-                    selectedValue === option.id || hoveredId === option.id ? "font-medium" : "font-normal"
-                  )}
-                  style={{
-                    color: designTokens.colors.text.primary,
-                    opacity: selectedValue === option.id || hoveredId === option.id ? 1 : 0.8,
-                  }}
+                    className={cn(
+                      "text-[16px] leading-[20px] font-sans truncate",
+                      selectedValue === option.id || hoveredId === option.id ? "font-medium" : "font-normal"
+                    )}
+                    style={{
+                      color: designTokens.colors.text.primary,
+                      opacity: selectedValue === option.id || hoveredId === option.id ? 1 : 0.8,
+                    }}
                   >
                     {option.label}
                   </p>
                 </div>
                 {selectedValue === option.id && (
-                  <Check
-                    size={12}
-                    strokeWidth={2}
-                    style={{ color: designTokens.colors.status.success }}
-                  />
+                  <div className="shrink-0 ml-[8px]">
+                    <Check
+                      size={12}
+                      strokeWidth={2}
+                      style={{ color: designTokens.colors.status.success }}
+                    />
+                  </div>
                 )}
               </button>
             ))}

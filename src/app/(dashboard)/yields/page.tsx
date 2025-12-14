@@ -20,12 +20,12 @@ export default function YieldsPage() {
 
       <PageContainer>
         <div 
-          className="flex-1 flex"
+          className="flex-1 flex w-full"
           style={{ 
             gap: designTokens.spacing.card.gap 
           }}
         >
-          <div className="flex-shrink-0 flex flex-col items-start gap-6">
+          <div className="flex flex-col items-start gap-6" style={{ flex: '0 0 45%' }}>
             <div className="flex items-start gap-4">
               <div
                 style={{
@@ -61,20 +61,15 @@ export default function YieldsPage() {
               </div>
             </div>
             <div 
-              className="flex items-center justify-center relative"
-              style={{
-                width: "636px",
-              }}
+              className="flex items-center justify-center relative w-full"
             >
               <BaseCircularComponent />
             </div>
           </div>
 
           <div 
-            className="flex-1 flex flex-col"
-            style={{ 
-              maxWidth: designTokens.spacing.layout.yieldsMaxWidth,
-            }}
+            className="flex flex-col"
+            style={{ flex: '1 1 auto', marginLeft: '56px' }}
           >
             <YieldsDashboard
               currentValue="$185,053"

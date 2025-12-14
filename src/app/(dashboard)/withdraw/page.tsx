@@ -293,7 +293,7 @@ function WithdrawPageContent() {
                   placeholder="0.00"
                   className={cn(
                     typographyClasses.display3,
-                    "bg-transparent border-none outline-none w-[101px]"
+                    "bg-transparent border-none outline-none w-[180px]"
                   )}
                   style={{ 
                     color: designTokens.colors.text.primary,

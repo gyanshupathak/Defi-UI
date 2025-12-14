@@ -239,23 +239,65 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
     )
   }
 
-  const chartData = formatPortfolioData().map((item, index) => ({
+  const baseChartData = formatPortfolioData().map((item, index) => ({
     ...item,
     index,
   }))
 
+  // Transform data based on activeFilter to reorder segments
+  const getTransformedData = () => {
+    if (activeFilter === "syeth") {
+      // syETH selected: swap middle (segment2) and bottom (segment3)
+      // segment2 goes to bottom, segment3 goes to middle
+      return baseChartData.map(item => ({
+        ...item,
+        bottom: item.segment2, // syETH moves to bottom
+        middle: item.segment3, // segment3 moves to middle
+        top: item.segment1,    // segment1 stays on top
+      }))
+    } else if (activeFilter === "sybtc") {
+      // syBTC selected: move top (segment1/syBTC) to bottom
+      // segment1 goes to bottom, segment3 goes to middle, segment2 goes to top
+      return baseChartData.map(item => ({
+        ...item,
+        bottom: item.segment1, // syBTC moves to bottom
+        middle: item.segment3, // segment3 moves to middle
+        top: item.segment2,    // segment2 moves to top
+      }))
+    } else {
+      // Default order: segment3 (bottom), segment2 (middle), segment1 (top)
+      return baseChartData.map(item => ({
+        ...item,
+        bottom: item.segment3,
+        middle: item.segment2,
+        top: item.segment1,
+      }))
+    }
+  }
+
+  const chartData = getTransformedData()
+
   
-  const createCustomBarShape = (fill: string, radius: [number, number, number, number], segmentKey: 'segment1' | 'segment2' | 'segment3') => {
+  const createCustomBarShape = (fill: string, radius: [number, number, number, number], segmentKey: 'bottom' | 'middle' | 'top') => {
     return (props: any) => {
       const { payload, x, y, width, height } = props
       const barIndex = payload?.index ?? chartData.findIndex(d => 
-        d.segment1 === payload?.segment1 && 
-        d.segment2 === payload?.segment2 && 
-        d.segment3 === payload?.segment3
+        d.bottom === payload?.bottom && 
+        d.middle === payload?.middle && 
+        d.top === payload?.top
       )
       const isHovered = hoveredIndex === barIndex
       
-      
+      // Determine the fill color based on activeFilter and segmentKey
+      // Note: In stacked bars, bottom is rendered first, then middle, then top
+      let segmentFill = fill
+      if (activeFilter === "syusd" && segmentKey === "bottom") {
+        segmentFill = designTokens.colors.strategy.usd
+      } else if (activeFilter === "syeth" && segmentKey === "bottom") {
+        segmentFill = designTokens.colors.strategy.eth
+      } else if (activeFilter === "sybtc" && segmentKey === "bottom") {
+        segmentFill = designTokens.colors.strategy.btc
+      }
       
       const opacity = isHovered ? 1 : 0.25
 
@@ -267,15 +309,15 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
       let adjustedY = y
       let adjustedHeight = height
       
-      if (segmentKey === 'segment3') {
+      if (segmentKey === 'top') {
         
         adjustedY = y + 1
         adjustedHeight = height - 1
-      } else if (segmentKey === 'segment2') {
+      } else if (segmentKey === 'middle') {
         
         adjustedY = y + 1
         adjustedHeight = height - 2
-      } else if (segmentKey === 'segment1') {
+      } else if (segmentKey === 'bottom') {
         
         adjustedY = y + 1
         adjustedHeight = height - 1
@@ -296,25 +338,40 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
         setDisplayDate("")
       }
 
+      // Hover animation: scale up both width and height
+      const scale = isHovered ? 1.12 : 1
+      const centerX = x + width / 2
+      const bottomY = adjustedY + adjustedHeight
+      // Translate to keep bottom center fixed while scaling
+      const scaleTranslateX = centerX * (1 - scale)
+      const scaleTranslateY = bottomY * (1 - scale)
+
       return (
         <g style={{ pointerEvents: "none" }}>
-          <rect
-            x={x}
-            y={adjustedY}
-            width={width}
-            height={adjustedHeight}
-            fill={fill}
-            opacity={opacity}
-            rx={radius[0]}
-            ry={radius[1]}
+          <g
+            transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
             style={{
-              transition: "opacity 0.2s ease-in-out",
-              cursor: "pointer",
-              pointerEvents: "auto",
+              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          />
+          >
+            <rect
+              x={x}
+              y={adjustedY}
+              width={width}
+              height={adjustedHeight}
+              fill={segmentFill}
+              opacity={opacity}
+              rx={radius[0]}
+              ry={radius[1]}
+              style={{
+                transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), fill 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                cursor: "pointer",
+                pointerEvents: "auto",
+              }}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            />
+          </g>
         </g>
       )
     }
@@ -346,25 +403,25 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
             <XAxis hide />
             <YAxis hide domain={[0, 500]} />
             <Bar
-              dataKey="segment3"
+              dataKey="bottom"
               stackId="a"
               fill="transparent"
-              shape={createCustomBarShape(barColor, [0, 0, 2, 2], 'segment3')}
+              shape={createCustomBarShape(barColor, [0, 0, 2, 2], 'bottom')}
               barSize={10}
               activeBar={false}
             />
             <Bar
-              dataKey="segment2"
+              dataKey="middle"
               stackId="a"
               fill="transparent"
-              shape={createCustomBarShape(barColor, [0, 0, 0, 0], 'segment2')}
+              shape={createCustomBarShape(barColor, [0, 0, 0, 0], 'middle')}
               activeBar={false}
             />
             <Bar
-              dataKey="segment1"
+              dataKey="top"
               stackId="a"
               fill="transparent"
-              shape={createCustomBarShape(barColor, [2, 2, 0, 0], 'segment1')}
+              shape={createCustomBarShape(barColor, [2, 2, 0, 0], 'top')}
               activeBar={false}
             />
           </BarChart>

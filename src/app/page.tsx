@@ -34,12 +34,12 @@ export default function Home() {
 
       <PageContainer>
         <div 
-          className="flex-1 flex"
+          className="flex-1 flex w-full"
           style={{ 
             gap: designTokens.spacing.card.gap 
           }}
         >
-        <div className="flex-shrink-0 flex items-start">
+        <div className="flex-1 flex items-start">
           <TVLChart 
             isEmpty={false}
             totalValue="$585,937"
@@ -49,9 +49,6 @@ export default function Home() {
 
         <div 
           className="flex-1 flex flex-col"
-          style={{ 
-            maxWidth: designTokens.spacing.layout.yieldsMaxWidth,
-          }}
         >
           <DashboardTabs
             tabs={tabs}

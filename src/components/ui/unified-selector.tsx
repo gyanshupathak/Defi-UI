@@ -138,8 +138,8 @@ export function UnifiedSelector({
           backgroundColor: designTokens.colors.background.main,
           boxShadow: isOpen ? designTokens.shadows.inputInset : designTokens.shadows.tokenBadge,
           height: "28px",
-          paddingLeft: "16px",
-          paddingRight: "16px",
+          paddingLeft: "8px",
+          paddingRight: "8px",
           paddingTop: "6px",
           paddingBottom: "6px",
         }}
@@ -159,7 +159,7 @@ export function UnifiedSelector({
           </div>
         )}
         <p 
-          className="font-normal text-[16px] leading-normal font-sans"
+          className="font-normal text-[12px] leading-normal font-sans"
           style={{ 
             color: selectedOption ? designTokens.colors.text.primary : designTokens.colors.text.muted,
             fontWeight: 600
@@ -188,14 +188,14 @@ export function UnifiedSelector({
             boxShadow: designTokens.shadows.dropdown,
             minWidth: type === "network" ? "180px" : "180px",
             width: type === "network" ? "180px" : "180px",
-            paddingTop: "12px",
-            paddingBottom: "12px",
-            paddingLeft: "12px",
-            paddingRight: "12px",
+            paddingTop: "16px",
+            paddingBottom: "16px",
+            paddingLeft: "16px",
+            paddingRight: "16px",
           }}
         >
           {type === "network" ? (
-            <div className="flex flex-col gap-[12px]">
+            <div className="flex flex-col gap-[8px]">
               {options.map((option) => (
                 <button
                   key={option.id}
@@ -212,10 +212,11 @@ export function UnifiedSelector({
                     "relative w-full flex items-center rounded-[99px] transition-all cursor-pointer"
                   )}
                   style={{
-                    paddingLeft: '12px',
-                    paddingRight: '12px',
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
+                    height: '36px',
+                    paddingLeft: '8px',
+                    paddingRight: '8px',
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
                     backgroundColor:
                       hoveredId === option.id
                         ? designTokens.colors.background.gradient
@@ -285,6 +286,7 @@ export function UnifiedSelector({
                         "relative w-full flex items-center rounded-[99px] transition-all cursor-pointer"
                       )}
                       style={{
+                        height: '36px',
                         paddingLeft: '8px',
                         paddingRight: '8px',
                         paddingTop: '8px',
@@ -356,6 +358,7 @@ export function UnifiedSelector({
                         "relative w-full flex items-center rounded-[99px] transition-all cursor-pointer"
                       )}
                       style={{
+                        height: '36px',
                         paddingLeft: '8px',
                         paddingRight: '8px',
                         paddingTop: '8px',

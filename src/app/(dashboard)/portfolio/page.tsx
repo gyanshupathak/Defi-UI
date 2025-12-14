@@ -39,20 +39,17 @@ export default function PortfolioPage() {
 
       <PageContainer>
         <div 
-          className="flex-1 flex"
+          className="flex-1 flex w-full"
           style={{ 
             gap: designTokens.spacing.card.gap 
           }}
         >
-          <div className="flex-shrink-0 flex items-start">
+          <div className="flex-1 flex items-start">
             <PortfolioChart isEmpty={false}/>
           </div>
 
           <div 
             className="flex-1 flex flex-col"
-            style={{ 
-              maxWidth: '668px',
-            }}
           >
             <PortfolioTabs 
               activeTab={activeTab}

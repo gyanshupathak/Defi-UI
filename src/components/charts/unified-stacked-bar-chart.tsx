@@ -71,8 +71,6 @@ export function UnifiedStackedBarChart({
     const isHovered = hoveredIndex === index
     const hasHover = hoveredIndex !== null
     
-    
-    
     const opacity = hasHover ? (isHovered ? 1 : 0.25) : 1
 
     return (
@@ -81,8 +79,10 @@ export function UnifiedStackedBarChart({
         fill={fill}
         opacity={opacity}
         style={{
-          transition: "opacity 0.2s ease-in-out",
+          transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           cursor: "pointer",
+          transform: isHovered ? "scale(1.12)" : "scale(1)",
+          transformOrigin: "center bottom",
         }}
       />
     )

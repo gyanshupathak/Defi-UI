@@ -52,7 +52,7 @@ export function YieldsDashboard({
   const cardHeight = '640px'
 
   return (
-    <div className="relative" style={{ width: '668px' }}>
+    <div className="relative w-full">
       <DashboardTabs
         tabs={tabs}
         activeTab={activeTab}
@@ -60,9 +60,8 @@ export function YieldsDashboard({
       />
 
       <div 
-        className="relative"
+        className="relative w-full"
         style={{
-          width: '668px',
           height: cardHeight,
           marginTop: '24px',
         }}

@@ -213,7 +213,7 @@ export default function BridgePage() {
               value={amount}
               onChange={handleAmountChange}
               placeholder="0.00"
-              className="font-['Hanken_Grotesk',sans-serif] font-bold leading-normal text-[24px] bg-transparent border-none outline-none w-[101px]"
+              className="font-['Hanken_Grotesk',sans-serif] font-bold leading-normal text-[24px] bg-transparent border-none outline-none w-[180px]"
               style={{ 
                 color: designTokens.colors.text.primary,
                 caretColor: designTokens.colors.primary

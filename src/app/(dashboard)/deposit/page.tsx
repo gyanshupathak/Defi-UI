@@ -124,7 +124,7 @@ function DepositPageContent() {
       }}
     >
       <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
-        <NeumorphicNav activeMenuItem="yields" />
+        <NeumorphicNav activeMenuItem="none" />
       </div>
 
       <PageContainer useAbsolutePositioning>
@@ -330,7 +330,7 @@ function DepositPageContent() {
                   placeholder="0.00"
                   className={cn(
                     typographyClasses.display3,
-                    "bg-transparent border-none outline-none w-[101px]"
+                    "bg-transparent border-none outline-none w-[180px]"
                   )}
                   style={{ 
                     color: designTokens.colors.text.primary,

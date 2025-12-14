@@ -29,7 +29,7 @@ export function DashboardTabs({
 }: DashboardTabsProps) {
   return (
     <div 
-      className={cn("flex items-center gap-[32px] relative pb-[1px]", className)}
+      className={cn("flex items-center gap-[32px] relative pb-[1px] w-full", className)}
       style={{
         ...style,
       }}

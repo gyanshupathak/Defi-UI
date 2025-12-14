@@ -107,11 +107,13 @@ const getButtonStyles = (
   const borderWidth = variant === "connectWallet" ? "3px" : "4px"
   const shadow = variant === "connectWallet" ? connectWalletShadow : baseShadow
   
+  const baseBorder = hasBorder ? "1px solid #D5E2FF" : `${borderWidth} solid ${borderColor}`
+  
   const baseStyles = {
     background: bgColor,
     text: textColor,
     shadow: shadow,
-    border: hasBorder ? "1px solid #D5E2FF" : `${borderWidth} solid ${borderColor}`,
+    border: baseBorder,
   }
   
   switch (state) {
@@ -121,11 +123,11 @@ const getButtonStyles = (
       // On hover, only icon animates, nothing else changes
       return baseStyles
     case "pressed":
-      // Pressed state: slightly reduced shadow for pressed effect
+      // Pressed state: inner shadow for pressed effect
       return {
         ...baseStyles,
-        shadow: "-2px -2px 2px #FFF, 2px 2px 4px rgba(127, 86, 217, 0.2)",
-        border: hasBorder ? "1px solid #C0D0FF" : `4px solid ${borderColor}`,
+        shadow: "inset 4px 4px 6px 0px rgba(0, 0, 0, 0.1)",
+        border: baseBorder, // Explicitly preserve border
       }
     case "loading":
       return baseStyles

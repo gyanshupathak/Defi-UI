@@ -210,28 +210,43 @@ export function TVLChart({
       }
     }
 
+    // Hover animation: scale up both width and height
+    const scale = isHovered ? 1.12 : 1
+    const centerX = x + width / 2
+    const bottomY = y + height
+    // Translate to keep bottom center fixed while scaling
+    const scaleTranslateX = centerX * (1 - scale)
+    const scaleTranslateY = bottomY * (1 - scale)
+
     return (
       <g style={{ pointerEvents: "none" }}>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          fill={isEmpty ? "#000000" : getBarFill()}
-          fillOpacity={isEmpty ? 1 : undefined}
-          opacity={isEmpty ? 1 : getBarOpacity()}
-          rx={2}
-          ry={2}
+        <g
+          transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
           style={{
-            fill: isEmpty ? "#000000" : undefined,
-            fillOpacity: isEmpty ? 1 : undefined,
-            transition: isEmpty ? "none" : "opacity 0.2s ease-in-out",
-            cursor: isEmpty ? "default" : "pointer",
-            pointerEvents: "auto",
+            transition: isEmpty ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
+        >
+          <rect
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            fill={isEmpty ? "#000000" : getBarFill()}
+            fillOpacity={isEmpty ? 1 : undefined}
+            opacity={isEmpty ? 1 : getBarOpacity()}
+            rx={2}
+            ry={2}
+            style={{
+              fill: isEmpty ? "#000000" : undefined,
+              fillOpacity: isEmpty ? 1 : undefined,
+              transition: isEmpty ? "none" : "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              cursor: isEmpty ? "default" : "pointer",
+              pointerEvents: "auto",
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </g>
       </g>
     )
   }

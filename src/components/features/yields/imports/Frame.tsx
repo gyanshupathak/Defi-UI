@@ -1394,32 +1394,8 @@ function Frame() {
       <div className="absolute bg-[#f4f0ff] border border-solid border-white left-[calc(50%+4px)] rounded-[11238.9px] size-[568px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
       <div className="absolute bg-[#f4f0ff] border-[2.248px] border-[rgba(255,255,255,0.64)] border-solid left-[calc(50%+4px)] rounded-[186.584px] size-[230px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
       <Logo />
-      <div className="absolute bottom-[40px] left-[calc(50%+4px)] size-[542px] translate-x-[-50%]">
-        <div className="absolute inset-[72.21%_20.76%_-2.07%_21.26%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 315 162">
-            <g filter="url(#filter0_dd_1_499)" id="Ellipse 1187">
-              <path d={svgPaths.p19db4b00} fill="var(--fill-0, #F4F0FF)" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="161.843" id="filter0_dd_1_499" width="314.242" x="-3.09944e-06" y="4.52995e-06">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-3.372" dy="-3.372" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" operator="out" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="BackgroundImageFix" mode="normal" result="effect1_dropShadow_1_499" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" operator="out" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.0327817 0 0 0 0 0.151743 0 0 0 0 0.276112 0 0 0 0.15 0" />
-                <feBlend in2="effect1_dropShadow_1_499" mode="normal" result="effect2_dropShadow_1_499" />
-                <feBlend in="SourceGraphic" in2="effect2_dropShadow_1_499" mode="normal" result="shape" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
+      <div className="absolute bottom-[40px] left-1/2 translate-x-[-50%] flex items-center justify-center">
+
       </div>
       <div className="absolute bottom-[51px] left-[calc(50%+3.5px)] size-[539px] translate-x-[-50%]">
         <div className="absolute bottom-0 left-[26.11%] right-[26.05%] top-[77.83%]">

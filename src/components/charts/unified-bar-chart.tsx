@@ -95,24 +95,39 @@ export function UnifiedBarChart({
       }
     }
 
+    // Hover animation: scale up both width and height
+    const scale = isHovered ? 1.12 : 1
+    const centerX = x + width / 2
+    const bottomY = y + height
+    // Translate to keep bottom center fixed while scaling
+    const scaleTranslateX = centerX * (1 - scale)
+    const scaleTranslateY = bottomY * (1 - scale)
+
     return (
       <g>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          fill={barColor}
-          opacity={opacity}
-          rx={radius[0]}
-          ry={radius[1]}
+        <g
+          transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
           style={{
-            transition: "opacity 0.2s ease-in-out",
-            cursor: "pointer",
+            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
+        >
+          <rect
+            x={x}
+            y={y}
+            width={width}
+            height={height}
+            fill={barColor}
+            opacity={opacity}
+            rx={radius[0]}
+            ry={radius[1]}
+            style={{
+              transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              cursor: "pointer",
+            }}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        </g>
       </g>
     )
   }
