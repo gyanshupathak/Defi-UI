@@ -62,7 +62,7 @@ export function BaseCircularComponent() {
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
-      <div className={`relative ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '9000ms', animationFillMode: 'forwards', zIndex: 10 }}>
+      <div className={`relative ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '4500ms', animationFillMode: 'forwards', zIndex: 10 }}>
         <TokenSelector selectedToken={selectedToken} onTokenChange={handleTokenChange} />
       </div>
       <div className="relative flex items-end justify-center" style={{ marginTop: "250px" }}>
@@ -75,7 +75,7 @@ export function BaseCircularComponent() {
             zIndex: 9,
             width: '650px',
             height: '650px',
-            animationDelay: '7000ms',
+            animationDelay: '3500ms',
             animationFillMode: 'forwards',
           }}
         >
@@ -103,7 +103,7 @@ export function BaseCircularComponent() {
         <div className="-translate-y-[420px] -translate-x-[55px]">
           <YieldCircle tokenType={selectedToken} isAnimating={isAnimating} />
         </div>
-        <div className={`absolute top-[-265px] left-1/2 -translate-x-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ zIndex: 10, animationDelay: '8000ms', animationFillMode: 'forwards' }}>
+        <div className={`absolute top-[-265px] left-1/2 -translate-x-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ zIndex: 10, animationDelay: '4000ms', animationFillMode: 'forwards' }}>
           <Ribbon strategyType={strategyType} />
         </div>
       </div>

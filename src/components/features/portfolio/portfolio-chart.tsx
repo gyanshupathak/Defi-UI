@@ -182,12 +182,22 @@ const formatPortfolioData = (): StackedBarChartDataPoint[] => {
 export function PortfolioChart({ className, isEmpty = false }: PortfolioChartProps) {
   const [activeFilter, setActiveFilter] = React.useState("total")
   const [timePeriod, setTimePeriod] = React.useState("1M")
-  const [displayValue, setDisplayValue] = React.useState("$15,289.28")
+  const defaultDisplayValue = "$15,289.28"
+  const [displayValue, setDisplayValue] = React.useState(defaultDisplayValue)
   const [displayDate, setDisplayDate] = React.useState("")
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const [isHovering, setIsHovering] = React.useState(false)
 
   const numericValue = parseFloat(displayValue.replace(/[^0-9.]/g, "")) || 0
   const showEmpty = isEmpty || numericValue === 0
+
+  // Reset display value when filter changes
+  React.useEffect(() => {
+    if (!isHovering) {
+      setDisplayValue(defaultDisplayValue)
+      setDisplayDate("")
+    }
+  }, [activeFilter])
 
   const timeRangeOptions: DropdownOption<string>[] = [
     { id: "1M", label: "1M" },
@@ -317,7 +327,31 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
       const handleMouseEnter = () => {
         if (barIndex >= 0 && barIndex < chartData.length) {
           setHoveredIndex(barIndex)
+          setIsHovering(true)
           const dataPoint = chartData[barIndex]
+          
+          // Calculate the value to display based on active filter
+          // Use original segment values from baseChartData for accurate calculation
+          let valueToDisplay = 0
+          if (activeFilter === "total") {
+            valueToDisplay = dataPoint.total || 0
+          } else if (activeFilter === "syusd") {
+            // syusd corresponds to segment3
+            valueToDisplay = dataPoint.segment3 || 0
+          } else if (activeFilter === "syeth") {
+            // syeth corresponds to segment2
+            valueToDisplay = dataPoint.segment2 || 0
+          } else if (activeFilter === "sybtc") {
+            // sybtc corresponds to segment1
+            valueToDisplay = dataPoint.segment1 || 0
+          }
+          
+          // Scale the value to match the chart scale (chart shows 0-500, default value is $15,289.28)
+          const scaleFactor = parseFloat(defaultDisplayValue.replace(/[^0-9.]/g, '')) / 500
+          const scaledValue = valueToDisplay * scaleFactor
+          const formattedValue = `$${scaledValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+          
+          setDisplayValue(formattedValue)
           if (dataPoint.formattedDate) {
             setDisplayDate(dataPoint.formattedDate)
           }
@@ -326,6 +360,8 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
 
       const handleMouseLeave = () => {
         setHoveredIndex(null)
+        setIsHovering(false)
+        setDisplayValue(defaultDisplayValue)
         setDisplayDate("")
       }
 
@@ -365,6 +401,8 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
         }}
         onMouseLeave={() => {
           setHoveredIndex(null)
+          setIsHovering(false)
+          setDisplayValue(defaultDisplayValue)
           setDisplayDate("")
         }}
       >
@@ -465,7 +503,13 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
               style={{ color: designTokens.colors.text.primary }}
             >
               <span style={{ opacity: 0.5 }}>$</span>
-              <AnimatedNumber value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={2} delay={0.1} duration={1.2} />
+              {isHovering ? (
+                // Display without animation on hover
+                displayValue.replace('$', '')
+              ) : (
+                // Animate only on initial load or when not hovering
+                <AnimatedNumber value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={2} delay={0.1} duration={1.2} />
+              )}
             </p>
             <PortfolioMetricTag value="$289.28" />
           </div>
