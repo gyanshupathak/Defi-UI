@@ -107,9 +107,10 @@ function Helper1({ additionalClassNames = "" }: { additionalClassNames?: string 
 
 interface YieldsCircleProps {
   tokenType?: TokenType;
+  isAnimating?: boolean;
 }
 
-export default function YieldsCircle({ tokenType = 'usd' }: YieldsCircleProps) {
+export default function YieldsCircle({ tokenType = 'usd', isAnimating = false }: YieldsCircleProps) {
   const [buttonState, setButtonState] = useState<ButtonState>('default');
 
   const svgPaths = buttonState === 'hover' 
@@ -132,6 +133,7 @@ export default function YieldsCircle({ tokenType = 'usd' }: YieldsCircleProps) {
         setButtonState={setButtonState}
         tokenData={data}
         tokenType={tokenType}
+        isAnimating={isAnimating}
       />
     </div>
   );
@@ -143,20 +145,24 @@ interface CircleProps {
   setButtonState: (state: ButtonState) => void;
   tokenData: TokenData;
   tokenType: TokenType;
+  isAnimating?: boolean;
 }
 
-function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType }: CircleProps) {
+function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType, isAnimating = false }: CircleProps) {
   return (
     <div className="absolute left-[57px] size-[600px] top-[188px]">
-      {/* Main circles */}
-      <div className="absolute bg-[#f4f0ff] left-1/2 rounded-[11238.9px] shadow-[4.496px_4.496px_13.488px_0px_rgba(127,86,217,0.12),-4.496px_-4.496px_11.24px_0px_white] size-[600px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bg-[#f4f0ff] border border-solid border-white left-1/2 rounded-[11238.9px] size-[568px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bg-[#f4f0ff] border-[2.248px] border-[rgba(255,255,255,0.64)] border-solid left-1/2 rounded-[186.584px] size-[280px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      {/* Main circles - all circles at base z-index */}
+      {/* Outermost circle (600px) - appears with gradient arc */}
+      <div className={`absolute bg-[#f4f0ff] left-1/2 rounded-[11238.9px] shadow-[4.496px_4.496px_13.488px_0px_rgba(127,86,217,0.12),-4.496px_-4.496px_11.24px_0px_white] size-[600px] top-1/2 -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '7000ms', animationFillMode: 'forwards', zIndex: 1 }} />
+      {/* Second last outer circle (568px) - appears 1 sec after 280px, with shadows */}
+      <div className={`absolute bg-[#f4f0ff] border border-solid border-white left-1/2 rounded-[11238.9px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_white] size-[568px] top-1/2 -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '4000ms', animationFillMode: 'forwards', zIndex: 1 }} />
+      {/* Innermost circle (280px) - appears 1 sec after texts, with shadows like 134px circle */}
+      <div className={`absolute bg-[#f4f0ff] border-[2.248px] border-[rgba(255,255,255,0.64)] border-solid left-1/2 rounded-[186.584px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_white] size-[280px] top-1/2 -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '3000ms', animationFillMode: 'forwards', zIndex: 1 }} />
       
-      <Logo tokenData={tokenData} />
+      <Logo tokenData={tokenData} isAnimating={isAnimating} />
       
-      {/* Segments */}
-      <div className="absolute left-1/2 size-[542px] top-[calc(50%+1px)] -translate-x-1/2 -translate-y-1/2">
+      {/* Segments - appears 1 sec after second last circle */}
+      <div className={`absolute left-1/2 size-[542px] top-[calc(50%+1px)] -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '5000ms', animationFillMode: 'forwards', zIndex: 5 }}>
         {/* Bottom left */}
         <div className="absolute" style={{ inset: '50.87% 68.7% 11.96% 0.21%' }}>
           <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 169 202" style={{ shapeRendering: 'crispEdges' }}>
@@ -318,37 +324,59 @@ function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType }:
         </div>
       </div>
       
-      {/* Token Icon */}
-      <div className="absolute flex items-center justify-center left-[79.56px] size-[30.211px] top-[346.97px]">
+      {/* Token Icon - appears with segments, above segments */}
+      <div className={`absolute flex items-center justify-center left-[79.56px] size-[30.211px] top-[346.97px] ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '5000ms', animationFillMode: 'forwards', zIndex: 7 }}>
         <div className="flex-none rotate-[72.113deg]">
           <TokenIcon tokenData={tokenData} />
         </div>
       </div>
       
-      {/* All curved texts */}
-      <CurveTextLifetime svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveText56K svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextShare svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveText104 svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextBaseApy svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveText2144 svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextTvl svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveText222K svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveText228K svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextFastRedeemed svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextTokenSymbol svgPaths={svgPaths} tokenData={tokenData} />
-      <CurveTextStableYield svgPaths={svgPaths} tokenData={tokenData} />
+      {/* Stable Yield USD and syUSD text - appear 2 seconds later, from center of circle, above everything */}
+      <div 
+        className={`${isAnimating ? 'opacity-0 animate-appear-from-behind' : 'opacity-0'}`} 
+        style={{ 
+          animationDelay: '2000ms', 
+          animationFillMode: 'forwards', 
+          zIndex: 11, 
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: '100%',
+          height: '100%',
+          transformOrigin: '300px 300px', // Center of 600px circle
+        }}
+      >
+        <CurveTextTokenSymbol svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveTextStableYield svgPaths={svgPaths} tokenData={tokenData} />
+      </div>
       
-      <Button svgPaths={svgPaths} buttonState={buttonState} setButtonState={setButtonState} />
+      {/* All other curved texts - appear with segments, above segments */}
+      <div className={`${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '5000ms', animationFillMode: 'forwards', zIndex: 7, position: 'relative' }}>
+        <CurveTextLifetime svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveText56K svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveTextShare svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveText104 svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveTextBaseApy svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveText2144 svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveTextTvl svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveText222K svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveText228K svgPaths={svgPaths} tokenData={tokenData} />
+        <CurveTextFastRedeemed svgPaths={svgPaths} tokenData={tokenData} />
+      </div>
+      
+      {/* Button - appears 1 sec after segments, above text */}
+      <Button svgPaths={svgPaths} buttonState={buttonState} setButtonState={setButtonState} isAnimating={isAnimating} />
     </div>
   );
 }
 
-function Logo({ tokenData }: { tokenData: TokenData }) {
+function Logo({ tokenData, isAnimating = false }: { tokenData: TokenData; isAnimating?: boolean }) {
   return (
     <div className="absolute left-[233px] size-[134px] top-[233px]">
-      <div className="absolute bg-[#f4f0ff] left-1/2 rounded-[9497.64px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_white] size-[134px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute left-1/2 size-[72px] top-1/2 -translate-x-1/2 -translate-y-1/2">
+      {/* Logo circle - grows from center, appears 1st */}
+      <div className={`absolute bg-[#f4f0ff] left-1/2 rounded-[9497.64px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_white] size-[134px] top-1/2 -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-grow-from-center' : 'opacity-0'}`} style={{ animationDelay: '0ms', animationFillMode: 'forwards', zIndex: 2 }} />
+      {/* Logo image - appears 1 second later, rotating and growing from center */}
+      <div className={`absolute left-1/2 size-[72px] top-1/2 -translate-x-1/2 -translate-y-1/2 ${isAnimating ? 'opacity-0 animate-rotate-grow-from-center' : 'opacity-0'}`} style={{ animationDelay: '1000ms', animationFillMode: 'forwards', zIndex: 2 }}>
         <Image
           key={tokenData.symbol}
           src={tokenData.centerIcon}
@@ -1016,11 +1044,12 @@ interface ButtonProps {
   svgPaths: any;
   buttonState: ButtonState;
   setButtonState: (state: ButtonState) => void;
+  isAnimating?: boolean;
 }
 
-function Button({ svgPaths, buttonState, setButtonState }: ButtonProps) {
+function Button({ svgPaths, buttonState, setButtonState, isAnimating = false }: ButtonProps) {
   return (
-    <div className="absolute h-[550px] left-[29px] top-[20px] w-[542px] z-30">
+    <div className={`absolute h-[550px] left-[29px] top-[20px] w-[542px] ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '6000ms', animationFillMode: 'forwards', zIndex: 8 }}>
       {/* Secondary Layer */}
       <div className={clsx(
         "absolute bottom-0 h-[141.611px] left-[calc(50%+0.24px)] -translate-x-1/2 w-[294.01px]",

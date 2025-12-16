@@ -220,6 +220,64 @@
     animation: withdrawArrowHover 0.6s ease-in-out;
   }
 
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 1s ease-out forwards;
+  }
+
+  @keyframes grow-from-center {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .animate-grow-from-center {
+    animation: grow-from-center 1s ease-out forwards;
+  }
+
+  @keyframes rotate-grow-from-center {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    }
+  }
+
+  .animate-rotate-grow-from-center {
+    animation: rotate-grow-from-center 1s ease-out forwards;
+  }
+
+  @keyframes appear-from-behind {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .animate-appear-from-behind {
+    animation: appear-from-behind 1s ease-out forwards;
+  }
+
   .recharts-active-bar,
   .recharts-bar-rectangle[class*="active"],
   .recharts-tooltip-wrapper,
