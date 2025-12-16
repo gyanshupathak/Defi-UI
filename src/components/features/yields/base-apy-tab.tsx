@@ -107,7 +107,6 @@ export function BaseAPYTab({
   const yAxisDomain = isEmpty ? [0, 400] : ["auto", "auto"]
   const gradientId = isEmpty ? "colorBaseAPYEmpty" : "colorBaseAPY"
 
-  // Set initial load to false after animation completes
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoad(false)
@@ -115,7 +114,6 @@ export function BaseAPYTab({
     return () => clearTimeout(timer)
   }, [])
 
-  // Custom tooltip component to handle hover
   const CustomTooltip = ({ active, payload }: any) => {
     React.useEffect(() => {
       if (active && payload && payload.length > 0 && !isEmpty) {
@@ -131,7 +129,7 @@ export function BaseAPYTab({
       }
     }, [active, payload, isEmpty, currentDate, initialValue])
 
-    return null // Don't render anything, we just use it for hover detection
+    return null
   }
 
   return (

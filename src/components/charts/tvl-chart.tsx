@@ -106,10 +106,8 @@ export function TVLChart({
 }: TVLChartProps) {
   
   const defaultTotalValue = variant === "home" ? "$585,937" : "$185,053"
-  // Ensure initialValue is never "$0" unless isEmpty is true
   const initialValue = isEmpty ? "$0" : (totalValue || defaultTotalValue)
   const [displayValue, setDisplayValue] = React.useState(() => {
-    // Initialize with the correct value, never "$0" unless empty
     if (isEmpty) return "$0"
     return totalValue || defaultTotalValue
   })
@@ -117,7 +115,6 @@ export function TVLChart({
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [isInitialLoad, setIsInitialLoad] = React.useState(true)
   
-  // Initialize displayValue on mount if it's "$0" or incorrect
   React.useEffect(() => {
     if (!isEmpty && (displayValue === "$0" || !displayValue)) {
       const valueToUse = totalValue || defaultTotalValue
@@ -126,11 +123,9 @@ export function TVLChart({
     }
   }, [isEmpty, totalValue, defaultTotalValue, date, displayValue])
   
-  // Update displayValue when totalValue prop changes (but only if not hovered)
   React.useEffect(() => {
     if (!isEmpty && hoveredIndex === null) {
       const newValue = totalValue || defaultTotalValue
-      // Only update if current value is "$0" or if totalValue changed
       if (displayValue === "$0" || displayValue !== newValue) {
         setDisplayValue(newValue)
         setDisplayDate(date)
@@ -141,7 +136,6 @@ export function TVLChart({
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialLoad(false)
-      // Ensure displayValue is correct when animation completes
       if (!isEmpty && (displayValue === "$0" || !displayValue)) {
         const valueToUse = totalValue || defaultTotalValue
         setDisplayValue(valueToUse)
@@ -151,28 +145,22 @@ export function TVLChart({
     return () => clearTimeout(timer)
   }, [isEmpty, displayValue, totalValue, defaultTotalValue, date])
 
-  
   const chartDataArray = isEmpty 
     ? emptyStateData 
     : data || (variant === "home" ? defaultHomeData : defaultYieldsData)
 
-  
   const chartData = formatDataForChart(chartDataArray, totalValue, date, variant).map((item, index) => ({
     ...item,
     index,
   }))
 
-  
   const CustomBarShape = (props: any) => {
     const { payload, x, y, width, height } = props
     const barIndex = payload?.index ?? chartData.findIndex(d => d.value === payload?.value && d.label === payload?.label)
     const isHovered = hoveredIndex === barIndex
     
-    
-    
     const getBarFill = () => {
       if (isEmpty) {
-        
         return "rgba(0, 0, 0, 1)"
       }
       return designTokens.colors.primary
@@ -189,7 +177,6 @@ export function TVLChart({
       if (!isEmpty && barIndex >= 0 && barIndex < chartData.length) {
         setHoveredIndex(barIndex)
         const dataPoint = chartData[barIndex]
-        // Always update, even if formattedValue might be missing
         if (dataPoint) {
           if (dataPoint.formattedValue) {
             setDisplayValue(dataPoint.formattedValue)
@@ -210,52 +197,32 @@ export function TVLChart({
       }
     }
 
-    // Hover animation: scale up both width and height
-    const scale = isHovered ? 1.12 : 1
-    const centerX = x + width / 2
-    const bottomY = y + height
-    // Translate to keep bottom center fixed while scaling
-    const scaleTranslateX = centerX * (1 - scale)
-    const scaleTranslateY = bottomY * (1 - scale)
-
     return (
-      <g style={{ pointerEvents: "none" }}>
-        <g
-          transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
-          style={{
-            transition: isEmpty ? "none" : "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-          }}
-        >
-          <rect
-            x={x}
-            y={y}
-            width={width}
-            height={height}
-            fill={isEmpty ? "#000000" : getBarFill()}
-            fillOpacity={isEmpty ? 1 : undefined}
-            opacity={isEmpty ? 1 : getBarOpacity()}
-            rx={2}
-            ry={2}
-            style={{
-              fill: isEmpty ? "#000000" : undefined,
-              fillOpacity: isEmpty ? 1 : undefined,
-              transition: isEmpty ? "none" : "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              cursor: isEmpty ? "default" : "pointer",
-              pointerEvents: "auto",
-            }}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          />
-        </g>
-      </g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={isEmpty ? "#000000" : getBarFill()}
+        fillOpacity={isEmpty ? 1 : undefined}
+        opacity={isEmpty ? 1 : getBarOpacity()}
+        rx={2}
+        ry={2}
+        style={{
+          fill: isEmpty ? "#000000" : undefined,
+          fillOpacity: isEmpty ? 1 : undefined,
+          transition: isEmpty ? "none" : "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          cursor: isEmpty ? "default" : "pointer",
+        }}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
     )
   }
 
-  
   if (isEmpty && variant === "yields") {
     return (
       <>
-        {}
         <div 
           className="absolute flex flex-col items-start"
           style={{
@@ -293,7 +260,6 @@ export function TVLChart({
           </p>
         </div>
 
-        {}
         <ChartContainerWrapper>
           <EmptyChart
             barCount={54}
@@ -376,7 +342,6 @@ export function TVLChart({
   if (variant === "home") {
   return (
     <UnifiedChartContainer className={className}>
-        {}
       <div 
         className="absolute overflow-hidden"
         style={{ 
@@ -411,7 +376,6 @@ export function TVLChart({
         </ResponsiveContainer>
       </div>
 
-        {}
       <div 
         className="absolute flex items-center justify-between text-center"
         style={{ 
@@ -435,7 +399,6 @@ export function TVLChart({
         ))}
       </div>
 
-        {}
       <div 
         className="absolute flex flex-col"
         style={{ 
@@ -492,7 +455,6 @@ export function TVLChart({
   
   return (
     <>
-      {}
       <div 
         className="absolute flex flex-col items-start"
         style={{
@@ -509,11 +471,9 @@ export function TVLChart({
         >
           {isInitialLoad && displayValue === initialValue ? (
             (() => {
-              // Use totalValue prop if available, otherwise use displayValue, otherwise use default
               const valueToParse = totalValue || displayValue || defaultTotalValue
               let numericValue = parseFloat(valueToParse.replace(/[^0-9.]/g, ''))
               
-              // Fallback to default if parsing fails or value is 0
               if (!numericValue || isNaN(numericValue) || numericValue === 0) {
                 numericValue = 185053 // Default for yields variant
               }
@@ -528,7 +488,6 @@ export function TVLChart({
             })()
           ) : (
             (() => {
-              // When not initial load, ensure we never show "$0"
               const valueToShow = displayValue && displayValue !== "$0" ? displayValue : (totalValue || defaultTotalValue)
               return valueToShow
             })()
@@ -538,7 +497,7 @@ export function TVLChart({
           className={typographyClasses.label1}
           style={{ 
             color: designTokens.colors.text.primary,
-            opacity: 0.5,
+            opacity: parseFloat(designTokens.colors.text.muted.replace('rgba(0, 0, 0, ', '').replace(')', '')),
           }}
         >
           {displayDate}

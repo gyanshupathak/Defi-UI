@@ -2,45 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Hanken Grotesk Font - Our design system font */
 @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
 
 @layer base {
   :root {
-    /* Design System Colors - Imported from design-system */
     --background: #F4F0FF;
     --foreground: #000000;
     
-    /* Primary Brand Colors */
     --primary: #7F56D9;
     --primary-foreground: #FFFFFF;
     
-    /* Strategy Colors */
     --strategy-usd: #5496DE;
     --strategy-eth: #627EEA;
     --strategy-btc: #F7931A;
     
-    /* Text Colors */
     --text-primary: #000000;
     --text-secondary: #626066;
     --text-muted: rgba(0, 0, 0, 0.6);
     
-    /* Graph Colors */
     --graph-default: #D7C9F5;
     --graph-heading: #280F4B;
     --graph-tvl: #7A6993;
     --graph-bar-hover: #7F56D9;
     
-    /* Background Variants */
     --background-gradient: #E4DBF8;
     --background-white: #FFFFFF;
     
-    /* Border Colors */
     --border-default: rgba(0, 0, 0, 0.1);
     --border-gradient: #E8E4F2;
     
-    /* Status Colors */
     --status-success: #259952;
     --status-success-bg: #EAFAF1;
     --status-error: #E91E21;
@@ -49,7 +40,6 @@
     --status-info-bg: #E5F1FF;
     --status-warning: #E91E63;
     
-    /* Spacing - From Design System */
     --radius: 16px;
     --radius-inner: 12px;
     --card-padding-x: 24px;
@@ -80,7 +70,6 @@
   }
 }
 
-/* Neumorphic Utility Classes - Based on Design System */
 @layer utilities {
   .neumorphic-pop-out {
     @apply shadow-neumorphic-pop-out;
@@ -126,13 +115,11 @@
     @apply shadow-graph-inner;
   }
   
-  /* Button Drop Shadow - Exact Figma Spec */
   .button-shadow {
     filter: drop-shadow(-4px -4px 4px #FFF) drop-shadow(4px 4px 8px rgba(127, 86, 217, 0.15));
   }
 }
 
-/* Typography Utility Classes - Based on Design System */
 @layer utilities {
   .text-display-1 {
     @apply font-bold text-[40px] leading-normal font-sans;
@@ -174,7 +161,6 @@
     @apply font-normal text-[8px] leading-normal font-sans;
   }
   
-  /* Button Icon Hover Animation - Only animates icon on hover, nothing else changes */
   @keyframes iconFloat {
     0%, 100% {
       transform: translateY(0);
@@ -188,7 +174,6 @@
     animation: iconFloat 0.6s ease-in-out infinite;
   }
 
-  /* Deposit Arrow Animation - moves up and disappears, then appears from below */
   @keyframes depositArrowHover {
     0% {
       transform: translateY(0);
@@ -208,7 +193,6 @@
     }
   }
 
-  /* Withdraw Arrow Animation - moves down and disappears, then appears from above */
   @keyframes withdrawArrowHover {
     0% {
       transform: translateY(0);
@@ -236,7 +220,6 @@
     animation: withdrawArrowHover 0.6s ease-in-out;
   }
 
-  /* Hide Recharts hover overlays that extend beyond bar height */
   .recharts-active-bar,
   .recharts-bar-rectangle[class*="active"],
   .recharts-tooltip-wrapper,
@@ -246,7 +229,6 @@
     opacity: 0 !important;
   }
   
-  /* Hide any Recharts-generated hover areas and overlays */
   .recharts-bar > .recharts-active-bar,
   .recharts-bar .recharts-active-bar,
   .recharts-active-shape {
@@ -261,8 +243,64 @@
     pointer-events: none;
   }
   
-  /* Allow pointer events on the actual bar rectangles - this overrides the parent */
   .recharts-bar g > rect {
     pointer-events: auto !important;
   }
+}
+
+/* RainbowKit Modal Customization */
+/* Override RainbowKit modal styles to match neumorphic design */
+[data-rk] {
+  --rk-font-family: 'Hanken Grotesk', sans-serif;
+  font-family: 'Hanken Grotesk', sans-serif !important;
+}
+
+/* Modal container */
+[data-rk] [role="dialog"] {
+  background: #F4F0FF !important;
+  border-radius: 16px !important;
+  box-shadow: 4px 4px 12px 0 rgba(127, 86, 217, 0.12), -4px -4px 10px 0 #FFF !important;
+  font-family: 'Hanken Grotesk', sans-serif !important;
+}
+
+/* Modal header */
+[data-rk] h1,
+[data-rk] h2,
+[data-rk] h3 {
+  font-family: 'Hanken Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+}
+
+/* Network list items */
+[data-rk] button[role="menuitem"],
+[data-rk] div[role="menuitem"] {
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+  font-family: 'Hanken Grotesk', sans-serif !important;
+}
+
+[data-rk] button[role="menuitem"]:hover,
+[data-rk] div[role="menuitem"]:hover {
+  background: rgba(127, 86, 217, 0.05) !important;
+}
+
+/* Selected/active network */
+[data-rk] button[role="menuitem"][aria-selected="true"],
+[data-rk] div[role="menuitem"][aria-selected="true"],
+[data-rk] button[data-active="true"],
+[data-rk] div[data-active="true"] {
+  background: #7F56D9 !important;
+  color: white !important;
+}
+
+/* Close button */
+[data-rk] button[aria-label*="close"],
+[data-rk] button[aria-label*="Close"] {
+  border-radius: 50% !important;
+}
+
+/* Ensure Katana icon shows */
+[data-rk] img[alt*="Katana"],
+[data-rk] img[src*="base.png"] {
+  display: block !important;
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { Check, ChevronDown } from "lucide-react"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
@@ -166,12 +167,14 @@ export function DropdownSelector<T extends string = string>({
                     >
                       {option.icon
                         ? option.icon
-                        : (
-                          <img
+                        : option.iconSrc && (
+                          <Image
                             src={option.iconSrc}
                             alt=""
+                            width={20}
+                            height={20}
                             className="object-cover w-full h-full"
-                            loading="lazy"
+                            unoptimized={option.iconSrc.endsWith('.svg')}
                           />
                         )}
                     </div>

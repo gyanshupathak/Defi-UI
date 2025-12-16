@@ -25,19 +25,22 @@ export function CircularPercentageSelector({
   const containerRef = React.useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = React.useState(false)
 
-  
-  
-  
-  
-  
-  const startAngle = 90 
-  const angleRad = (startAngle + (value / 100) * 360) * (Math.PI / 180)
   const radius = 37 
   const centerX = 38
   const centerY = 38
+  
+  const arcStartAngle = 140
+  const arcEndAngle = 40
+  const arcSpan = (360 - arcStartAngle) + arcEndAngle
+  const gapAngle = arcStartAngle - arcEndAngle
+  const arcEndAngleRad = (arcEndAngle * Math.PI) / 180
+  
+  const arcStartAngleRad = (arcStartAngle * Math.PI) / 180
+  let currentAngle = arcStartAngle + (value / 100) * arcSpan
+  if (currentAngle >= 360) currentAngle -= 360
+  const angleRad = (currentAngle * Math.PI) / 180
   const indicatorX = centerX + radius * Math.cos(angleRad)
   const indicatorY = centerY + radius * Math.sin(angleRad)
-  
   
   const indicatorLeft = indicatorX - 4 
   const indicatorTop = indicatorY - 4
@@ -50,18 +53,23 @@ export function CircularPercentageSelector({
     const x = clientX - rect.left - centerX
     const y = clientY - rect.top - centerY
     
-    
-    
     let angle = Math.atan2(y, x) * (180 / Math.PI)
-    
-    
-    
-    angle = angle - 90
-    
     if (angle < 0) angle += 360
     
+    if (angle > arcEndAngle && angle < arcStartAngle) {
+      const distToStart = Math.abs(angle - arcStartAngle)
+      const distToEnd = Math.abs(angle - arcEndAngle)
+      return distToStart < distToEnd ? 0 : 100
+    }
     
-    const percentage = (angle / 360) * 100
+    let angleInArc
+    if (angle >= arcStartAngle) {
+      angleInArc = angle - arcStartAngle
+    } else {
+      angleInArc = (360 - arcStartAngle) + angle
+    }
+    
+    const percentage = (angleInArc / arcSpan) * 100
     return Math.max(0, Math.min(100, percentage))
   }
 
@@ -81,11 +89,23 @@ export function CircularPercentageSelector({
         const y = e.clientY - rect.top - centerY
         
         let angle = Math.atan2(y, x) * (180 / Math.PI)
-        
-        angle = angle - 90
         if (angle < 0) angle += 360
         
-        const percentage = (angle / 360) * 100
+        if (angle > arcEndAngle && angle < arcStartAngle) {
+          const distToStart = Math.abs(angle - arcStartAngle)
+          const distToEnd = Math.abs(angle - arcEndAngle)
+          onValueChange?.(distToStart < distToEnd ? 0 : 100)
+          return
+        }
+        
+        let angleInArc
+        if (angle >= arcStartAngle) {
+          angleInArc = angle - arcStartAngle
+        } else {
+          angleInArc = (360 - arcStartAngle) + angle
+        }
+        
+        const percentage = (angleInArc / arcSpan) * 100
         onValueChange?.(Math.max(0, Math.min(100, percentage)))
       }
 
@@ -100,68 +120,79 @@ export function CircularPercentageSelector({
         window.removeEventListener('mouseup', handleUp)
       }
     }
-  }, [isDragging, onValueChange])
+  }, [isDragging, onValueChange, arcStartAngle, arcEndAngle, arcSpan])
 
   
-  const circumference = 2 * Math.PI * 37
-  
-  
-  
-  const maxAngle = 360 - 2 
-  const currentAngle = (value / 100) * maxAngle 
-  
-  
-  
-  
-  
-  
-  
-  const arcLength = (currentAngle / 360) * circumference
-  const dashOffset = circumference - arcLength
+  const arcCircumference = 2 * Math.PI * radius * (arcSpan / 360)
+  const currentArcLength = (value / 100) * arcCircumference
+  const dashOffset = arcCircumference - currentArcLength
   
   return (
     <div className={cn("relative w-[110px] h-[147px]", className)}>
-      {}
       <div 
         ref={containerRef}
         className="absolute left-[17px] top-0 w-[76px] h-[76px] cursor-pointer"
         onMouseDown={handleMouseDown}
       >
-        {}
         <svg 
           width="76" 
           height="76" 
           viewBox="0 0 76 76"
           className="absolute inset-0"
         >
-          <circle
-            cx="38"
-            cy="38"
-            r="37"
+          <path
+            d={`M ${centerX + radius * Math.cos(arcStartAngleRad)} ${centerY + radius * Math.sin(arcStartAngleRad)} A ${radius} ${radius} 0 ${arcSpan > 180 ? 1 : 0} 1 ${centerX + radius * Math.cos(arcEndAngleRad)} ${centerY + radius * Math.sin(arcEndAngleRad)}`}
             fill="none"
             stroke={designTokens.colors.circularSelector.track}
             strokeWidth="1"
           />
         </svg>
-      
-        {}
+       
         <svg 
           width="76" 
           height="76" 
           viewBox="0 0 76 76"
           className="absolute inset-0"
+          style={{ overflow: 'visible' }}
         >
-          <circle
-            cx="38"
-            cy="38"
-            r="37"
+          <path
+            d={`M ${centerX + radius * Math.cos(arcStartAngleRad)} ${centerY + radius * Math.sin(arcStartAngleRad)} A ${radius} ${radius} 0 ${arcSpan > 180 ? 1 : 0} 1 ${centerX + radius * Math.cos(arcEndAngleRad)} ${centerY + radius * Math.sin(arcEndAngleRad)}`}
             fill="none"
             stroke={designTokens.colors.circularSelector.progress}
             strokeWidth="2"
-            strokeDasharray={circumference}
+            strokeDasharray={arcCircumference}
             strokeDashoffset={dashOffset}
             strokeLinecap="round"
-            transform="rotate(90 38 38)"
+            style={{ 
+              transition: 'stroke-dashoffset 0.15s cubic-bezier(2, 2, 2, 2)',
+              opacity: value > 0 ? 1 : 0,
+              filter: 'blur(0.5px)',
+              transform: 'translate(0.8px, 0.8px)',
+            }}
+          />
+          <path
+            d={`M ${centerX + radius * Math.cos(arcStartAngleRad)} ${centerY + radius * Math.sin(arcStartAngleRad)} A ${radius} ${radius} 0 ${arcSpan > 180 ? 1 : 0} 1 ${centerX + radius * Math.cos(arcEndAngleRad)} ${centerY + radius * Math.sin(arcEndAngleRad)}`}
+            fill="none"
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeDasharray={arcCircumference}
+            strokeDashoffset={dashOffset}
+            strokeLinecap="round"
+            style={{ 
+              transition: 'stroke-dashoffset 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
+              opacity: value > 0 ? 1 : 0,
+              filter: 'blur(1px)',
+              transform: 'translate(-0.5px, -0.5px)',
+            }}
+          />
+          <path
+            d={`M ${centerX + radius * Math.cos(arcStartAngleRad)} ${centerY + radius * Math.sin(arcStartAngleRad)} A ${radius} ${radius} 0 ${arcSpan > 180 ? 1 : 0} 1 ${centerX + radius * Math.cos(arcEndAngleRad)} ${centerY + radius * Math.sin(arcEndAngleRad)}`}
+            fill="none"
+            stroke="#F4F0FF"
+            strokeWidth="2"
+            strokeDasharray={arcCircumference}
+            strokeDashoffset={dashOffset}
+            strokeLinecap="round"
             style={{ 
               transition: 'stroke-dashoffset 0.15s cubic-bezier(0.4, 0, 0.2, 1)',
               opacity: value > 0 ? 1 : 0,
@@ -169,7 +200,6 @@ export function CircularPercentageSelector({
           />
         </svg>
 
-        {}
         <div 
           className="absolute w-[8px] h-[8px] rounded-full z-10"
           style={{
@@ -184,7 +214,6 @@ export function CircularPercentageSelector({
         />
       </div>
 
-      {}
       <div className="absolute left-[30px] top-[13px] w-[50px] h-[50px]">
         <div 
           className="absolute inset-0 rounded-full"
@@ -205,7 +234,6 @@ export function CircularPercentageSelector({
         </div>
       </div>
 
-      {}
       <button
         type="button"
         className="absolute left-[21px] top-[72px] flex flex-col items-center w-[11px] cursor-pointer hover:opacity-70 transition-opacity bg-transparent border-0 p-0"

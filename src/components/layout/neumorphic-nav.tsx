@@ -5,7 +5,8 @@ import Image from "next/image"
 import { useRouter, usePathname } from "next/navigation"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { NavMenu, NavMenuItem } from "./nav-menu"
-import { Button } from "@/components/ui/button"
+import { ConnectWalletButton } from "@/components/wallet/connect-wallet-button"
+import { NetworkSelector } from "@/components/wallet/network-selector"
 
 interface NeumorphicNavProps {
   logoImage?: string
@@ -28,7 +29,6 @@ export function NeumorphicNav({
   const router = useRouter()
   const pathname = usePathname()
 
-  // Check if we're on bridge, deposit, or withdraw pages
   const isBridgeContext = pathname === "/bridge" || pathname === "/deposit" || pathname === "/withdraw"
 
   const handleLogoClick = () => {
@@ -109,70 +109,49 @@ export function NeumorphicNav({
           style={{ gap: designTokens.spacing.navigation.itemsGap }}
         >
           <NavMenu activeItem={activeMenuItem} className="flex-shrink-0" />
-        <button
-          className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
-          style={{ 
-            padding: designTokens.spacing.navigation.iconButtonPadding,
-            borderRadius: designTokens.spacing.navigation.iconButtonRadius,
-            width: designTokens.spacing.navigation.iconButtonSize,
-            height: designTokens.spacing.navigation.iconButtonSize,
-            backgroundColor: designTokens.colors.background.main,
-            boxShadow: designTokens.shadows.navIcon
-          }}
-          aria-label="Settings"
-        >
-          <Image
-            src={settingsIcon}
-            alt="Settings"
-            width={parseInt(designTokens.spacing.navigation.iconSize)}
-            height={parseInt(designTokens.spacing.navigation.iconSize)}
-            className="object-contain"
+          <button
+            key="settings-button"
+            className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
             style={{ 
-              width: designTokens.spacing.navigation.iconSize,
-              height: designTokens.spacing.navigation.iconSize,
+              padding: designTokens.spacing.navigation.iconButtonPadding,
+              borderRadius: designTokens.spacing.navigation.iconButtonRadius,
+              width: designTokens.spacing.navigation.iconButtonSize,
+              height: designTokens.spacing.navigation.iconButtonSize,
+              backgroundColor: designTokens.colors.background.main,
+              boxShadow: designTokens.shadows.navIcon,
+              position: 'relative',
+              zIndex: 1,
             }}
+            aria-label="Settings"
+          >
+            <Image
+              src={settingsIcon}
+              alt="Settings"
+              width={parseInt(designTokens.spacing.navigation.iconSize)}
+              height={parseInt(designTokens.spacing.navigation.iconSize)}
+              className="object-contain"
+              style={{ 
+                width: designTokens.spacing.navigation.iconSize,
+                height: designTokens.spacing.navigation.iconSize,
+              }}
+            />
+          </button>
+          <div className="flex flex-row items-center self-stretch">
+            <div 
+              className="h-full shrink-0"
+              style={{ 
+                width: designTokens.spacing.navigation.dividerWidth,
+                backgroundColor: designTokens.colors.border.default 
+              }}
+            />
+          </div>
+          <div key="network-selector-wrapper" style={{ position: 'relative', zIndex: 1 }}>
+            <NetworkSelector ethereumLogo={ethereumLogo} />
+          </div>
+          <ConnectWalletButton
+            isBridgeContext={isBridgeContext}
+            className="shrink-0"
           />
-        </button>
-        <div className="flex flex-row items-center self-stretch">
-          <div 
-            className="h-full shrink-0"
-            style={{ 
-              width: designTokens.spacing.navigation.dividerWidth,
-              backgroundColor: designTokens.colors.border.default 
-            }}
-          />
-        </div>
-        <button
-          className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
-          style={{ 
-            padding: designTokens.spacing.navigation.iconButtonPadding,
-            borderRadius: designTokens.spacing.navigation.iconButtonRadius,
-            width: designTokens.spacing.navigation.iconButtonSize,
-            height: designTokens.spacing.navigation.iconButtonSize,
-            backgroundColor: designTokens.colors.background.main,
-            boxShadow: designTokens.shadows.navIcon
-          }}
-          aria-label="Ethereum Chain"
-        >
-          <Image
-            src={ethereumLogo}
-            alt="Ethereum"
-            width={parseInt(designTokens.spacing.navigation.iconSize)}
-            height={parseInt(designTokens.spacing.navigation.iconSize)}
-            className="object-contain"
-            style={{ 
-              width: designTokens.spacing.navigation.iconSize,
-              height: designTokens.spacing.navigation.iconSize,
-            }}
-          />
-        </button>
-        <Button
-          variant="connectWallet"
-          isBridgeContext={isBridgeContext}
-          className="shrink-0"
-        >
-          Connect Wallet
-        </Button>
         </div>
         </div>
       </div>

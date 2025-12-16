@@ -140,7 +140,7 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
   }))
 
   const createCustomBarShape = (fill: string, radius: [number, number, number, number]) => {
-    return (props: any) => {
+    const CustomBarShape = (props: any) => {
       const { payload, x, y, width, height } = props
       const barIndex = payload?.index ?? barData.findIndex(d => 
         d.orange === payload?.orange && 
@@ -161,43 +161,27 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
         setHoveredIndex(null)
       }
 
-      // Hover animation: scale up both width and height
-      const scale = isHovered ? 1.12 : 1
-      const centerX = x + width / 2
-      const bottomY = y + height
-      // Translate to keep bottom center fixed while scaling
-      const scaleTranslateX = centerX * (1 - scale)
-      const scaleTranslateY = bottomY * (1 - scale)
-
       return (
-        <g style={{ pointerEvents: "none" }}>
-          <g
-            transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
-            style={{
-              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            <rect
-              x={x}
-              y={y}
-              width={width}
-              height={height}
-              fill={fill}
-              opacity={opacity}
-              rx={radius[0]}
-              ry={radius[1]}
-              style={{
-                transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                cursor: "pointer",
-                pointerEvents: "auto",
-              }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            />
-          </g>
-        </g>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          fill={fill}
+          opacity={opacity}
+          rx={radius[0]}
+          ry={radius[1]}
+          style={{
+            transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            cursor: "pointer",
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
       )
     }
+    CustomBarShape.displayName = 'CustomBarShape'
+    return CustomBarShape
   }
 
   if (isEmpty) {

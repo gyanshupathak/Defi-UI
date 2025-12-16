@@ -26,7 +26,6 @@ export default function BridgePage() {
   const [selectedToken, setSelectedToken] = React.useState<BridgeToken>("syUSD")
   const balance = 115447.00 
 
-  
   const percentage = React.useMemo(() => {
     const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
     if (amountNum === 0 || balance <= 0) return 0
@@ -34,7 +33,6 @@ export default function BridgePage() {
     return Math.min(100, Math.max(0, pct))
   }, [amount, balance])
 
-  
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/[^0-9.]/g, '')
 
@@ -43,7 +41,6 @@ export default function BridgePage() {
       return
     }
     
-    // Prevent multiple decimal points
     const parts = value.split('.')
     if (parts.length > 2) {
       value = parts[0] + '.' + parts.slice(1).join('')
@@ -53,7 +50,6 @@ export default function BridgePage() {
     if (!isNaN(numValue) && numValue >= 0) {
       const limitedValue = Math.min(numValue, balance)
       
-      // Preserve decimal places if user is typing, otherwise format to 2 decimals
       if (value.includes('.')) {
         const decimalPlaces = value.split('.')[1]?.length || 0
         const formatted = decimalPlaces > 0 
@@ -66,13 +62,11 @@ export default function BridgePage() {
     }
   }
 
-  
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
     setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
   }
 
-  
   const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
@@ -84,19 +78,16 @@ export default function BridgePage() {
         overflowY: 'auto',
       }}
     >
-      {}
       <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
         <NeumorphicNav activeMenuItem="bridge" />
       </div>
 
-      {}
       <PageContainer>
         <div 
           className="flex w-full justify-center"
           style={{ paddingTop: '80px' }}
         >
           <div className="flex flex-col items-start" style={{ width: '426px' }}>
-        {}
         <NeumorphicInputCard
           height={325}
           width={426}
@@ -114,7 +105,6 @@ export default function BridgePage() {
             { top: 160, height: 125, width: 402 }  
           ]}
         >
-          {}
           <div className="absolute left-[36px] top-[72px] flex flex-col gap-[8px] items-start">
             <div className="flex gap-[8px] items-center">
               <p 
@@ -127,7 +117,6 @@ export default function BridgePage() {
               >
                 Source Network
               </p>
-              {}
               <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
                 <svg 
                   width="12" 
@@ -160,7 +149,6 @@ export default function BridgePage() {
             />
           </div>
 
-          {}
           <div className="absolute left-[230px] top-[72px] flex flex-col gap-[8px] items-start">
             <div className="flex gap-[8px] items-center">
               <p 
@@ -173,7 +161,6 @@ export default function BridgePage() {
               >
                 Destination Network
               </p>
-              {}
               <div className="relative w-[12px] h-[12px] shrink-0 overflow-hidden">
                 <svg 
                   width="12" 
@@ -206,7 +193,6 @@ export default function BridgePage() {
             />
           </div>
 
-          {}
           <div className="absolute left-[36px] top-[190px] z-10">
             <input
               type="text"
@@ -221,9 +207,7 @@ export default function BridgePage() {
             />
           </div>
 
-          {}
           <div className="absolute left-[36px] top-[245px] flex gap-[4px] items-center z-10">
-            {}
             <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
               <Image
                 src="/images/icons/wallet-logo.svg"
@@ -241,7 +225,6 @@ export default function BridgePage() {
             </p>
           </div>
 
-          {}
           <div className="absolute left-[314px] top-[180px]">
           <CircularPercentageSelector 
             value={percentage}
@@ -250,7 +233,6 @@ export default function BridgePage() {
           />
           </div>
 
-          {}
           <p 
             className={cn("absolute left-[24px] top-[297px] h-[16px] opacity-50", typographyClasses.label1)}
             style={{ 
@@ -261,7 +243,6 @@ export default function BridgePage() {
           </p>
         </NeumorphicInputCard>
 
-        {}
         <div className="relative h-[56px] w-[426px] mt-[32px]">
           <Button
             className="w-full h-full"

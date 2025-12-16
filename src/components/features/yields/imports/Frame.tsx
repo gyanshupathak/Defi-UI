@@ -1,262 +1,485 @@
-import * as React from "react";
-import svgPaths from "./svg";
+"use client"
 
-function EthStable() {
-  return (
-    <div className="relative size-[18px]" data-name="ETH Stable">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 32 32">
-        <g id="ETH Stable" opacity="0">
-          <circle cx="8.99929" cy="8.99991" fill="var(--fill-0, #B88AF8)" id="Ellipse 662" r="7.99978" />
-          <circle cx="9" cy="9" fill="var(--fill-0, #627EEA)" id="Ellipse 663" r="9" />
-          <g id="Group 48095614">
-            <circle cx="8.99929" cy="8.99991" fill="var(--fill-0, #627EEA)" id="Ellipse 2" r="7.99978" />
-            <path d={svgPaths.pab52d80} fill="var(--fill-0, white)" id="Subtract" />
-            <circle cx="8.99942" cy="9.00005" fill="var(--fill-0, #93A6F1)" id="Ellipse 1" r="6.99979" />
-          </g>
-          <g id="Group">
-            <path d={svgPaths.p3b7bb300} fill="var(--fill-0, white)" id="Vector" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-            <path d={svgPaths.p20b43c00} fill="var(--fill-0, white)" id="Vector_2" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-            <path d={svgPaths.p10768c80} fill="var(--fill-0, white)" id="Vector_3" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-            <path d={svgPaths.p1b0e6a00} fill="var(--fill-0, white)" id="Vector_4" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-            <path d={svgPaths.pe6d8300} fill="var(--fill-0, white)" id="Vector_5" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-            <path d={svgPaths.p3bb63d80} fill="var(--fill-0, white)" id="Vector_6" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0321449" />
-          </g>
-        </g>
-      </svg>
-    </div>
-  );
-}
+import React, { useState } from 'react';
+import clsx from 'clsx';
+import Image from 'next/image';
+import svgPathsDefault from './svg-default';
+import svgPathsHover from './svg-hover';
+import svgPathsPressed from './svg-pressed';
+import svgPathsRibbon from './svg-ribbon';
+import { TokenType } from '../token-selector';
+import { tokenData, TokenData } from '../token-data';
+import { designTokens } from '@/lib/design-system';
+import { StrategyType } from '@/app/(dashboard)/yields/page';
 
-function UsdStable() {
-  return (
-    <div className="absolute left-1/2 size-[72px] top-1/2 translate-x-[-50%] translate-y-[-50%]" data-name="USD Stable">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 72 72">
-        <g id="USD Stable">
-          <circle cx="36" cy="36" fill="var(--fill-0, #B88AF8)" id="Ellipse 662" r="32" />
-          <circle cx="36" cy="36" fill="var(--fill-0, #2775CA)" id="Ellipse 663" r="36" />
-          <g id="Group 48095614">
-            <circle cx="35.9978" cy="36" fill="var(--fill-0, #2775CA)" id="Ellipse 2" r="32" />
-            <path d={svgPaths.p1b9d3900} fill="var(--fill-0, white)" id="Subtract" />
-            <circle cx="35.9983" cy="36.0003" fill="var(--fill-0, #5496DE)" id="Ellipse 1" r="28" />
-          </g>
-          <g id="Exclude">
-            <mask fill="black" height="46" id="path-6-outside-1_1_501" maskUnits="userSpaceOnUse" width="28" x="21.4453" y="14.4131">
-              <rect fill="white" height="46" width="28" x="21.4453" y="14.4131" />
-              <path d={svgPaths.pdeca380} />
-            </mask>
-            <path d={svgPaths.pdeca380} fill="var(--fill-0, white)" />
-            <path d={svgPaths.p31cd7900} fill="var(--stroke-0, #5B81EC)" mask="url(#path-6-outside-1_1_501)" />
-          </g>
-        </g>
-      </svg>
-    </div>
-  );
-}
+type ButtonState = 'default' | 'hover' | 'pressed';
 
-function EthStable1() {
+// Helper components for text
+function Text({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
   return (
-    <div className="relative size-[14px]" data-name="ETH Stable">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 32 32">
-        <g id="ETH Stable" opacity="0">
-          <circle cx="6.99944" cy="6.99993" fill="var(--fill-0, #B88AF8)" id="Ellipse 662" r="6.22205" />
-          <circle cx="7" cy="7" fill="var(--fill-0, #627EEA)" id="Ellipse 663" r="7" />
-          <g id="Group 48095614">
-            <circle cx="6.99944" cy="6.99993" fill="var(--fill-0, #627EEA)" id="Ellipse 2" r="6.22205" />
-            <path d={svgPaths.p3cf52600} fill="var(--fill-0, white)" id="Subtract" />
-            <circle cx="6.99955" cy="7.00004" fill="var(--fill-0, #93A6F1)" id="Ellipse 1" r="5.44428" />
-          </g>
-          <g id="Group">
-            <path d={svgPaths.p2d32ec00} fill="var(--fill-0, white)" id="Vector" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-            <path d={svgPaths.p101bc000} fill="var(--fill-0, white)" id="Vector_2" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-            <path d={svgPaths.p170dfd00} fill="var(--fill-0, white)" id="Vector_3" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-            <path d={svgPaths.p1900d80} fill="var(--fill-0, white)" id="Vector_4" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-            <path d={svgPaths.p16306d80} fill="var(--fill-0, white)" id="Vector_5" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-            <path d={svgPaths.p297df400} fill="var(--fill-0, white)" id="Vector_6" stroke="var(--stroke-0, #8198EE)" strokeWidth="0.0250016" />
-          </g>
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function BtcStable() {
-  return (
-    <div className="relative size-[14px]" data-name="BTC Stable">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 32 32">
-        <g id="BTC Stable" opacity="0">
-          <circle cx="7.00005" cy="7.00005" fill="var(--fill-0, #B88AF8)" id="Ellipse 662" r="6.22222" />
-          <circle cx="7" cy="7" fill="var(--fill-0, #F7931A)" id="Ellipse 663" r="7" />
-          <g id="Group 48095614">
-            <circle cx="6.99956" cy="7.00005" fill="var(--fill-0, #F7931A)" id="Ellipse 2" r="6.22222" />
-            <path d={svgPaths.pdc1b780} fill="var(--fill-0, white)" id="Subtract" />
-            <circle cx="6.99962" cy="7.00006" fill="var(--fill-0, #F9B561)" id="Ellipse 1" r="5.44444" />
-            <path d={svgPaths.pe871c80} fill="var(--fill-0, white)" id="Vector" stroke="var(--stroke-0, #E28D28)" strokeWidth="0.125" />
-          </g>
-        </g>
-      </svg>
-    </div>
-  );
-}
-
-function Logo() {
-  return (
-    <div className="absolute left-[275px] size-[134px] top-[333px]" data-name="Logo">
-      <div className="absolute bg-[#f4f0ff] left-1/2 rounded-[9497.64px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_#ffffff] size-[134px] top-1/2 translate-x-[-50%] translate-y-[-50%]" />
-      <div className="absolute flex items-center justify-center left-[58px] size-[18px] top-[58px]">
-        <div className="flex-none rotate-[180deg]">
-          <EthStable />
-        </div>
-      </div>
-      <UsdStable />
-      <div className="absolute flex items-center justify-center left-1/2 size-[14px] top-1/2 translate-x-[-50%] translate-y-[-50%]">
-        <div className="flex-none rotate-[180deg]">
-          <EthStable1 />
-        </div>
-      </div>
-      <div className="absolute flex items-center justify-center left-1/2 size-[14px] top-1/2 translate-x-[-50%] translate-y-[-50%]">
-        <div className="flex-none rotate-[180deg]">
-          <BtcStable />
-        </div>
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
+        <p className="leading-[normal]">{text}</p>
       </div>
     </div>
   );
 }
 
-function UsdCoinUsdcLogo() {
+function Text1({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
   return (
-    <div className="relative size-[24px]" data-name="usd-coin-usdc-logo (1) 1">
-      <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 24 24">
-        <g clipPath="url(#clip0_1_484)" id="usd-coin-usdc-logo (1) 1">
-          <path d={svgPaths.p9ed780} fill="var(--fill-0, #2775CA)" id="Vector" />
-          <path d={svgPaths.p3882dd00} fill="var(--fill-0, white)" id="Vector_2" />
-          <path d={svgPaths.p337df100} fill="var(--fill-0, white)" id="Vector_3" />
-        </g>
-        <defs>
-          <clipPath id="clip0_1_484">
-            <rect fill="white" height="24" width="24" />
-          </clipPath>
-        </defs>
-      </svg>
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[7.556px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
     </div>
   );
 }
 
-function CurveText() {
+function Text2({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
   return (
-    <div className="absolute contents left-[96.86px] top-[133.94px]" data-name="curve text">
-      <div className="absolute flex h-[9.295px] items-center justify-center left-[96.86px] top-[237.4px] translate-y-[-50%] w-[13.38px]" style={{ "--transform-inner-width": "6.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.968px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Text3({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.76px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Text4({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.213px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Text5({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Text6({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[8.415px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Text7({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.201px]">
+        <p className="leading-[normal]">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+function Helper1({ additionalClassNames = "" }: { additionalClassNames?: string }) {
+  return (
+    <div className={clsx("flex-none", additionalClassNames)}>
+      <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[3.178px]">
+        <p className="leading-[normal]"></p>
+      </div>
+    </div>
+  );
+}
+
+interface YieldsCircleProps {
+  tokenType?: TokenType;
+}
+
+export default function YieldsCircle({ tokenType = 'usd' }: YieldsCircleProps) {
+  const [buttonState, setButtonState] = useState<ButtonState>('default');
+
+  const svgPaths = buttonState === 'hover' 
+    ? svgPathsHover 
+    : buttonState === 'pressed' 
+    ? svgPathsPressed 
+    : svgPathsDefault;
+
+  const data = tokenData[tokenType];
+
+  React.useEffect(() => {
+    console.log('YieldsCircle: tokenType changed to', tokenType, 'data:', data);
+  }, [tokenType, data]);
+
+  return (
+    <div className="relative w-[600px] h-[600px]">
+      <Circle 
+        svgPaths={svgPaths} 
+        buttonState={buttonState} 
+        setButtonState={setButtonState}
+        tokenData={data}
+        tokenType={tokenType}
+      />
+    </div>
+  );
+}
+
+interface CircleProps {
+  svgPaths: any;
+  buttonState: ButtonState;
+  setButtonState: (state: ButtonState) => void;
+  tokenData: TokenData;
+  tokenType: TokenType;
+}
+
+function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType }: CircleProps) {
+  return (
+    <div className="absolute left-[57px] size-[600px] top-[188px]">
+      {/* Main circles */}
+      <div className="absolute bg-[#f4f0ff] left-1/2 rounded-[11238.9px] shadow-[4.496px_4.496px_13.488px_0px_rgba(127,86,217,0.12),-4.496px_-4.496px_11.24px_0px_white] size-[600px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bg-[#f4f0ff] border border-solid border-white left-1/2 rounded-[11238.9px] size-[568px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bg-[#f4f0ff] border-[2.248px] border-[rgba(255,255,255,0.64)] border-solid left-1/2 rounded-[186.584px] size-[280px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      
+      <Logo tokenData={tokenData} />
+      
+      {/* Segments */}
+      <div className="absolute left-1/2 size-[542px] top-[calc(50%+1px)] -translate-x-1/2 -translate-y-1/2">
+        {/* Bottom left */}
+        <div className="absolute" style={{ inset: '50.87% 68.7% 11.96% 0.21%' }}>
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 169 202" style={{ shapeRendering: 'crispEdges' }}>
+            <defs>
+              <clipPath id="clip1">
+                <path d={svgPaths.p4a95f40} />
+              </clipPath>
+              <filter id="innerShadow1" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur"/>
+                <feOffset in="blur" dx="-3.5" dy="-3.5" result="offsetBlur"/>
+                <feFlood floodColor="rgba(127, 86, 217, 0.18)" result="shadowColor"/>
+                <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="innerShadow1"/>
+                
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur2"/>
+                <feOffset in="blur2" dx="3.5" dy="3.5" result="offsetBlur2"/>
+                <feFlood floodColor="rgba(255, 255, 255, 0.5)" result="lightColor"/>
+                <feComposite in="lightColor" in2="offsetBlur2" operator="in" result="innerShadow2"/>
+                
+                <feMerge>
+                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="innerShadow1"/>
+                  <feMergeNode in="innerShadow2"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Fill with shadow, clipped to shape */}
+            <g clipPath="url(#clip1)">
+              <path d={svgPaths.p4a95f40} fill="#F8F5FF" filter="url(#innerShadow1)" />
+            </g>
+          </svg>
+        </div>
+        
+        {/* Bottom right */}
+        <div className="absolute" style={{ inset: '50.88% 0.21% 11.95% 68.7%' }}>
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 169 202" style={{ shapeRendering: 'crispEdges' }}>
+            <defs>
+              <clipPath id="clip2">
+                <path d={svgPaths.pd1d2730} />
+              </clipPath>
+              <filter id="innerShadow2" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur"/>
+                <feOffset in="blur" dx="-3.5" dy="-3.5" result="offsetBlur"/>
+                <feFlood floodColor="rgba(127, 86, 217, 0.18)" result="shadowColor"/>
+                <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="innerShadow1"/>
+                
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur2"/>
+                <feOffset in="blur2" dx="3.5" dy="3.5" result="offsetBlur2"/>
+                <feFlood floodColor="rgba(255, 255, 255, 0.5)" result="lightColor"/>
+                <feComposite in="lightColor" in2="offsetBlur2" operator="in" result="innerShadow2"/>
+                
+                <feMerge>
+                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="innerShadow1"/>
+                  <feMergeNode in="innerShadow2"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Fill with shadow, clipped to shape */}
+            <g clipPath="url(#clip2)">
+              <path d={svgPaths.pd1d2730} fill="#F8F5FF" filter="url(#innerShadow2)" />
+            </g>
+          </svg>
+        </div>
+        
+        {/* Top left */}
+        <div className="absolute" style={{ inset: '8.24% 0.21% 50.88% 65.61%' }}>
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 186 222" style={{ shapeRendering: 'crispEdges' }}>
+            <defs>
+              <clipPath id="clip3">
+                <path d={svgPaths.p22bfbf00} />
+              </clipPath>
+              <filter id="innerShadow3" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur"/>
+                <feOffset in="blur" dx="-3.5" dy="-3.5" result="offsetBlur"/>
+                <feFlood floodColor="rgba(127, 86, 217, 0.18)" result="shadowColor"/>
+                <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="innerShadow1"/>
+                
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur2"/>
+                <feOffset in="blur2" dx="3.5" dy="3.5" result="offsetBlur2"/>
+                <feFlood floodColor="rgba(255, 255, 255, 0.5)" result="lightColor"/>
+                <feComposite in="lightColor" in2="offsetBlur2" operator="in" result="innerShadow2"/>
+                
+                <feMerge>
+                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="innerShadow1"/>
+                  <feMergeNode in="innerShadow2"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Fill with shadow, clipped to shape */}
+            <g clipPath="url(#clip3)">
+              <path d={svgPaths.p22bfbf00} fill="#F8F5FF" filter="url(#innerShadow3)" />
+            </g>
+          </svg>
+        </div>
+        
+        {/* Top right */}
+        <div className="absolute" style={{ inset: '8.24% 65.61% 50.85% 0.2%' }}>
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 186 222" style={{ shapeRendering: 'crispEdges' }}>
+            <defs>
+              <clipPath id="clip4">
+                <path d={svgPaths.p9e6a4f0} />
+              </clipPath>
+              <filter id="innerShadow4" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur"/>
+                <feOffset in="blur" dx="-3.5" dy="-3.5" result="offsetBlur"/>
+                <feFlood floodColor="rgba(127, 86, 217, 0.18)" result="shadowColor"/>
+                <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="innerShadow1"/>
+                
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur2"/>
+                <feOffset in="blur2" dx="3.5" dy="3.5" result="offsetBlur2"/>
+                <feFlood floodColor="rgba(255, 255, 255, 0.5)" result="lightColor"/>
+                <feComposite in="lightColor" in2="offsetBlur2" operator="in" result="innerShadow2"/>
+                
+                <feMerge>
+                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="innerShadow1"/>
+                  <feMergeNode in="innerShadow2"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Fill with shadow, clipped to shape */}
+            <g clipPath="url(#clip4)">
+              <path d={svgPaths.p9e6a4f0} fill="#F8F5FF" filter="url(#innerShadow4)" />
+            </g>
+          </svg>
+        </div>
+        
+        {/* Top center */}
+        <div className="absolute" style={{ inset: '0 28.44% 75.58% 28.45%' }}>
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 234 133" style={{ shapeRendering: 'crispEdges' }}>
+            <defs>
+              <clipPath id="clip5">
+                <path d={svgPaths.p16541700 || svgPaths.pa7c6800 || svgPaths.p1dbf7680} />
+              </clipPath>
+              <filter id="innerShadow5" x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur"/>
+                <feOffset in="blur" dx="-3.5" dy="-3.5" result="offsetBlur"/>
+                <feFlood floodColor="rgba(127, 86, 217, 0.18)" result="shadowColor"/>
+                <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="innerShadow1"/>
+                
+                <feGaussianBlur in="SourceAlpha" stdDeviation="2.0" result="blur2"/>
+                <feOffset in="blur2" dx="3.5" dy="3.5" result="offsetBlur2"/>
+                <feFlood floodColor="rgba(255, 255, 255, 0.5)" result="lightColor"/>
+                <feComposite in="lightColor" in2="offsetBlur2" operator="in" result="innerShadow2"/>
+                
+                <feMerge>
+                  <feMergeNode in="SourceGraphic"/>
+                  <feMergeNode in="innerShadow1"/>
+                  <feMergeNode in="innerShadow2"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* Fill with shadow, clipped to shape */}
+            <g clipPath="url(#clip5)">
+              <path d={svgPaths.p16541700 || svgPaths.pa7c6800 || svgPaths.p1dbf7680} fill="#F8F5FF" filter="url(#innerShadow5)" />
+            </g>
+          </svg>
+        </div>
+      </div>
+      
+      {/* Token Icon */}
+      <div className="absolute flex items-center justify-center left-[79.56px] size-[30.211px] top-[346.97px]">
+        <div className="flex-none rotate-[72.113deg]">
+          <TokenIcon tokenData={tokenData} />
+        </div>
+      </div>
+      
+      {/* All curved texts */}
+      <CurveTextLifetime svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveText56K svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextShare svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveText104 svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextBaseApy svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveText2144 svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextTvl svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveText222K svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveText228K svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextFastRedeemed svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextTokenSymbol svgPaths={svgPaths} tokenData={tokenData} />
+      <CurveTextStableYield svgPaths={svgPaths} tokenData={tokenData} />
+      
+      <Button svgPaths={svgPaths} buttonState={buttonState} setButtonState={setButtonState} />
+    </div>
+  );
+}
+
+function Logo({ tokenData }: { tokenData: TokenData }) {
+  return (
+    <div className="absolute left-[233px] size-[134px] top-[233px]">
+      <div className="absolute bg-[#f4f0ff] left-1/2 rounded-[9497.64px] shadow-[3.799px_3.799px_11.398px_0px_rgba(127,86,217,0.12),-3.799px_-3.799px_9.499px_0px_white] size-[134px] top-1/2 -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute left-1/2 size-[72px] top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <Image
+          key={tokenData.symbol}
+          src={tokenData.centerIcon}
+          alt={tokenData.name}
+          width={72}
+          height={72}
+          className="object-contain"
+        />
+      </div>
+    </div>
+  );
+}
+
+function TokenIcon({ tokenData }: { tokenData: TokenData }) {
+  return (
+    <div className="relative size-[24px]">
+      <Image
+        key={tokenData.symbol}
+        src={tokenData.smallIcon}
+        alt={tokenData.symbol}
+        width={24}
+        height={24}
+        className="object-contain"
+      />
+    </div>
+  );
+}
+
+// LIFETIME RETURNS curved text (left side)
+function CurveTextLifetime({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
+  return (
+    <div className="absolute contents left-[125.86px] top-[163.94px]">
+      <div className="absolute flex h-[9.295px] items-center justify-center left-[125.86px] top-[267.4px] -translate-y-1/2 w-[13.38px]">
         <div className="flex-none rotate-[281.959deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[6.915px]">
             <p className="leading-[normal]">L</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[6.101px] items-center justify-center left-[98.42px] top-[232.18px] translate-y-[-50%] w-[12.643px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[6.101px] items-center justify-center left-[127.42px] top-[262.18px] -translate-y-1/2 w-[12.643px]">
         <div className="flex-none rotate-[283.788deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.285px]">
             <p className="leading-[normal]">I</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.242px] items-center justify-center left-[99.29px] top-[226.88px] translate-y-[-50%] w-[13.706px]" style={{ "--transform-inner-width": "7.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.242px] items-center justify-center left-[128.29px] top-[256.88px] -translate-y-1/2 w-[13.706px]">
         <div className="flex-none rotate-[285.665deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.213px]">
             <p className="leading-[normal]">F</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.799px] items-center justify-center left-[101.4px] top-[219.64px] translate-y-[-50%] w-[13.898px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.799px] items-center justify-center left-[130.4px] top-[249.64px] -translate-y-1/2 w-[13.898px]">
         <div className="flex-none rotate-[288.256deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.344px]">
             <p className="leading-[normal]">E</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.736px] items-center justify-center left-[103.88px] top-[212.22px] translate-y-[-50%] w-[14.226px]" style={{ "--transform-inner-width": "7.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.736px] items-center justify-center left-[132.88px] top-[242.22px] -translate-y-1/2 w-[14.226px]">
         <div className="flex-none rotate-[290.953deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.891px]">
             <p className="leading-[normal]">T</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[7.782px] items-center justify-center left-[106.88px] top-[206.88px] translate-y-[-50%] w-[12.527px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[7.782px] items-center justify-center left-[135.88px] top-[236.88px] -translate-y-1/2 w-[12.527px]">
         <div className="flex-none rotate-[292.923deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.285px]">
             <p className="leading-[normal]">I</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[15.213px] items-center justify-center left-[108.32px] top-[200.06px] translate-y-[-50%] w-[15.77px]" style={{ "--transform-inner-width": "10", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[15.213px] items-center justify-center left-[137.32px] top-[230.06px] -translate-y-1/2 w-[15.77px]">
         <div className="flex-none rotate-[295.477deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[11.033px]">
             <p className="leading-[normal]">M</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.31px] items-center justify-center left-[113.44px] top-[191.55px] translate-y-[-50%] w-[14.238px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.31px] items-center justify-center left-[142.44px] top-[221.55px] -translate-y-1/2 w-[14.238px]">
         <div className="flex-none rotate-[298.736deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.344px]">
             <p className="leading-[normal]">E</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[9.183px] items-center justify-center left-[117.2px] top-[186.69px] translate-y-[-50%] w-[12.26px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[300.64deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.44px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[9.366px] items-center justify-center left-[119.09px] top-[183.64px] translate-y-[-50%] w-[12.188px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[301.851deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.44px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[13.335px] items-center justify-center left-[121.09px] top-[178.73px] translate-y-[-50%] w-[14.524px]" style={{ "--transform-inner-width": "8.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[13.335px] items-center justify-center left-[150.09px] top-[208.73px] -translate-y-1/2 w-[14.524px]">
         <div className="flex-none rotate-[303.837deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.867px]">
             <p className="leading-[normal]">R</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.169px] items-center justify-center left-[125.82px] top-[172.26px] translate-y-[-50%] w-[14.184px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[13.169px] items-center justify-center left-[154.82px] top-[202.26px] -translate-y-1/2 w-[14.184px]">
         <div className="flex-none rotate-[306.518deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.344px]">
             <p className="leading-[normal]">E</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.833px] items-center justify-center left-[130.54px] top-[166.01px] translate-y-[-50%] w-[14.451px]" style={{ "--transform-inner-width": "7.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[13.833px] items-center justify-center left-[159.54px] top-[196.01px] -translate-y-1/2 w-[14.451px]">
         <div className="flex-none rotate-[309.197deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.891px]">
             <p className="leading-[normal]">T</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[14.938px] items-center justify-center left-[135.94px] top-[159.33px] translate-y-[-50%] w-[15.155px]" style={{ "--transform-inner-width": "8.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[14.938px] items-center justify-center left-[164.94px] top-[189.33px] -translate-y-1/2 w-[15.155px]">
         <div className="flex-none rotate-[312.178deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[9.093px]">
             <p className="leading-[normal]">U</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[14.206px] items-center justify-center left-[142.5px] top-[152.96px] translate-y-[-50%] w-[14.19px]" style={{ "--transform-inner-width": "8.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[14.206px] items-center justify-center left-[171.5px] top-[182.96px] -translate-y-1/2 w-[14.19px]">
         <div className="flex-none rotate-[315.151deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.867px]">
             <p className="leading-[normal]">R</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[15.235px] items-center justify-center left-[148.53px] top-[146.88px] translate-y-[-50%] w-[15.001px]" style={{ "--transform-inner-width": "8.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[15.235px] items-center justify-center left-[177.53px] top-[176.88px] -translate-y-1/2 w-[15.001px]">
         <div className="flex-none rotate-[318.143deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[9.2px]">
             <p className="leading-[normal]">N</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[14.43px] items-center justify-center left-[155.89px] top-[141.15px] translate-y-[-50%] w-[13.77px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[14.43px] items-center justify-center left-[184.89px] top-[171.15px] -translate-y-1/2 w-[13.77px]">
         <div className="flex-none rotate-[321.134deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.212px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.843px]">
             <p className="leading-[normal]">S</p>
@@ -267,270 +490,160 @@ function CurveText() {
   );
 }
 
-function CurveText1() {
+// Lifetime Returns curved text (left side) - dynamic
+function CurveText56K({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
+  // Parse value like "$5.6K" or "$4.2K" or "$3.1K"
+  const value = tokenData.lifetimeReturns;
+  // Extract parts: "$", "5", ".", "6", "K"
+  const parts = value.match(/(\$)(\d)(\.)(\d)(K)/);
+  if (!parts) return null;
+  
+  const [_, dollar, firstDigit, dot, secondDigit, k] = parts;
+  
   return (
-    <div className="absolute contents left-[51.16px] top-[117px]" data-name="curve text">
-      <div className="absolute flex h-[27.558px] items-center justify-center left-[51.16px] top-[192.32px] translate-y-[-50%] w-[35.67px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[290.532deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">$</p>
-          </div>
-        </div>
+    <div className="absolute contents left-[80.16px] top-[147px]">
+      <div className="absolute flex h-[27.558px] items-center justify-center left-[80.16px] top-[222.32px] -translate-y-1/2 w-[35.67px]">
+        <Text text={dollar} additionalClassNames="rotate-[290.532deg]" />
       </div>
-      <div className="absolute flex h-[29.501px] items-center justify-center left-[58.44px] top-[174.82px] translate-y-[-50%] w-[36.013px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[295.577deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">5</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[29.501px] items-center justify-center left-[87.44px] top-[204.82px] -translate-y-1/2 w-[36.013px]">
+        <Text text={firstDigit} additionalClassNames="rotate-[295.577deg]" />
       </div>
-      <div className="absolute flex h-[21.947px] items-center justify-center left-[67.12px] top-[162.73px] translate-y-[-50%] w-[31.173px]" style={{ "--transform-inner-width": "8.890625", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[299.179deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[7.556px]">
-            <p className="leading-[normal]">.</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[21.947px] items-center justify-center left-[96.12px] top-[192.73px] -translate-y-1/2 w-[31.173px]">
+        <Text1 text={dot} additionalClassNames="rotate-[299.179deg]" />
       </div>
-      <div className="absolute flex h-[31.867px] items-center justify-center left-[71.67px] top-[151.1px] translate-y-[-50%] w-[36.02px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[302.758deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">6</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[31.867px] items-center justify-center left-[100.67px] top-[181.1px] -translate-y-1/2 w-[36.02px]">
+        <Text text={secondDigit} additionalClassNames="rotate-[302.758deg]" />
       </div>
-      <div className="absolute flex h-[35.14px] items-center justify-center left-[82.89px] top-[134.57px] translate-y-[-50%] w-[37.097px]" style={{ "--transform-inner-width": "23.109375", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[308.096deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.968px]">
-            <p className="leading-[normal]">K</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[35.14px] items-center justify-center left-[111.9px] top-[164.57px] -translate-y-1/2 w-[37.097px]">
+        <Text2 text={k} additionalClassNames="rotate-[308.096deg]" />
       </div>
     </div>
   );
 }
 
-function Frame1() {
+// SHARE curved text (bottom left)
+function CurveTextShare({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute left-[71px] size-[542px] top-[129px]">
-      <div className="absolute left-1/2 size-[542px] top-1/2 translate-x-[-50%] translate-y-[-50%]">
-        <div className="absolute inset-[8.24%_65.61%_50.85%_0.2%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 186 222">
-            <g filter="url(#filter0_ii_1_482)" id="Ellipse 1183">
-              <path d={svgPaths.p9e6a4f0} fill="var(--fill-0, #F8F5FF)" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="230.705" id="filter0_ii_1_482" width="194.273" x="-4.496" y="-4.496">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-4.496" dy="-4.496" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="shape" mode="normal" result="effect1_innerShadow_1_482" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.498039 0 0 0 0 0.337255 0 0 0 0 0.85098 0 0 0 0.1 0" />
-                <feBlend in2="effect1_innerShadow_1_482" mode="normal" result="effect2_innerShadow_1_482" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-      <CurveText />
-      <CurveText1 />
-    </div>
-  );
-}
-
-function CurveText2() {
-  return (
-    <div className="absolute contents h-[72.675px] left-[164.82px] top-[439.69px] w-[54.477px]" data-name="curve text">
-      <div className="absolute flex h-[9.607px] items-center justify-center left-[170.81px] top-[445.56px] translate-y-[-50%] w-[13.484px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+    <div className="absolute contents h-[72.676px] left-[122.82px] top-[339.69px] w-[54.477px]">
+      <div className="absolute flex h-[9.607px] items-center justify-center left-[128.81px] top-[345.56px] -translate-y-1/2 w-[13.484px]">
         <div className="flex-none rotate-[76.094deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[6.879px]">
             <p className="leading-[normal]">S</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.395px] items-center justify-center left-[172.44px] top-[452.55px] translate-y-[-50%] w-[14.038px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.395px] items-center justify-center left-[130.44px] top-[352.55px] -translate-y-1/2 w-[14.038px]">
         <div className="flex-none rotate-[73.418deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[8.26px]">
             <p className="leading-[normal]">H</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.372px] items-center justify-center left-[174.8px] top-[459.89px] translate-y-[-50%] w-[14.075px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[70.573deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.76px]">
-            <p className="leading-[normal]">A</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[11.372px] items-center justify-center left-[132.8px] top-[359.89px] -translate-y-1/2 w-[14.075px]">
+        <Text3 text="A" additionalClassNames="rotate-[70.573deg]" />
       </div>
-      <div className="absolute flex h-[11.266px] items-center justify-center left-[177.4px] top-[466.65px] translate-y-[-50%] w-[14.005px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[67.912deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.213px]">
-            <p className="leading-[normal]">R</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[11.266px] items-center justify-center left-[135.4px] top-[366.65px] -translate-y-1/2 w-[14.005px]">
+        <Text4 text="R" additionalClassNames="rotate-[67.912deg]" />
       </div>
-      <div className="absolute flex h-[11.559px] items-center justify-center left-[180.12px] top-[472.99px] translate-y-[-50%] w-[14.05px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[65.376deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[11.559px] items-center justify-center left-[138.12px] top-[372.99px] -translate-y-1/2 w-[14.05px]">
+        <Text5 text="E" additionalClassNames="rotate-[65.376deg]" />
       </div>
-      <div className="absolute flex h-[8.272px] items-center justify-center left-[183.11px] top-[477.47px] translate-y-[-50%] w-[12.328px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[63.56deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[3.178px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
+      <div className="absolute flex h-[8.272px] items-center justify-center left-[141.11px] top-[377.47px] -translate-y-1/2 w-[12.328px]">
+        <Helper1 additionalClassNames="rotate-[63.56deg]" />
       </div>
-      <div className="absolute flex h-[8.456px] items-center justify-center left-[184.53px] top-[480.18px] translate-y-[-50%] w-[12.275px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[62.443deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[3.178px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
+      <div className="absolute flex h-[8.456px] items-center justify-center left-[142.53px] top-[380.19px] -translate-y-1/2 w-[12.275px]">
+        <Helper1 additionalClassNames="rotate-[62.443deg]" />
       </div>
-      <div className="absolute flex h-[11.85px] items-center justify-center left-[185.97px] top-[484.38px] translate-y-[-50%] w-[13.931px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.85px] items-center justify-center left-[143.97px] top-[384.38px] -translate-y-1/2 w-[13.931px]">
         <div className="flex-none rotate-[60.697deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[6.748px]">
             <p className="leading-[normal]">P</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.548px] items-center justify-center left-[189.28px] top-[490.19px] translate-y-[-50%] w-[14.159px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[58.237deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.213px]">
-            <p className="leading-[normal]">R</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[12.548px] items-center justify-center left-[147.28px] top-[390.19px] -translate-y-1/2 w-[14.159px]">
+        <Text4 text="R" additionalClassNames="rotate-[58.237deg]" />
       </div>
-      <div className="absolute flex h-[9.237px] items-center justify-center left-[193.11px] top-[494.33px] translate-y-[-50%] w-[11.814px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[9.237px] items-center justify-center left-[151.11px] top-[394.33px] -translate-y-1/2 w-[11.814px]">
         <div className="flex-none rotate-[56.442deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[2.999px]">
             <p className="leading-[normal]">I</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[14.071px] items-center justify-center left-[194.73px] top-[498.93px] translate-y-[-50%] w-[14.905px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[14.071px] items-center justify-center left-[152.73px] top-[398.93px] -translate-y-1/2 w-[14.905px]">
         <div className="flex-none rotate-[54.408deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[8.581px]">
             <p className="leading-[normal]">C</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.153px] items-center justify-center left-[199.74px] top-[504.97px] translate-y-[-50%] w-[13.981px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[51.653deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[13.153px] items-center justify-center left-[157.74px] top-[404.97px] -translate-y-1/2 w-[13.981px]">
+        <Text5 text="E" additionalClassNames="rotate-[51.653deg]" />
       </div>
     </div>
   );
 }
 
-function CurveText3() {
+// Share price curved text (bottom left)
+function CurveText104({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents h-[69.537px] left-[125.44px] top-[472.64px] w-[60.724px]" data-name="curve text">
-      <div className="absolute flex h-[27.971px] items-center justify-center left-[127.89px] top-[487.92px] translate-y-[-50%] w-[35.762px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[68.444deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">1</p>
-          </div>
-        </div>
+    <div className="absolute contents h-[69.536px] left-[83.44px] top-[372.64px] w-[60.723px]">
+      <div className="absolute flex h-[27.971px] items-center justify-center left-[85.89px] top-[387.92px] -translate-y-1/2 w-[35.762px]">
+        <Text text="1" additionalClassNames="rotate-[68.444deg]" />
       </div>
-      <div className="absolute flex h-[20.228px] items-center justify-center left-[134.53px] top-[498.62px] translate-y-[-50%] w-[31.709px]" style={{ "--transform-inner-width": "8.890625", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[64.832deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[7.556px]">
-            <p className="leading-[normal]">.</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[20.228px] items-center justify-center left-[92.53px] top-[398.62px] -translate-y-1/2 w-[31.709px]">
+        <Text1 text="." additionalClassNames="rotate-[64.832deg]" />
       </div>
-      <div className="absolute flex h-[30.608px] items-center justify-center left-[137.61px] top-[508.97px] translate-y-[-50%] w-[36.086px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[61.245deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">0</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[30.608px] items-center justify-center left-[95.61px] top-[408.97px] -translate-y-1/2 w-[36.086px]">
+        <Text text="0" additionalClassNames="rotate-[61.245deg]" />
       </div>
-      <div className="absolute flex h-[32.159px] items-center justify-center left-[148.01px] top-[524.95px] translate-y-[-50%] w-[35.976px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[56.238deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">4</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[32.159px] items-center justify-center left-[106.01px] top-[424.95px] -translate-y-1/2 w-[35.976px]">
+        <Text text="4" additionalClassNames="rotate-[56.238deg]" />
       </div>
     </div>
   );
 }
 
-function CurveText4() {
+// BASE APY curved text (top)
+function CurveTextBaseApy({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents left-[309.05px] top-[225.78px]" data-name="curve text">
-      <div className="absolute flex h-[13.319px] items-center justify-center left-[309.05px] top-[234.14px] translate-y-[-50%] w-[9.844px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+    <div className="absolute contents left-[267.05px] top-[125.77px]">
+      <div className="absolute flex h-[13.319px] items-center justify-center left-[267.05px] top-[134.14px] -translate-y-1/2 w-[9.844px]">
         <div className="flex-none rotate-[350.673deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.974px]">
             <p className="leading-[normal]">B</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.053px] items-center justify-center left-[317.56px] top-[232.98px] translate-y-[-50%] w-[9.726px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[353.571deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[8.415px]">
-            <p className="leading-[normal]">A</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[13.053px] items-center justify-center left-[275.56px] top-[132.97px] -translate-y-1/2 w-[9.726px]">
+        <Text6 text="A" additionalClassNames="rotate-[353.571deg]" />
       </div>
-      <div className="absolute flex h-[12.653px] items-center justify-center left-[326.5px] top-[232.24px] translate-y-[-50%] w-[8.568px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.653px] items-center justify-center left-[284.5px] top-[132.24px] -translate-y-1/2 w-[8.568px]">
         <div className="flex-none rotate-[356.408deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.82px]">
             <p className="leading-[normal]">S</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.307px] items-center justify-center left-[334.89px] top-[231.93px] translate-y-[-50%] w-[7.533px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.307px] items-center justify-center left-[292.89px] top-[131.93px] -translate-y-1/2 w-[7.533px]">
         <div className="flex-none rotate-[359.05deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.332px]">
             <p className="leading-[normal]">E</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.241px] items-center justify-center left-[342.47px] top-[231.93px] translate-y-[-50%] w-[3.625px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[0.928deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.428px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
+      <div className="absolute flex h-[12.769px] items-center justify-center left-[307.34px] top-[132.36px] -translate-y-1/2 w-[9.282px]">
+        <Text6 text="A" additionalClassNames="rotate-[4.188deg]" />
       </div>
-      <div className="absolute flex h-[12.306px] items-center justify-center left-[345.92px] top-[232.03px] translate-y-[-50%] w-[3.877px]" style={{ "--transform-inner-width": "3.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[2.124deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[3.428px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.769px] items-center justify-center left-[349.34px] top-[232.36px] translate-y-[-50%] w-[9.282px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[4.188deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[8.415px]">
-            <p className="leading-[normal]">A</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[13.048px] items-center justify-center left-[357.73px] top-[233.18px] translate-y-[-50%] w-[9.217px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[13.048px] items-center justify-center left-[315.73px] top-[133.18px] -translate-y-1/2 w-[9.217px]">
         <div className="flex-none rotate-[7.028deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.784px]">
             <p className="leading-[normal]">P</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.425px] items-center justify-center left-[365.46px] top-[234.41px] translate-y-[-50%] w-[10.238px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[13.425px] items-center justify-center left-[323.46px] top-[134.41px] -translate-y-1/2 w-[10.238px]">
         <div className="flex-none rotate-[9.866deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[8.272px]">
             <p className="leading-[normal]">Y</p>
@@ -541,47 +654,51 @@ function CurveText4() {
   );
 }
 
-function CurveText5() {
+// Base APY curved text (top) - dynamic
+function CurveText2144({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
+  const apyStr = tokenData.baseApy.toFixed(2);
+  // Parse "21.44" -> ["2", "1", ".", "4", "4"]
+  const parts = apyStr.match(/(\d)(\d)(\.)(\d)(\d)/);
+  if (!parts) return null;
+  
+  const [_, first, second, dot, third, fourth] = parts;
+  
   return (
-    <div className="absolute contents left-[285.04px] top-[167.48px]" data-name="curve text">
-      <div className="absolute flex h-[34.702px] items-center justify-center left-[285.04px] top-[187.7px] translate-y-[-50%] w-[25.139px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[348.401deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.201px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+    <div className="absolute contents left-[243.04px] top-[67.48px]">
+      <div className="absolute flex h-[34.702px] items-center justify-center left-[243.04px] top-[87.7px] -translate-y-1/2 w-[25.139px]">
+        <Text7 text={first} additionalClassNames="rotate-[348.401deg]" />
       </div>
-      <div className="absolute flex h-[32.817px] items-center justify-center left-[304.33px] top-[184.91px] translate-y-[-50%] w-[16.574px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[32.817px] items-center justify-center left-[262.33px] top-[84.91px] -translate-y-1/2 w-[16.574px]">
         <div className="flex-none rotate-[352.958deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[12.81px]">
-            <p className="leading-[normal]">1</p>
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[12.81px]">
+            <p className="leading-[normal]">{second}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[32.035px] items-center justify-center left-[320.73px] top-[183.78px] translate-y-[-50%] w-[11.223px]" style={{ "--transform-inner-width": "8.890625", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[32.035px] items-center justify-center left-[278.73px] top-[83.78px] -translate-y-1/2 w-[11.223px]">
         <div className="flex-none rotate-[356.052deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[9.076px]">
-            <p className="leading-[normal]">.</p>
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[9.076px]">
+            <p className="leading-[normal]">{dot}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[31.551px] items-center justify-center left-[332.01px] top-[183.26px] translate-y-[-50%] w-[20.441px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[31.551px] items-center justify-center left-[290.01px] top-[83.26px] -translate-y-1/2 w-[20.441px]">
         <div className="flex-none rotate-[0.189deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.337px]">
-            <p className="leading-[normal]">4</p>
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.337px]">
+            <p className="leading-[normal]">{third}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[33.41px] items-center justify-center left-[352.37px] top-[184.42px] translate-y-[-50%] w-[23.47px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[33.41px] items-center justify-center left-[310.37px] top-[84.42px] -translate-y-1/2 w-[23.47px]">
         <div className="flex-none rotate-[5.907deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.337px]">
-            <p className="leading-[normal]">4</p>
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.337px]">
+            <p className="leading-[normal]">{fourth}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[37.727px] items-center justify-center left-[372.76px] top-[189.03px] translate-y-[-50%] w-[37.306px]" style={{ "--transform-inner-width": "28.453125", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[37.727px] items-center justify-center left-[330.76px] top-[89.03px] -translate-y-1/2 w-[37.306px]">
         <div className="flex-none rotate-[13.235deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[30.919px]">
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[30.919px]">
             <p className="leading-[normal]">%</p>
           </div>
         </div>
@@ -590,24 +707,21 @@ function CurveText5() {
   );
 }
 
-function CurveText6() {
+// TVL curved text (right)
+function CurveTextTvl({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents left-[478.75px] top-[307.09px]" data-name="curve text">
-      <div className="absolute flex h-[13.029px] items-center justify-center left-[478.75px] top-[313.6px] translate-y-[-50%] w-[14.499px]" style={{ "--transform-inner-width": "7.328125", "--transform-inner-height": "14" } as React.CSSProperties}>
+    <div className="absolute contents left-[436.75px] top-[207.09px]">
+      <div className="absolute flex h-[13.029px] items-center justify-center left-[436.75px] top-[213.6px] -translate-y-1/2 w-[14.499px]">
         <div className="flex-none rotate-[58.927deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[7.867px]">
             <p className="leading-[normal]">T</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.175px] items-center justify-center left-[482.82px] top-[320.94px] translate-y-[-50%] w-[14.717px]" style={{ "--transform-inner-width": "8", "--transform-inner-height": "14" } as React.CSSProperties}>
-        <div className="flex-none rotate-[61.802deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[8.415px]">
-            <p className="leading-[normal]">V</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[13.175px] items-center justify-center left-[440.82px] top-[220.94px] -translate-y-1/2 w-[14.717px]">
+        <Text6 text="V" additionalClassNames="rotate-[61.802deg]" />
       </div>
-      <div className="absolute flex h-[11.464px] items-center justify-center left-[486.79px] top-[328.05px] translate-y-[-50%] w-[13.967px]" style={{ "--transform-inner-width": "6.671875", "--transform-inner-height": "14" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.464px] items-center justify-center left-[444.79px] top-[228.05px] -translate-y-1/2 w-[13.967px]">
         <div className="flex-none rotate-[64.518deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12px] text-black w-[6.891px]">
             <p className="leading-[normal]">L</p>
@@ -618,40 +732,29 @@ function CurveText6() {
   );
 }
 
-function CurveText7() {
+// TVL value curved text (right)
+function CurveText222K({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents left-[488.58px] top-[242.01px]" data-name="curve text">
-      <div className="absolute flex h-[35.783px] items-center justify-center left-[488.58px] top-[259.9px] translate-y-[-50%] w-[37.075px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
+    <div className="absolute contents left-[446.58px] top-[142.01px]">
+      <div className="absolute flex h-[35.783px] items-center justify-center left-[446.58px] top-[159.9px] -translate-y-1/2 w-[37.075px]">
         <div className="flex-none rotate-[49.645deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.204px]">
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[20.204px]">
             <p className="leading-[normal]">$</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[33.726px] items-center justify-center left-[501.68px] top-[276.77px] translate-y-[-50%] w-[36.813px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[55.236deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.201px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[33.726px] items-center justify-center left-[459.68px] top-[176.77px] -translate-y-1/2 w-[36.813px]">
+        <Text7 text="2" additionalClassNames="rotate-[55.236deg]" />
       </div>
-      <div className="absolute flex h-[32.156px] items-center justify-center left-[512.62px] top-[294.29px] translate-y-[-50%] w-[36.853px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[60.688deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.201px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[32.156px] items-center justify-center left-[470.62px] top-[194.29px] -translate-y-1/2 w-[36.853px]">
+        <Text7 text="2" additionalClassNames="rotate-[60.688deg]" />
       </div>
-      <div className="absolute flex h-[30.278px] items-center justify-center left-[522.06px] top-[312.87px] translate-y-[-50%] w-[36.556px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[66.187deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.201px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[30.278px] items-center justify-center left-[480.06px] top-[212.87px] -translate-y-1/2 w-[36.556px]">
+        <Text7 text="2" additionalClassNames="rotate-[66.187deg]" />
       </div>
-      <div className="absolute flex h-[29.878px] items-center justify-center left-[529.84px] top-[333.13px] translate-y-[-50%] w-[36.492px]" style={{ "--transform-inner-width": "23.109375", "--transform-inner-height": "37" } as React.CSSProperties}>
+      <div className="absolute flex h-[29.878px] items-center justify-center left-[487.84px] top-[233.13px] -translate-y-1/2 w-[36.492px]">
         <div className="flex-none rotate-[71.95deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[21.164px]">
+          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[21.164px]">
             <p className="leading-[normal]">K</p>
           </div>
         </div>
@@ -660,192 +763,86 @@ function CurveText7() {
   );
 }
 
-function CurveText8() {
+// Fast redeemed curved text (bottom right)
+function CurveText228K({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents h-[111.647px] left-[486.6px] top-[439.96px] w-[88.62px]" data-name="curve text">
-      <div className="absolute flex h-[32.814px] items-center justify-center left-[493.37px] top-[533.3px] translate-y-[-50%] w-[35.826px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[306.151deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">$</p>
-          </div>
-        </div>
+    <div className="absolute contents h-[111.647px] left-[444.6px] top-[339.96px] w-[88.618px]">
+      <div className="absolute flex h-[32.814px] items-center justify-center left-[451.37px] top-[433.3px] -translate-y-1/2 w-[35.826px]">
+        <Text text="$" additionalClassNames="rotate-[306.151deg]" />
       </div>
-      <div className="absolute flex h-[31.38px] items-center justify-center left-[504.11px] top-[517.59px] translate-y-[-50%] w-[36.068px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[301.15deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[31.38px] items-center justify-center left-[462.11px] top-[417.59px] -translate-y-1/2 w-[36.068px]">
+        <Text text="2" additionalClassNames="rotate-[301.15deg]" />
       </div>
-      <div className="absolute flex h-[29.705px] items-center justify-center left-[513.75px] top-[501.17px] translate-y-[-50%] w-[36.034px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[296.144deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">2</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[29.705px] items-center justify-center left-[471.75px] top-[401.17px] -translate-y-1/2 w-[36.034px]">
+        <Text text="2" additionalClassNames="rotate-[296.144deg]" />
       </div>
-      <div className="absolute flex h-[19.054px] items-center justify-center left-[522.4px] top-[488.43px] translate-y-[-50%] w-[31.975px]" style={{ "--transform-inner-width": "8.890625", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[292.552deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[7.556px]">
-            <p className="leading-[normal]">.</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[19.054px] items-center justify-center left-[480.4px] top-[388.43px] -translate-y-1/2 w-[31.975px]">
+        <Text1 text="." additionalClassNames="rotate-[292.552deg]" />
       </div>
-      <div className="absolute flex h-[26.899px] items-center justify-center left-[525.61px] top-[475.46px] translate-y-[-50%] w-[35.504px]" style={{ "--transform-inner-width": "17.796875", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[288.936deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[17.636px]">
-            <p className="leading-[normal]">8</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[26.899px] items-center justify-center left-[483.61px] top-[375.46px] -translate-y-1/2 w-[35.504px]">
+        <Text text="8" additionalClassNames="rotate-[288.936deg]" />
       </div>
-      <div className="absolute flex h-[26.798px] items-center justify-center left-[532.3px] top-[455.74px] translate-y-[-50%] w-[35.291px]" style={{ "--transform-inner-width": "23.109375", "--transform-inner-height": "37" } as React.CSSProperties}>
-        <div className="flex-none rotate-[283.571deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[31.484px] justify-center leading-[0] relative text-[32px] text-black w-[19.968px]">
-            <p className="leading-[normal]">K</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[26.798px] items-center justify-center left-[490.3px] top-[355.74px] -translate-y-1/2 w-[35.291px]">
+        <Text2 text="K" additionalClassNames="rotate-[283.571deg]" />
       </div>
     </div>
   );
 }
 
-function CurveText9() {
+// FAST REDEEMED curved text (bottom right)
+function CurveTextFastRedeemed({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   return (
-    <div className="absolute contents h-[32.509px] left-[293.12px] top-[592.57px] w-[104.123px]" data-name="curve text">
-      <div className="absolute flex h-[27.089px] items-center justify-center left-[293.53px] top-[608.58px] translate-y-[-50%] w-[21.988px]" style={{ "--transform-inner-width": "17.46875", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[10.848deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[17.754px]">
-            <p className="leading-[normal]">D</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[25.686px] items-center justify-center left-[310.97px] top-[610.88px] translate-y-[-50%] w-[17.899px]" style={{ "--transform-inner-width": "16.125", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[6.124deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[15.408px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[24.648px] items-center justify-center left-[326.28px] top-[611.86px] translate-y-[-50%] w-[15.441px]" style={{ "--transform-inner-width": "16.125", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[1.88deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[14.655px]">
-            <p className="leading-[normal]">P</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[25.115px] items-center justify-center left-[339.83px] top-[611.72px] translate-y-[-50%] w-[20.393px]" style={{ "--transform-inner-width": "18.8125", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[357.117deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[19.201px]">
-            <p className="leading-[normal]">O</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[25.957px] items-center justify-center left-[356.97px] top-[610.25px] translate-y-[-50%] w-[18.008px]" style={{ "--transform-inner-width": "16.125", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[352.31deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[14.906px]">
-            <p className="leading-[normal]">S</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[25.106px] items-center justify-center left-[370.43px] top-[608.57px] translate-y-[-50%] w-[11.637px]" style={{ "--transform-inner-width": "6.71875", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[349.157deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[7.217px]">
-            <p className="leading-[normal]">I</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[27.215px] items-center justify-center left-[376.24px] top-[606.27px] translate-y-[-50%] w-[20.875px]" style={{ "--transform-inner-width": "14.765625", "--transform-inner-height": "27.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[345.907deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Bold',sans-serif] font-bold h-[24.18px] justify-center leading-[0] relative text-[24.18px] text-white w-[15.452px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CurveText10() {
-  return (
-    <div className="absolute contents left-[469.21px] top-[435.79px]" data-name="curve text">
-      <div className="absolute flex h-[12.199px] items-center justify-center left-[469.21px] top-[505px] translate-y-[-50%] w-[13.193px]" style={{ "--transform-inner-width": "7.4375", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+    <div className="absolute contents left-[427.21px] top-[335.8px]">
+      <div className="absolute flex h-[12.199px] items-center justify-center left-[427.21px] top-[405px] -translate-y-1/2 w-[13.193px]">
         <div className="flex-none rotate-[308.602deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[5.88px]">
             <p className="leading-[normal]">F</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[13.46px] items-center justify-center left-[472.59px] top-[499.78px] translate-y-[-50%] w-[14.418px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[306.202deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.76px]">
-            <p className="leading-[normal]">A</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[13.46px] items-center justify-center left-[430.59px] top-[399.78px] -translate-y-1/2 w-[14.418px]">
+        <Text3 text="A" additionalClassNames="rotate-[306.202deg]" />
       </div>
-      <div className="absolute flex h-[12.419px] items-center justify-center left-[476.86px] top-[494.01px] translate-y-[-50%] w-[13.918px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.419px] items-center justify-center left-[434.86px] top-[394.02px] -translate-y-1/2 w-[13.918px]">
         <div className="flex-none rotate-[303.634deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[6.808px]">
             <p className="leading-[normal]">S</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.43px] items-center justify-center left-[480.35px] top-[488.35px] translate-y-[-50%] w-[14.13px]" style={{ "--transform-inner-width": "7.4375", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.43px] items-center justify-center left-[438.35px] top-[388.36px] -translate-y-1/2 w-[14.13px]">
         <div className="flex-none rotate-[301.181deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.153px]">
             <p className="leading-[normal]">T</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[8.745px] items-center justify-center left-[483.83px] top-[484.07px] translate-y-[-50%] w-[12.18px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[299.359deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[3.178px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
+      <div className="absolute flex h-[8.745px] items-center justify-center left-[441.83px] top-[384.07px] -translate-y-1/2 w-[12.18px]">
+        <Helper1 additionalClassNames="rotate-[299.359deg]" />
       </div>
-      <div className="absolute flex h-[8.566px] items-center justify-center left-[485.27px] top-[481.38px] translate-y-[-50%] w-[12.241px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[298.235deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[3.178px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
+      <div className="absolute flex h-[8.566px] items-center justify-center left-[443.27px] top-[381.39px] -translate-y-1/2 w-[12.241px]">
+        <Helper1 additionalClassNames="rotate-[298.235deg]" />
       </div>
-      <div className="absolute flex h-[11.878px] items-center justify-center left-[486.63px] top-[476.93px] translate-y-[-50%] w-[14.123px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[296.393deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.213px]">
-            <p className="leading-[normal]">R</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[11.878px] items-center justify-center left-[444.63px] top-[376.93px] -translate-y-1/2 w-[14.123px]">
+        <Text4 text="R" additionalClassNames="rotate-[296.393deg]" />
       </div>
-      <div className="absolute flex h-[11.447px] items-center justify-center left-[489.62px] top-[470.65px] translate-y-[-50%] w-[14.029px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[293.839deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[11.447px] items-center justify-center left-[447.62px] top-[370.65px] -translate-y-1/2 w-[14.029px]">
+        <Text5 text="E" additionalClassNames="rotate-[293.839deg]" />
       </div>
-      <div className="absolute flex h-[12.139px] items-center justify-center left-[492.29px] top-[463.8px] translate-y-[-50%] w-[14.361px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.139px] items-center justify-center left-[450.29px] top-[363.81px] -translate-y-1/2 w-[14.361px]">
         <div className="flex-none rotate-[291.107deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[8.308px]">
             <p className="leading-[normal]">D</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.608px] items-center justify-center left-[495.06px] top-[456.84px] translate-y-[-50%] w-[13.813px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[288.374deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[10.608px] items-center justify-center left-[453.06px] top-[356.84px] -translate-y-1/2 w-[13.813px]">
+        <Text5 text="E" additionalClassNames="rotate-[288.374deg]" />
       </div>
-      <div className="absolute flex h-[10.185px] items-center justify-center left-[497.15px] top-[450.27px] translate-y-[-50%] w-[13.67px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[285.837deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[7.129px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
+      <div className="absolute flex h-[10.185px] items-center justify-center left-[455.15px] top-[350.27px] -translate-y-1/2 w-[13.67px]">
+        <Text5 text="E" additionalClassNames="rotate-[285.837deg]" />
       </div>
-      <div className="absolute flex h-[12.658px] items-center justify-center left-[498.99px] top-[442.12px] translate-y-[-50%] w-[14.141px]" style={{ "--transform-inner-width": "10.15625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.658px] items-center justify-center left-[456.99px] top-[342.12px] -translate-y-1/2 w-[14.141px]">
         <div className="flex-none rotate-[282.732deg]">
           <div className="flex flex-col font-['Hanken_Grotesk:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] opacity-50 relative text-[12.188px] text-black w-[10.224px]">
             <p className="leading-[normal]">M</p>
@@ -856,215 +853,158 @@ function CurveText10() {
   );
 }
 
-function CurveText11() {
+// Token symbol curved text (dynamic)
+function CurveTextTokenSymbol({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
+  const symbol = tokenData.symbol.toLowerCase();
+  const chars = symbol.split('');
+  
+  // Position mapping for each character - adjusted for syUSD (5 chars), syETH (5 chars), syBTC (5 chars)
+  // All have 5 characters, so we can use the same positions
+  const positions = [
+    { left: '283.38px', top: '348.06px', rotate: '17.664deg', h: '11.526px' },
+    { left: '289.31px', top: '349.39px', rotate: '9.479deg', h: '11.063px' },
+    { left: '295.78px', top: '349.93px', rotate: '0deg', h: '10.125px' },
+    { left: '302.44px', top: '349.34px', rotate: '350.087deg', h: '11.237px' },
+    { left: '308.02px', top: '347.57px', rotate: '340.128deg', h: '12.293px' },
+  ];
+  
   return (
-    <div className="absolute contents left-[316.05px] top-[571.16px]" data-name="curve text">
-      <div className="absolute flex h-[12.574px] items-center justify-center left-[316.05px] top-[577.45px] translate-y-[-50%] w-[5.371px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[10.157deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[3.273px]">
-            <p className="leading-[normal]">I</p>
+    <div className="absolute contents left-[283.38px] top-[341.42px]">
+      {chars.map((char: string, idx: number) => {
+        if (idx >= positions.length) return null;
+        const pos = positions[idx];
+        return (
+          <div 
+            key={idx}
+            className="absolute flex items-center justify-center -translate-y-1/2"
+            style={{ left: pos.left, top: pos.top, height: pos.h }}
+          >
+            <div className={`flex-none rotate-[${pos.rotate}]`}>
+              <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black">
+                <p className="leading-[normal]">{char}</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[13.342px] items-center justify-center left-[319.25px] top-[578.39px] translate-y-[-50%] w-[10.787px]" style={{ "--transform-inner-width": "8.796875", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[7.956deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[9.188px]">
-            <p className="leading-[normal]">N</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.454px] items-center justify-center left-[328.4px] top-[579.11px] translate-y-[-50%] w-[4.478px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[5.751deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[3.273px]">
-            <p className="leading-[normal]">I</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.683px] items-center justify-center left-[331.61px] top-[579.55px] translate-y-[-50%] w-[8.66px]" style={{ "--transform-inner-width": "7.4375", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[3.811deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[7.867px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.288px] items-center justify-center left-[339.47px] top-[579.82px] translate-y-[-50%] w-[3.669px]" style={{ "--transform-inner-width": "3.390625", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[1.869deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[3.273px]">
-            <p className="leading-[normal]">I</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] left-[342.78px] not-italic text-[12.188px] text-white top-[579.91px] translate-y-[-50%] w-[7.379px]">
-        <p className="leading-[normal]">A</p>
-      </div>
-      <div className="absolute flex h-[12.538px] items-center justify-center left-[349.65px] top-[579.74px] translate-y-[-50%] w-[8.422px]" style={{ "--transform-inner-width": "7.4375", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[357.351deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[7.867px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.812px] items-center justify-center left-[356.92px] top-[579.23px] translate-y-[-50%] w-[8.425px]" style={{ "--transform-inner-width": "8.125", "--transform-inner-height": "14.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[354.704deg]">
-          <div className="flex flex-col font-['Inter:Regular',sans-serif] font-normal h-[12.188px] justify-center leading-[0] not-italic relative text-[12.188px] text-white w-[7.332px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }
 
-function SyUsdTicker() {
-  return (
-    <div className="absolute h-[13.577px] left-[325.38px] top-[441.42px] w-[35.75px]" data-name="syUSD - Ticker">
-      <div className="absolute flex h-[11.526px] items-center justify-center left-0 top-[6.64px] translate-y-[-50%] w-[8.97px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[17.664deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.19px]">
-            <p className="leading-[normal]">s</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.063px] items-center justify-center left-[5.93px] top-[7.97px] translate-y-[-50%] w-[8.114px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[9.479deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.536px]">
-            <p className="leading-[normal]">y</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] left-[12.4px] text-[10px] text-black top-[8.51px] translate-y-[-50%] w-[8.378px]">
-        <p className="leading-[normal]">U</p>
-      </div>
-      <div className="absolute flex h-[11.237px] items-center justify-center left-[19.06px] top-[7.91px] translate-y-[-50%] w-[8.974px]" style={{ "--transform-inner-width": "6.671875", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.087deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[7.34px]">
-            <p className="leading-[normal]">S</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.293px] items-center justify-center left-[24.64px] top-[6.15px] translate-y-[-50%] w-[11.107px]" style={{ "--transform-inner-width": "7.21875", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[340.128deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[8.151px]">
-            <p className="leading-[normal]">D</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+// Stable Yield token name curved text (dynamic)
+function CurveTextStableYield({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
+  // Get token color based on symbol
+  const getTokenColor = (symbol: string) => {
+    if (symbol.includes('USD')) return designTokens.colors.strategy.usd;
+    if (symbol.includes('ETH')) return designTokens.colors.strategy.eth;
+    if (symbol.includes('BTC')) return designTokens.colors.strategy.btc;
+    return designTokens.colors.strategy.usd;
+  };
 
-function SyUsd() {
+  const tokenColor = getTokenColor(tokenData.symbol);
+  
+  // Extract the token type: "USD", "ETH", or "BTC"
+  const tokenType = tokenData.name.replace('Stable Yield ', '').toUpperCase();
+  
   return (
-    <div className="absolute h-[32.894px] left-[297.79px] top-[344.77px] w-[91.808px]" data-name="syUSD">
-      <div className="absolute flex h-[11.946px] items-center justify-center left-0 top-[22.71px] translate-y-[-50%] w-[12.284px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
+    <div className="absolute contents left-[255.79px] top-[244.77px]">
+      {/* Stable Yield - static part */}
+      <div className="absolute flex h-[11.946px] items-center justify-center left-[255.79px] top-[267.48px] -translate-y-1/2 w-[12.284px]">
         <div className="flex-none rotate-[310.529deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[7.06px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[7.06px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">S</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.116px] items-center justify-center left-[5.52px] top-[18.32px] translate-y-[-50%] w-[9.736px]" style={{ "--transform-inner-width": "3.375", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.116px] items-center justify-center left-[261.31px] top-[263.09px] -translate-y-1/2 w-[9.736px]">
         <div className="flex-none rotate-[317.484deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.925px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[3.925px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">t</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.863px] items-center justify-center left-[9.26px] top-[14.73px] translate-y-[-50%] w-[11.012px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.863px] items-center justify-center left-[265.05px] top-[259.51px] -translate-y-1/2 w-[11.012px]">
         <div className="flex-none rotate-[323.939deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[6.249px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[6.249px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">a</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.11px] items-center justify-center left-[15.55px] top-[10.91px] translate-y-[-50%] w-[10.703px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.11px] items-center justify-center left-[271.35px] top-[255.68px] -translate-y-1/2 w-[10.703px]">
         <div className="flex-none rotate-[332.22deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[6.763px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[6.763px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">b</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.526px] items-center justify-center left-[22.6px] top-[8.64px] translate-y-[-50%] w-[6.518px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.526px] items-center justify-center left-[278.39px] top-[253.41px] -translate-y-1/2 w-[6.518px]">
         <div className="flex-none rotate-[338.49deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.016px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[3.016px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">l</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.481px] items-center justify-center left-[26.39px] top-[6.96px] translate-y-[-50%] w-[8.928px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.481px] items-center justify-center left-[282.19px] top-[251.74px] -translate-y-1/2 w-[8.928px]">
         <div className="flex-none rotate-[344.567deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[6.467px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[6.467px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">e</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.537px] items-center justify-center left-[33.77px] top-[5.79px] translate-y-[-50%] w-[4.967px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.916deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.414px] items-center justify-center left-[38.3px] top-[5.21px] translate-y-[-50%] w-[7.565px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.414px] items-center justify-center left-[294.1px] top-[249.98px] -translate-y-1/2 w-[7.565px]">
         <div className="flex-none rotate-[357.609deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[7.149px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[7.149px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">Y</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.311px] items-center justify-center left-[45.9px] top-[5.29px] translate-y-[-50%] w-[3.717px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.311px] items-center justify-center left-[301.69px] top-[250.06px] -translate-y-1/2 w-[3.717px]">
         <div className="flex-none rotate-[4.011deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.016px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[3.016px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">i</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.097px] items-center justify-center left-[48.92px] top-[5.93px] translate-y-[-50%] w-[8.132px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.097px] items-center justify-center left-[304.71px] top-[250.71px] -translate-y-1/2 w-[8.132px]">
         <div className="flex-none rotate-[10.038deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[6.467px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[6.467px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">e</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.564px] items-center justify-center left-[55.29px] top-[7.13px] translate-y-[-50%] w-[5.712px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[10.564px] items-center justify-center left-[311.09px] top-[251.91px] -translate-y-1/2 w-[5.712px]">
         <div className="flex-none rotate-[16.143deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.016px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[3.016px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">l</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[11.938px] items-center justify-center left-[58.22px] top-[8.92px] translate-y-[-50%] w-[10.111px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[11.938px] items-center justify-center left-[314.01px] top-[253.7px] -translate-y-1/2 w-[10.111px]">
         <div className="flex-none rotate-[22.4deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[6.763px]">
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[6.763px]" style={{ color: tokenColor }}>
             <p className="leading-[normal]">d</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[10.512px] items-center justify-center left-[64.45px] top-[11.38px] translate-y-[-50%] w-[7.883px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[28.926deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.954px] items-center justify-center left-[67.52px] top-[14.83px] translate-y-[-50%] w-[12.517px]" style={{ "--transform-inner-width": "7.3125", "--transform-inner-height": "12" } as React.CSSProperties}>
+      {/* Dynamic token type: USD, ETH, or BTC */}
+      <div className="absolute flex h-[12.954px] items-center justify-center left-[323.31px] top-[259.6px] -translate-y-1/2 w-[12.517px]">
         <div className="flex-none rotate-[36.246deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[8.098px]">
-            <p className="leading-[normal]">U</p>
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[8.098px]" style={{ color: tokenColor }}>
+            <p className="leading-[normal]">{tokenType[0]}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.118px] items-center justify-center left-[74.04px] top-[20.36px] translate-y-[-50%] w-[12.183px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.118px] items-center justify-center left-[329.84px] top-[265.14px] -translate-y-1/2 w-[12.183px]">
         <div className="flex-none rotate-[45.855deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[7.06px]">
-            <p className="leading-[normal]">S</p>
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[7.06px]" style={{ color: tokenColor }}>
+            <p className="leading-[normal]">{tokenType[1]}</p>
           </div>
         </div>
       </div>
-      <div className="absolute flex h-[12.233px] items-center justify-center left-[79px] top-[26.78px] translate-y-[-50%] w-[12.804px]" style={{ "--transform-inner-width": "7.3125", "--transform-inner-height": "12" } as React.CSSProperties}>
+      <div className="absolute flex h-[12.233px] items-center justify-center left-[334.8px] top-[271.55px] -translate-y-1/2 w-[12.804px]">
         <div className="flex-none rotate-[55.328deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#5496de] text-[10.125px] w-[7.871px]">
-            <p className="leading-[normal]">D</p>
+          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[7.871px]" style={{ color: tokenColor }}>
+            <p className="leading-[normal]">{tokenType[2]}</p>
           </div>
         </div>
       </div>
@@ -1072,504 +1012,164 @@ function SyUsd() {
   );
 }
 
-function SyEthTicker() {
-  return (
-    <div className="absolute h-[13.577px] left-[325.38px] opacity-0 top-[441.42px] w-[35.75px]" data-name="syETH - Ticker">
-      <div className="absolute flex h-[11.526px] items-center justify-center left-0 top-[6.64px] translate-y-[-50%] w-[8.97px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[17.664deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.19px]">
-            <p className="leading-[normal]">s</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.063px] items-center justify-center left-[5.93px] top-[7.97px] translate-y-[-50%] w-[8.114px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[9.479deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.536px]">
-            <p className="leading-[normal]">y</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] left-[12.4px] text-[10px] text-black top-[8.51px] translate-y-[-50%] w-[8.378px]">
-        <p className="leading-[normal]">E</p>
-      </div>
-      <div className="absolute flex h-[11.237px] items-center justify-center left-[19.06px] top-[7.91px] translate-y-[-50%] w-[8.974px]" style={{ "--transform-inner-width": "6.109375", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.087deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[7.34px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.293px] items-center justify-center left-[24.64px] top-[6.15px] translate-y-[-50%] w-[11.107px]" style={{ "--transform-inner-width": "7.21875", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[340.128deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[8.151px]">
-            <p className="leading-[normal]">H</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+interface ButtonProps {
+  svgPaths: any;
+  buttonState: ButtonState;
+  setButtonState: (state: ButtonState) => void;
 }
 
-function SyEth() {
+function Button({ svgPaths, buttonState, setButtonState }: ButtonProps) {
   return (
-    <div className="absolute h-[32.894px] left-[297.79px] opacity-0 top-[344.77px] w-[91.808px]" data-name="syETH">
-      <div className="absolute flex h-[11.946px] items-center justify-center left-0 top-[22.71px] translate-y-[-50%] w-[12.284px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[310.529deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[7.06px]">
-            <p className="leading-[normal]">S</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.116px] items-center justify-center left-[5.52px] top-[18.32px] translate-y-[-50%] w-[9.736px]" style={{ "--transform-inner-width": "3.375", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[317.484deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.925px]">
-            <p className="leading-[normal]">t</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.863px] items-center justify-center left-[9.26px] top-[14.73px] translate-y-[-50%] w-[11.012px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[323.939deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[6.249px]">
-            <p className="leading-[normal]">a</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.11px] items-center justify-center left-[15.55px] top-[10.91px] translate-y-[-50%] w-[10.703px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[332.22deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[6.763px]">
-            <p className="leading-[normal]">b</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.526px] items-center justify-center left-[22.6px] top-[8.64px] translate-y-[-50%] w-[6.518px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[338.49deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">l</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.481px] items-center justify-center left-[26.39px] top-[6.96px] translate-y-[-50%] w-[8.928px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[344.567deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[6.467px]">
-            <p className="leading-[normal]">e</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.537px] items-center justify-center left-[33.77px] top-[5.79px] translate-y-[-50%] w-[4.967px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.916deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.414px] items-center justify-center left-[38.3px] top-[5.21px] translate-y-[-50%] w-[7.565px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[357.609deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[7.149px]">
-            <p className="leading-[normal]">Y</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.311px] items-center justify-center left-[45.9px] top-[5.29px] translate-y-[-50%] w-[3.717px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[4.011deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">i</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.097px] items-center justify-center left-[48.92px] top-[5.93px] translate-y-[-50%] w-[8.132px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[10.038deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[6.467px]">
-            <p className="leading-[normal]">e</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.564px] items-center justify-center left-[55.29px] top-[7.13px] translate-y-[-50%] w-[5.712px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[16.143deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">l</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.938px] items-center justify-center left-[58.22px] top-[8.92px] translate-y-[-50%] w-[10.111px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[22.4deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[6.763px]">
-            <p className="leading-[normal]">d</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.512px] items-center justify-center left-[64.45px] top-[11.38px] translate-y-[-50%] w-[7.883px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[28.926deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.954px] items-center justify-center left-[67.52px] top-[14.83px] translate-y-[-50%] w-[12.517px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[36.246deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[8.098px]">
-            <p className="leading-[normal]">E</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.118px] items-center justify-center left-[74.04px] top-[20.36px] translate-y-[-50%] w-[12.183px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[45.855deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[7.06px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.233px] items-center justify-center left-[79px] top-[26.78px] translate-y-[-50%] w-[12.804px]" style={{ "--transform-inner-width": "7.3125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[55.328deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#627eea] text-[10.125px] w-[7.871px]">
-            <p className="leading-[normal]">H</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SyBtcTicker() {
-  return (
-    <div className="absolute h-[13.577px] left-[325.38px] opacity-0 top-[441.42px] w-[35.75px]" data-name="syBTC - Ticker">
-      <div className="absolute flex h-[11.526px] items-center justify-center left-0 top-[6.64px] translate-y-[-50%] w-[8.97px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[17.664deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.19px]">
-            <p className="leading-[normal]">s</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.063px] items-center justify-center left-[5.93px] top-[7.97px] translate-y-[-50%] w-[8.114px]" style={{ "--transform-inner-width": "5.5625", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[9.479deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[6.536px]">
-            <p className="leading-[normal]">y</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] left-[12.4px] text-[10px] text-black top-[8.51px] translate-y-[-50%] w-[8.378px]">
-        <p className="leading-[normal]">B</p>
-      </div>
-      <div className="absolute flex h-[11.237px] items-center justify-center left-[19.06px] top-[7.91px] translate-y-[-50%] w-[8.974px]" style={{ "--transform-inner-width": "6.109375", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.087deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[7.34px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.293px] items-center justify-center left-[24.64px] top-[6.15px] translate-y-[-50%] w-[11.107px]" style={{ "--transform-inner-width": "7.21875", "--transform-inner-height": "11.5" } as React.CSSProperties}>
-        <div className="flex-none rotate-[340.128deg]">
-          <div className="flex flex-col font-['Hanken_Grotesk:SemiBold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] relative text-[10px] text-black w-[8.151px]">
-            <p className="leading-[normal]">C</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SyBtc() {
-  return (
-    <div className="absolute h-[32.894px] left-[297.79px] opacity-0 top-[344.77px] w-[91.808px]" data-name="syBTC">
-      <div className="absolute flex h-[11.946px] items-center justify-center left-0 top-[22.71px] translate-y-[-50%] w-[12.284px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[310.529deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[7.06px]">
-            <p className="leading-[normal]">S</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.116px] items-center justify-center left-[5.52px] top-[18.32px] translate-y-[-50%] w-[9.736px]" style={{ "--transform-inner-width": "3.375", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[317.484deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.925px]">
-            <p className="leading-[normal]">t</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.863px] items-center justify-center left-[9.26px] top-[14.73px] translate-y-[-50%] w-[11.012px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[323.939deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[6.249px]">
-            <p className="leading-[normal]">a</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.11px] items-center justify-center left-[15.55px] top-[10.91px] translate-y-[-50%] w-[10.703px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[332.22deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[6.763px]">
-            <p className="leading-[normal]">b</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.526px] items-center justify-center left-[22.6px] top-[8.64px] translate-y-[-50%] w-[6.518px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[338.49deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">l</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.481px] items-center justify-center left-[26.39px] top-[6.96px] translate-y-[-50%] w-[8.928px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[344.567deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[6.467px]">
-            <p className="leading-[normal]">e</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.537px] items-center justify-center left-[33.77px] top-[5.79px] translate-y-[-50%] w-[4.967px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[350.916deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.414px] items-center justify-center left-[38.3px] top-[5.21px] translate-y-[-50%] w-[7.565px]" style={{ "--transform-inner-width": "6.75", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[357.609deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[7.149px]">
-            <p className="leading-[normal]">Y</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.311px] items-center justify-center left-[45.9px] top-[5.29px] translate-y-[-50%] w-[3.717px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[4.011deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">i</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.097px] items-center justify-center left-[48.92px] top-[5.93px] translate-y-[-50%] w-[8.132px]" style={{ "--transform-inner-width": "5.625", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[10.038deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[6.467px]">
-            <p className="leading-[normal]">e</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.564px] items-center justify-center left-[55.29px] top-[7.13px] translate-y-[-50%] w-[5.712px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[16.143deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.016px]">
-            <p className="leading-[normal]">l</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[11.938px] items-center justify-center left-[58.22px] top-[8.92px] translate-y-[-50%] w-[10.111px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[22.4deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[6.763px]">
-            <p className="leading-[normal]">d</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[10.512px] items-center justify-center left-[64.45px] top-[11.38px] translate-y-[-50%] w-[7.883px]" style={{ "--transform-inner-width": "2.8125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[28.926deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[3.411px]">
-            <p className="leading-[normal]"> </p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.954px] items-center justify-center left-[67.52px] top-[14.83px] translate-y-[-50%] w-[12.517px]" style={{ "--transform-inner-width": "7.3125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[36.246deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[8.098px]">
-            <p className="leading-[normal]">B</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.118px] items-center justify-center left-[74.04px] top-[20.36px] translate-y-[-50%] w-[12.183px]" style={{ "--transform-inner-width": "6.1875", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[45.855deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[7.06px]">
-            <p className="leading-[normal]">T</p>
-          </div>
-        </div>
-      </div>
-      <div className="absolute flex h-[12.233px] items-center justify-center left-[79px] top-[26.78px] translate-y-[-50%] w-[12.804px]" style={{ "--transform-inner-width": "7.3125", "--transform-inner-height": "12" } as React.CSSProperties}>
-        <div className="flex-none rotate-[55.328deg]">
-          <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[#f7931a] text-[10.125px] w-[7.871px]">
-            <p className="leading-[normal]">C</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Frame() {
-  return (
-    <div className="absolute h-[710px] left-1/2 top-[calc(50%+22px)] translate-x-[-50%] translate-y-[-50%] w-[676px]">
-      <div className="absolute border border-[rgba(255,255,255,0)] border-solid left-[calc(50%+4px)] rounded-[329px] size-[636px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
-      <div className="absolute bg-[#f4f0ff] left-[calc(50%+4px)] rounded-[11238.9px] shadow-[4.496px_4.496px_13.488px_0px_rgba(127,86,217,0.12),-4.496px_-4.496px_11.24px_0px_#ffffff] size-[596px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
-      <div className="absolute bg-[#f4f0ff] border border-solid border-white left-[calc(50%+4px)] rounded-[11238.9px] size-[568px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
-      <div className="absolute bg-[#f4f0ff] border-[2.248px] border-[rgba(255,255,255,0.64)] border-solid left-[calc(50%+4px)] rounded-[186.584px] size-[230px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]" />
-      <Logo />
-      <div className="absolute bottom-[40px] left-1/2 translate-x-[-50%] flex items-center justify-center">
-
-      </div>
-      <div className="absolute bottom-[51px] left-[calc(50%+3.5px)] size-[539px] translate-x-[-50%]">
-        <div className="absolute bottom-0 left-[26.11%] right-[26.05%] top-[77.83%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 258 120">
-            <path d={svgPaths.p2dfb070} fill="var(--fill-0, #5496DE)" id="Ellipse 1188" />
-          </svg>
-        </div>
-      </div>
-      <div className="absolute left-[calc(50%+4px)] size-[542px] top-[calc(50%+46px)] translate-x-[-50%] translate-y-[-50%]">
-        <div className="absolute inset-[50.87%_68.7%_11.96%_0.21%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 169 202">
-            <g filter="url(#filter0_ii_1_489)" id="Ellipse 1184">
-              <path d={svgPaths.p4a95f40} fill="var(--fill-0, #F8F5FF)" />
+    <div className="absolute h-[550px] left-[29px] top-[20px] w-[542px] z-30">
+      {/* Secondary Layer */}
+      <div className={clsx(
+        "absolute bottom-0 h-[141.611px] left-[calc(50%+0.24px)] -translate-x-1/2 w-[294.01px]",
+        "transition-all duration-150 ease-out",
+        buttonState === 'pressed' && "bottom-[-3px] opacity-80"
+      )}>
+        <div className="absolute inset-[-6.35%_-3.82%_-7.94%_-3.06%]">
+          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 315 162">
+            <g filter="url(#filter0_dd_btn_sec)">
+              <path d={svgPaths.p22396800 || svgPaths.pe971480} fill="#F4F0FF" />
             </g>
             <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="210.452" id="filter0_ii_1_489" width="177.497" x="-4.496" y="-4.496">
+              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="161.843" id="filter0_dd_btn_sec" width="314.242" x="0" y="0">
                 <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-4.496" dy="-4.496" />
+                <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+                <feOffset dx="-3.372" dy="-3.372" />
                 <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="shape" mode="normal" result="effect1_innerShadow_1_489" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+                <feComposite in2="hardAlpha" operator="out" />
+                <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
+                <feBlend in2="BackgroundImageFix" result="effect1_dropShadow" />
+                <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
                 <feOffset dx="4.496" dy="4.496" />
                 <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.498039 0 0 0 0 0.337255 0 0 0 0 0.85098 0 0 0 0.1 0" />
-                <feBlend in2="effect1_innerShadow_1_489" mode="normal" result="effect2_innerShadow_1_489" />
+                <feComposite in2="hardAlpha" operator="out" />
+                <feColorMatrix values="0 0 0 0 0.0327817 0 0 0 0 0.151743 0 0 0 0 0.276112 0 0 0 0.15 0" />
+                <feBlend in2="effect1_dropShadow" result="effect2_dropShadow" />
+                <feBlend in="SourceGraphic" in2="effect2_dropShadow" result="shape" />
               </filter>
             </defs>
           </svg>
         </div>
       </div>
-      <div className="absolute flex items-center justify-center left-[121.56px] size-[30.211px] top-[446.97px]" style={{ "--transform-inner-width": "0", "--transform-inner-height": "0" } as React.CSSProperties}>
-        <div className="flex-none rotate-[72.113deg]">
-          <UsdCoinUsdcLogo />
+
+      {/* Main Button */}
+      <div 
+        className={clsx(
+          "absolute h-[119.504px] left-[calc(50%-0.34px)] -translate-x-1/2 w-[257.865px]",
+          "cursor-pointer transition-all duration-150 ease-out",
+          buttonState === 'default' && "bottom-[11px]",
+          buttonState === 'hover' && "bottom-[13px] brightness-105",
+          buttonState === 'pressed' && "bottom-[7px] brightness-95"
+        )}
+        onMouseEnter={() => setButtonState('hover')}
+        onMouseLeave={() => setButtonState('default')}
+        onMouseDown={() => setButtonState('pressed')}
+        onMouseUp={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+            setButtonState('hover');
+          } else {
+            setButtonState('default');
+          }
+        }}
+        onTouchStart={() => setButtonState('pressed')}
+        onTouchEnd={() => setButtonState('default')}
+      >
+        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 258 120">
+          <path d={svgPaths.p56f3800} fill="#5496DE" />
+        </svg>
+        
+        {/* DEPOSIT text */}
+        <div className="absolute left-1/2 top-[57%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="flex flex-col items-center">
+            <p className="font-['Hanken_Grotesk:Bold',sans-serif] leading-[normal] text-[12.188px] text-white uppercase tracking-wider opacity-90 mb-1">Initiate</p>
+            <p className="font-['Hanken_Grotesk:Bold',sans-serif] leading-[normal] text-[24.18px] text-white">DEPOSIT</p>
+          </div>
         </div>
       </div>
-      <div className="absolute left-[calc(50%+4px)] size-[542px] top-[calc(50%+45px)] translate-x-[-50%] translate-y-[-50%]">
-        <div className="absolute inset-[50.88%_0.21%_11.95%_68.7%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 169 202">
-            <g filter="url(#filter0_ii_1_516)" id="Ellipse 1182">
-              <path d={svgPaths.pd1d2730} fill="var(--fill-0, #F8F5FF)" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="210.452" id="filter0_ii_1_516" width="177.532" x="-4.496" y="-4.496">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-4.496" dy="-4.496" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="shape" mode="normal" result="effect1_innerShadow_1_516" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.498039 0 0 0 0 0.337255 0 0 0 0 0.85098 0 0 0 0.1 0" />
-                <feBlend in2="effect1_innerShadow_1_516" mode="normal" result="effect2_innerShadow_1_516" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-      <div className="absolute left-[calc(50%+4px)] size-[542px] top-[calc(50%+46px)] translate-x-[-50%] translate-y-[-50%]">
-        <div className="absolute inset-[8.24%_0.21%_50.88%_65.61%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 186 222">
-            <g filter="url(#filter0_ii_1_497)" id="Ellipse 1186">
-              <path d={svgPaths.p22bfbf00} fill="var(--fill-0, #F8F5FF)" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="230.569" id="filter0_ii_1_497" width="194.282" x="-4.496" y="-4.496">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-4.496" dy="-4.496" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="shape" mode="normal" result="effect1_innerShadow_1_497" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.498039 0 0 0 0 0.337255 0 0 0 0 0.85098 0 0 0 0.1 0" />
-                <feBlend in2="effect1_innerShadow_1_497" mode="normal" result="effect2_innerShadow_1_497" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-      <div className="absolute left-[calc(50%+4px)] size-[542px] top-[calc(50%+46px)] translate-x-[-50%] translate-y-[-50%]">
-        <div className="absolute bottom-[75.58%] left-[28.45%] right-[28.44%] top-0">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 234 133">
-            <g filter="url(#filter0_ii_1_537)" id="Ellipse 1185">
-              <path d={svgPaths.p16541700} fill="var(--fill-0, #F8F5FF)" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="141.324" id="filter0_ii_1_537" width="242.648" x="-4.496" y="-4.496">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feBlend in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-4.496" dy="-4.496" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="shape" mode="normal" result="effect1_innerShadow_1_537" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" k2="-1" k3="1" operator="arithmetic" />
-                <feColorMatrix type="matrix" values="0 0 0 0 0.498039 0 0 0 0 0.337255 0 0 0 0 0.85098 0 0 0 0.1 0" />
-                <feBlend in2="effect1_innerShadow_1_537" mode="normal" result="effect2_innerShadow_1_537" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-      <Frame1 />
-      <CurveText2 />
-      <CurveText3 />
-      <CurveText4 />
-      <CurveText5 />
-      <CurveText6 />
-      <CurveText7 />
-      <CurveText8 />
-      <CurveText9 />
-      <CurveText10 />
-      <CurveText11 />
-      <SyUsdTicker />
-      <SyUsd />
-      <SyEthTicker />
-      <SyEth />
-      <SyBtcTicker />
-      <SyBtc />
     </div>
   );
 }
 
-function RibbonBase() {
+function RibbonBase({ strategyType }: { strategyType: StrategyType }) {
+  const getGradientColors = (strategy: StrategyType) => {
+    switch (strategy) {
+      case "flagship":
+        return { from: "#9071fb", to: "#5433c7", text: "Flagship" };
+      case "delta-neutral":
+        return { from: "#E26C36", to: "#93390F", text: "Delta Neutral" };
+      case "leverage-looping":
+        return { from: "#E91E63", to: "#AA0808", text: "Leverage Looping" };
+      default:
+        return { from: "#9071fb", to: "#5433c7", text: "Flagship" };
+    }
+  };
+
+  const colors = getGradientColors(strategyType);
+
   return (
-    <div className="bg-gradient-to-b content-stretch flex from-[#9071fb] items-start justify-center px-[10.529px] py-[3.396px] relative shrink-0 to-[#5433c7]" data-name="Ribbon Base">
-      <p className="font-['Poppins:Bold',sans-serif] leading-[10.529px] not-italic relative shrink-0 text-[7.132px] text-center text-nowrap text-white whitespace-pre">Flagship</p>
+    <div 
+      className="content-stretch flex items-start justify-center px-[10.529px] py-[3.396px] relative shrink-0" 
+      style={{
+        background: `linear-gradient(to bottom, ${colors.from}, ${colors.to})`,
+      }}
+      data-name="Ribbon Base"
+    >
+      <p 
+        className="font-['Poppins:Bold',sans-serif] leading-[10.529px] not-italic relative shrink-0 text-[7.132px] text-center text-nowrap text-white whitespace-pre"
+        style={{
+          minWidth: strategyType === "flagship" ? "auto" : "max-content",
+        }}
+      >
+        {colors.text}
+      </p>
     </div>
   );
 }
 
-function RibbonBaseContainer() {
+function RibbonBaseContainer({ strategyType }: { strategyType: StrategyType }) {
   return (
     <div className="mb-[-12.227px] relative shrink-0 w-full z-[2]" data-name="Ribbon Base Container">
       <div className="flex flex-col items-center size-full">
         <div className="content-stretch flex flex-col items-center px-[13.925px] py-0 relative w-full">
-          <RibbonBase />
+          <RibbonBase strategyType={strategyType} />
         </div>
       </div>
     </div>
   );
 }
 
-function RibbonBottom() {
+function RibbonBottom({ strategyType, id }: { strategyType: StrategyType; id: string }) {
+  const getGradientColors = (strategy: StrategyType) => {
+    switch (strategy) {
+      case "flagship":
+        return { from: "#9071fb", to: "#5433c7" };
+      case "delta-neutral":
+        return { from: "#E26C36", to: "#93390F" };
+      case "leverage-looping":
+        return { from: "#E91E63", to: "#AA0808" };
+      default:
+        return { from: "#9071fb", to: "#5433c7" };
+    }
+  };
+
+  const colors = getGradientColors(strategyType);
+
   return (
     <div className="relative size-[17.321px]" data-name="Ribbon Bottom">
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18 18">
         <g id="Ribbon Bottom">
-          <path d={svgPaths.p111b3c00} fill="url(#paint0_linear_1_478)" id="Base" />
-          <path d={svgPaths.p3e414c00} fill="var(--fill-0, black)" fillOpacity="0.4" id="Shadow" />
+          <path d={svgPathsRibbon.p111b3c00} fill={`url(#paint0_linear_${id})`} id="Base" />
+          <path d={svgPathsRibbon.p3e414c00} fill="var(--fill-0, black)" fillOpacity="0.4" id="Shadow" />
         </g>
         <defs>
-          <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1_478" x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
-            <stop stopColor="#9071fb" />
-            <stop offset="1" stopColor="#5433c7" />
+          <linearGradient gradientUnits="userSpaceOnUse" id={`paint0_linear_${id}`} x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
+            <stop stopColor={colors.from} />
+            <stop offset="1" stopColor={colors.to} />
           </linearGradient>
         </defs>
       </svg>
@@ -1577,18 +1177,33 @@ function RibbonBottom() {
   );
 }
 
-function RibbonBottom1() {
+function RibbonBottom1({ strategyType, id }: { strategyType: StrategyType; id: string }) {
+  const getGradientColors = (strategy: StrategyType) => {
+    switch (strategy) {
+      case "flagship":
+        return { from: "#9071fb", to: "#5433c7" };
+      case "delta-neutral":
+        return { from: "#E26C36", to: "#93390F" };
+      case "leverage-looping":
+        return { from: "#E91E63", to: "#AA0808" };
+      default:
+        return { from: "#9071fb", to: "#5433c7" };
+    }
+  };
+
+  const colors = getGradientColors(strategyType);
+
   return (
     <div className="relative shrink-0 size-[17.321px]" data-name="Ribbon Bottom">
       <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 18 18">
         <g id="Ribbon Bottom">
-          <path d={svgPaths.p111b3c00} fill="url(#paint0_linear_1_491)" id="Base" />
-          <path d={svgPaths.p3e414c00} fill="var(--fill-0, black)" fillOpacity="0.4" id="Shadow" />
+          <path d={svgPathsRibbon.p111b3c00} fill={`url(#paint0_linear_${id})`} id="Base" />
+          <path d={svgPathsRibbon.p3e414c00} fill="var(--fill-0, black)" fillOpacity="0.4" id="Shadow" />
         </g>
         <defs>
-          <linearGradient gradientUnits="userSpaceOnUse" id="paint0_linear_1_491" x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
-            <stop stopColor="#9071fb" />
-            <stop offset="1" stopColor="#5433c7" />
+          <linearGradient gradientUnits="userSpaceOnUse" id={`paint0_linear_${id}`} x1="8.6606" x2="8.6606" y1="0" y2="17.3212">
+            <stop stopColor={colors.from} />
+            <stop offset="1" stopColor={colors.to} />
           </linearGradient>
         </defs>
       </svg>
@@ -1596,44 +1211,40 @@ function RibbonBottom1() {
   );
 }
 
-function RibbonBottoms() {
+function RibbonBottoms({ strategyType }: { strategyType: StrategyType }) {
   return (
     <div className="content-stretch flex items-center justify-between relative shrink-0 w-full" data-name="Ribbon Bottoms">
       <div className="flex items-center justify-center relative shrink-0">
         <div className="flex-none rotate-[180deg] scale-y-[-100%]">
-          <RibbonBottom />
+          <RibbonBottom strategyType={strategyType} id="ribbon-bottom-1" />
         </div>
       </div>
-      <RibbonBottom1 />
+      <RibbonBottom1 strategyType={strategyType} id="ribbon-bottom-2" />
     </div>
   );
 }
 
-function RibbonBottomsContainer() {
+function RibbonBottomsContainer({ strategyType }: { strategyType: StrategyType }) {
   return (
     <div className="mb-[-12.227px] relative shrink-0 w-full z-[1]" data-name="Ribbon Bottoms Container">
       <div className="size-full">
         <div className="content-stretch flex flex-col items-start px-[3.396px] py-0 relative w-full">
-          <RibbonBottoms />
+          <RibbonBottoms strategyType={strategyType} />
         </div>
       </div>
     </div>
   );
 }
 
-export function Ribbon() {
-  return (
-    <div className="relative content-stretch flex flex-col isolate items-center pb-[12.227px] pt-0 px-0" data-name="Ribbon">
-      <RibbonBaseContainer />
-      <RibbonBottomsContainer />
-    </div>
-  );
+interface RibbonProps {
+  strategyType?: StrategyType;
 }
 
-export default function Frame2() {
+export function Ribbon({ strategyType = "flagship" }: RibbonProps) {
   return (
-    <div className="relative size-full">
-      <Frame />
+    <div className="relative content-stretch flex flex-col isolate items-center pb-[12.227px] pt-0 px-0" data-name="Ribbon">
+      <RibbonBaseContainer strategyType={strategyType} />
+      <RibbonBottomsContainer strategyType={strategyType} />
     </div>
   );
 }

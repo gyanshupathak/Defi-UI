@@ -206,7 +206,6 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
   if (showEmpty) {
     return (
       <UnifiedChartContainer className={className}>
-        {}
         <EmptyChart
           barCount={54}
           barHeight={250}
@@ -220,7 +219,6 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           dateLabelsWidth="596px"
         />
 
-        {}
         <div 
           className="absolute flex flex-col z-10"
           style={{ 
@@ -244,28 +242,22 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
     index,
   }))
 
-  // Transform data based on activeFilter to reorder segments
   const getTransformedData = () => {
     if (activeFilter === "syeth") {
-      // syETH selected: swap middle (segment2) and bottom (segment3)
-      // segment2 goes to bottom, segment3 goes to middle
       return baseChartData.map(item => ({
         ...item,
-        bottom: item.segment2, // syETH moves to bottom
-        middle: item.segment3, // segment3 moves to middle
-        top: item.segment1,    // segment1 stays on top
+        bottom: item.segment2,
+        middle: item.segment3,
+        top: item.segment1,
       }))
     } else if (activeFilter === "sybtc") {
-      // syBTC selected: move top (segment1/syBTC) to bottom
-      // segment1 goes to bottom, segment3 goes to middle, segment2 goes to top
       return baseChartData.map(item => ({
         ...item,
-        bottom: item.segment1, // syBTC moves to bottom
-        middle: item.segment3, // segment3 moves to middle
-        top: item.segment2,    // segment2 moves to top
+        bottom: item.segment1,
+        middle: item.segment3,
+        top: item.segment2,
       }))
     } else {
-      // Default order: segment3 (bottom), segment2 (middle), segment1 (top)
       return baseChartData.map(item => ({
         ...item,
         bottom: item.segment3,
@@ -277,9 +269,8 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
 
   const chartData = getTransformedData()
 
-  
   const createCustomBarShape = (fill: string, radius: [number, number, number, number], segmentKey: 'bottom' | 'middle' | 'top') => {
-    return (props: any) => {
+    const CustomBarShape = (props: any) => {
       const { payload, x, y, width, height } = props
       const barIndex = payload?.index ?? chartData.findIndex(d => 
         d.bottom === payload?.bottom && 
@@ -288,37 +279,37 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
       )
       const isHovered = hoveredIndex === barIndex
       
-      // Determine the fill color based on activeFilter and segmentKey
-      // Note: In stacked bars, bottom is rendered first, then middle, then top
       let segmentFill = fill
-      if (activeFilter === "syusd" && segmentKey === "bottom") {
-        segmentFill = designTokens.colors.strategy.usd
-      } else if (activeFilter === "syeth" && segmentKey === "bottom") {
-        segmentFill = designTokens.colors.strategy.eth
-      } else if (activeFilter === "sybtc" && segmentKey === "bottom") {
-        segmentFill = designTokens.colors.strategy.btc
+      const lightGray = '#D3D3D3'
+      
+      const isFilterSelected = activeFilter === "syusd" || activeFilter === "syeth" || activeFilter === "sybtc"
+      
+      if (isFilterSelected) {
+        if (activeFilter === "syusd" && segmentKey === "bottom") {
+          segmentFill = designTokens.colors.strategy.usd
+        } else if (activeFilter === "syeth" && segmentKey === "bottom") {
+          segmentFill = designTokens.colors.strategy.eth
+        } else if (activeFilter === "sybtc" && segmentKey === "bottom") {
+          segmentFill = designTokens.colors.strategy.btc
+        } else if (segmentKey === "middle" || segmentKey === "top") {
+          segmentFill = lightGray
+        }
+      } else {
+        segmentFill = fill
       }
       
       const opacity = isHovered ? 1 : 0.25
 
-      
-      
-      
-      
-      
       let adjustedY = y
       let adjustedHeight = height
       
       if (segmentKey === 'top') {
-        
         adjustedY = y + 1
         adjustedHeight = height - 1
       } else if (segmentKey === 'middle') {
-        
         adjustedY = y + 1
         adjustedHeight = height - 2
       } else if (segmentKey === 'bottom') {
-        
         adjustedY = y + 1
         adjustedHeight = height - 1
       }
@@ -338,43 +329,27 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
         setDisplayDate("")
       }
 
-      // Hover animation: scale up both width and height
-      const scale = isHovered ? 1.12 : 1
-      const centerX = x + width / 2
-      const bottomY = adjustedY + adjustedHeight
-      // Translate to keep bottom center fixed while scaling
-      const scaleTranslateX = centerX * (1 - scale)
-      const scaleTranslateY = bottomY * (1 - scale)
-
       return (
-        <g style={{ pointerEvents: "none" }}>
-          <g
-            transform={`translate(${scaleTranslateX}, ${scaleTranslateY}) scale(${scale})`}
-            style={{
-              transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            }}
-          >
-            <rect
-              x={x}
-              y={adjustedY}
-              width={width}
-              height={adjustedHeight}
-              fill={segmentFill}
-              opacity={opacity}
-              rx={radius[0]}
-              ry={radius[1]}
-              style={{
-                transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), fill 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                cursor: "pointer",
-                pointerEvents: "auto",
-              }}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-            />
-          </g>
-        </g>
+        <rect
+          x={x}
+          y={adjustedY}
+          width={width}
+          height={adjustedHeight}
+          fill={segmentFill}
+          opacity={opacity}
+          rx={radius[0]}
+          ry={radius[1]}
+          style={{
+            transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), fill 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            cursor: "pointer",
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
       )
     }
+    CustomBarShape.displayName = `CustomBarShape-${segmentKey}`
+    return CustomBarShape
   }
 
   return (
@@ -428,7 +403,23 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
         </ResponsiveContainer>
       </div>
 
-      {}
+      <div 
+        className="absolute flex items-center gap-[8px] z-20"
+        style={{
+          left: '510px',
+          top: '30px',
+        }}
+      >
+        <DropdownSelector
+          selectedValue={timePeriod}
+          onValueChange={setTimePeriod}
+          options={timeRangeOptions}
+          minWidth="120px"
+        />
+        <PortfolioMetricTag value="+2.23%" />
+
+      </div>
+
       <div 
         className="absolute flex items-center justify-between text-center"
         style={{ 
@@ -465,17 +456,6 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
             activeValue={activeFilter}
             onValueChange={setActiveFilter}
           />
-
-          <div className="flex items-center gap-[8px]">
-            <DropdownSelector
-              selectedValue={timePeriod}
-              onValueChange={setTimePeriod}
-              options={timeRangeOptions}
-              minWidth="80px"
-            />
-
-            <PortfolioMetricTag value="+2.23%" />
-          </div>
         </div>
 
         <div className="flex flex-col items-start w-full">

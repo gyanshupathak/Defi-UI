@@ -144,10 +144,12 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
                     }}
                   />
                 ) : (
-                  <img
+                  <Image
                     src={img}
                     alt={`Token ${index + 1}`}
-                    className="absolute inset-0 w-full h-full object-cover rounded-full pointer-events-none"
+                    fill
+                    className="object-cover rounded-full pointer-events-none"
+                    unoptimized={img.endsWith('.svg')}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none'
                     }}
@@ -214,10 +216,12 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
                       }}
                     />
                   ) : (
-                    <img
+                    <Image
                       src={img}
                       alt={`Token ${index + 1}`}
-                      className="absolute inset-0 w-full h-full object-cover rounded-full pointer-events-none"
+                      fill
+                      className="object-cover rounded-full pointer-events-none"
+                      unoptimized={img.endsWith('.svg')}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none'
                       }}

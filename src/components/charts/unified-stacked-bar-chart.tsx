@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts"
+import { designTokens } from "@/lib/design-system"
 
 export interface StackedBarChartDataPoint {
   [key: string]: number | string | undefined
@@ -79,10 +80,8 @@ export function UnifiedStackedBarChart({
         fill={fill}
         opacity={opacity}
         style={{
-          transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
           cursor: "pointer",
-          transform: isHovered ? "scale(1.12)" : "scale(1)",
-          transformOrigin: "center bottom",
         }}
       />
     )
@@ -99,7 +98,7 @@ export function UnifiedStackedBarChart({
           return d.index === data.index
         }
         
-        return stackKeys.every(key => d[key] === data[key])
+        return stackKeys.every(key => (d as StackedBarChartDataPoint)[key] === data[key])
       })
     }
     

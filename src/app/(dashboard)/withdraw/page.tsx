@@ -26,7 +26,7 @@ function WithdrawPageContent() {
   const searchParams = useSearchParams()
   const variant = searchParams.get('variant') as "usd" | "eth" | "btc" | null || "usd"
   
-  const [amount, setAmount] = React.useState("120.00")
+  const [amount, setAmount] = React.useState("0.00")
   const [selectedNetwork, setSelectedNetwork] = React.useState<Network>("Base")
   const balance = 115447.00
   const exchangeRate = 1.03
@@ -82,7 +82,6 @@ function WithdrawPageContent() {
       return
     }
     
-    // Prevent multiple decimal points
     const parts = value.split('.')
     if (parts.length > 2) {
       value = parts[0] + '.' + parts.slice(1).join('')
@@ -92,7 +91,6 @@ function WithdrawPageContent() {
     if (!isNaN(numValue) && numValue >= 0) {
       const limitedValue = Math.min(numValue, balance)
       
-      // Preserve decimal places if user is typing, otherwise format to 2 decimals
       if (value.includes('.')) {
         const decimalPlaces = value.split('.')[1]?.length || 0
         const formatted = decimalPlaces > 0 
@@ -134,7 +132,6 @@ function WithdrawPageContent() {
             width: '356px',
           }}
         >
-          {}
           <NeumorphicInfoCard
             height={228}
             width={356}
@@ -244,7 +241,6 @@ function WithdrawPageContent() {
             </div>
           </NeumorphicInfoCard>
 
-          {}
           <NoteCard
             height={112}
             width={356}
@@ -252,7 +248,6 @@ function WithdrawPageContent() {
           />
         </div>
 
-          {}
         <div 
           className="absolute"
           style={{ 
@@ -270,7 +265,6 @@ function WithdrawPageContent() {
               width: '400px',
             }}
           >
-            {}
             <NeumorphicInputCard
               height={189}
               width={400}
@@ -284,7 +278,6 @@ function WithdrawPageContent() {
               }
               insetContainers={{ top: 52, height: 125, width: 376 }}
             >
-              {}
               <div className="absolute left-[36px] top-[82px] z-10">
                 <input
                   type="text"
@@ -302,7 +295,6 @@ function WithdrawPageContent() {
                 />
               </div>
 
-              {}
               <div className="absolute left-[36px] top-[137px] flex gap-[4px] items-center z-10">
                 <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
                   <Image
@@ -321,7 +313,6 @@ function WithdrawPageContent() {
                 </p>
               </div>
 
-              {}
               <div className="absolute left-[288px] top-[72px]">
                 <CircularPercentageSelector 
                   value={percentage}
@@ -331,7 +322,6 @@ function WithdrawPageContent() {
               </div>
             </NeumorphicInputCard>
 
-            {}
             <NeumorphicInputCard
               height={135}
               width={400}
@@ -362,7 +352,6 @@ function WithdrawPageContent() {
               }
               insetContainers={{ top: 52, height: 71, width: 376 }}
             >
-              {}
               <div className="absolute left-[36px] top-[72px] w-[340px] z-10">
                 <p 
                   className={cn(typographyClasses.display3, "whitespace-pre-wrap")}
@@ -373,7 +362,6 @@ function WithdrawPageContent() {
               </div>
             </NeumorphicInputCard>
 
-            {}
             <div className="relative h-[56px] w-full">
               <Button
                 className="w-full h-full"

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
+import { WalletProvider } from "@/components/providers/wallet-provider"
 
 export const metadata: Metadata = {
   title: "Lucidly Finance - Advanced Yield Platform",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full overflow-hidden">
       <body className="h-full overflow-hidden">
-        {children}
+        <WalletProvider>
+          {children}
+        </WalletProvider>
       </body>
     </html>
   )

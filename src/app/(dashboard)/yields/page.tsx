@@ -4,6 +4,8 @@ import { YieldsDashboard } from "@/components/features/yields/yields-dashboard"
 import { PageContainer } from "@/components/ui/page-container"
 import { designTokens } from "@/lib/design-system"
 
+export type StrategyType = "flagship" | "delta-neutral" | "leverage-looping"
+
 export default function YieldsPage() {
   return (
     <div 

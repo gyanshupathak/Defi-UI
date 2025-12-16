@@ -28,24 +28,16 @@ export interface ButtonProps
   loading?: boolean
   showDepositIcon?: boolean
   showWithdrawIcon?: boolean
-  /** Legacy variant prop - maps to bgColor/textColor */
   variant?: ButtonVariant
-  /** Custom background color - defaults to variant or design primary color */
   bgColor?: string
-  /** Custom text color - defaults to variant or white */
   textColor?: string
-  /** Custom width - defaults to auto */
   width?: string | number
-  /** Custom height - defaults to size-based */
   height?: string | number
-  /** Custom style prop for additional overrides */
   style?: React.CSSProperties
   children?: React.ReactNode
-  /** For connectWallet variant: if true, uses solid #7f56d9 (for bridge deposit/withdraw pages), otherwise rgba(127, 86, 217, 0.15) */
   isBridgeContext?: boolean
 }
 
-// Map variants to colors
 const getVariantColors = (variant?: ButtonVariant, isBridgeContext?: boolean): { bg: string; text: string } => {
   if (!variant || variant === "default") {
     return { bg: designTokens.colors.primary, text: "#FFFFFF" }
@@ -69,8 +61,6 @@ const getVariantColors = (variant?: ButtonVariant, isBridgeContext?: boolean): {
     case "inactive":
       return { bg: "#BDBDBD", text: "#757575" }
     case "connectWallet":
-      // Solid primary color for bridge/deposit/withdraw pages, otherwise rgba(127, 86, 217, 0.15)
-      // Text color: white on bridge/deposit/withdraw pages, primary color otherwise
       return { 
         bg: isBridgeContext ? designTokens.colors.primary : "rgba(127, 86, 217, 0.15)", 
         text: isBridgeContext ? "#FFFFFF" : designTokens.colors.primary
@@ -97,15 +87,17 @@ const getButtonStyles = (
   size: ButtonSize = "default",
   variant?: ButtonVariant
 ): ButtonStyles => {
-  // Neumorphic shadow pattern from Figma: white highlight top-left, darker shadow bottom-right
   const baseShadow = "-4px -4px 4px #FFF, 4px 4px 8px rgba(127, 86, 217, 0.15)"
-  // Connect wallet button uses different shadow and border
   const connectWalletShadow = "-4px -4px 5px 0px #FFFFFF, 4px 4px 5px 0px rgba(0,0,0,0.08)"
+  const cancelShadow = "2px 2px 4px 0px rgba(0,0,0,0.08), -2px -2px 4px 0px #FFFFFF"
   const borderColor = "#F4F0FF"
   
-  // Connect wallet button uses 3px border, others use 4px
   const borderWidth = variant === "connectWallet" ? "3px" : "4px"
-  const shadow = variant === "connectWallet" ? connectWalletShadow : baseShadow
+  const shadow = variant === "connectWallet" 
+    ? connectWalletShadow 
+    : variant === "cancel" 
+    ? cancelShadow 
+    : baseShadow
   
   const baseBorder = hasBorder ? "1px solid #D5E2FF" : `${borderWidth} solid ${borderColor}`
   
@@ -120,10 +112,8 @@ const getButtonStyles = (
     case "default":
       return baseStyles
     case "hover":
-      // On hover, only icon animates, nothing else changes
       return baseStyles
     case "pressed":
-      // Pressed state: inner shadow for pressed effect
       return {
         ...baseStyles,
         shadow: "inset 4px 4px 6px 0px rgba(0, 0, 0, 0.1)",
@@ -170,7 +160,6 @@ const sizeMap: Record<
   },
 }
 
-// Deposit Icon SVG Component
 const DepositIcon = ({ size, color, isHovered }: { size: number; color: string; isHovered?: boolean }) => (
   <svg
     width={size}
@@ -200,7 +189,6 @@ const DepositIcon = ({ size, color, isHovered }: { size: number; color: string; 
   </svg>
 )
 
-// Withdraw Icon SVG Component
 const WithdrawIcon = ({ size, color, isHovered }: { size: number; color: string; isHovered?: boolean }) => (
   <svg
     width={size}
@@ -264,14 +252,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const finalTextColor = textColor ?? variantColors.text
     const isInactive = disabled || variant === "inactive"
 
-    // Determine current state
     React.useEffect(() => {
       if (isInactive) {
         setButtonState("disabled")
       } else if (loading) {
         setButtonState("loading")
       } else if (buttonState === "pressed") {
-        // Keep pressed state if mouse is down
         return
     } else if (isHovered) {
         setButtonState("hover")
@@ -282,13 +268,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const hasBorder = variant === "outline"
     const styles = getButtonStyles(buttonState, finalBgColor, finalTextColor, hasBorder, size, variant)
-    // Connect wallet button has specific dimensions with reduced height
     const isConnectWallet = variant === "connectWallet"
     const sizeTokens = isConnectWallet 
       ? { height: 0, paddingX: 16, paddingY: 10, gap: 8, icon: 20, font: "font-['Hanken_Grotesk',sans-serif] font-medium leading-[16px] text-[16px]" }
       : (sizeMap[size] ?? sizeMap.default)
 
-    // Determine icon to display
     let displayIcon: React.ReactNode = null
     const iconColor = styles.text
 
@@ -300,7 +284,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       displayIcon = icon
     }
 
-    // Check if className contains w-full to handle width properly
     const hasFullWidth = className?.includes("w-full")
     const computedWidth = width 
       ? (typeof width === "number" ? `${width}px` : width)

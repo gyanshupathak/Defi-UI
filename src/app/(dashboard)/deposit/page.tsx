@@ -83,7 +83,6 @@ function DepositPageContent() {
       return
     }
     
-    // Prevent multiple decimal points
     const parts = value.split('.')
     if (parts.length > 2) {
       value = parts[0] + '.' + parts.slice(1).join('')
@@ -93,7 +92,6 @@ function DepositPageContent() {
     if (!isNaN(numValue) && numValue >= 0) {
       const limitedValue = Math.min(numValue, balance)
       
-      // Preserve decimal places if user is typing, otherwise format to 2 decimals
       if (value.includes('.')) {
         const decimalPlaces = value.split('.')[1]?.length || 0
         const formatted = decimalPlaces > 0 
@@ -136,14 +134,12 @@ function DepositPageContent() {
             width: '356px',
           }}
         >
-          {}
           <NeumorphicInfoCard
             height={325}
             width={356}
             showInnerBorder={true}
             useGradientBorder={true}
           >
-            {}
             <div 
               className="absolute left-1/2 top-[calc(50%-65px)] -translate-x-1/2 -translate-y-1/2 flex gap-[10px] items-center px-[24px] py-[20px] rounded-[16px] overflow-hidden"
               style={{ 
@@ -249,7 +245,6 @@ function DepositPageContent() {
               </div>
             </div>
 
-            {}
             <div className="absolute left-[60px] top-[247px] flex flex-col gap-[4px] items-start w-[119px]">
               <p 
                 className={cn(typographyClasses.heading2, "leading-[26px] tracking-[0.55px]")}
@@ -281,7 +276,6 @@ function DepositPageContent() {
             </div>
           </NeumorphicInfoCard>
 
-          {}
           <NoteCard
             height={94}
             width={356}
@@ -289,7 +283,6 @@ function DepositPageContent() {
           />
         </div>
 
-          {}
         <div 
           className="absolute"
           style={{ 
@@ -307,7 +300,6 @@ function DepositPageContent() {
               width: '400px',
             }}
           >
-            {}
             <NeumorphicInputCard
               height={189}
               width={400}
@@ -321,7 +313,6 @@ function DepositPageContent() {
               }
               insetContainers={{ top: 52, height: 125, width: 376 }}
             >
-              {}
               <div className="absolute left-[36px] top-[82px] z-10">
                 <input
                   type="text"
@@ -339,7 +330,6 @@ function DepositPageContent() {
                 />
               </div>
 
-              {}
               <div className="absolute left-[36px] top-[137px] flex gap-[4px] items-center z-10">
                 <div className="relative w-[16px] h-[16px] shrink-0 overflow-hidden">
                   <Image
@@ -358,7 +348,6 @@ function DepositPageContent() {
                 </p>
               </div>
 
-              {}
               <div className="absolute left-[288px] top-[72px]">
                 <CircularPercentageSelector 
                   value={percentage}
@@ -368,7 +357,6 @@ function DepositPageContent() {
               </div>
             </NeumorphicInputCard>
 
-            {}
             <NeumorphicInputCard
               height={135}
               width={400}
@@ -382,7 +370,6 @@ function DepositPageContent() {
               }
               insetContainers={{ top: 52, height: 71, width: 376 }}
             >
-              {}
               <div className="absolute left-[36px] top-[72px] flex items-end justify-between w-[328px] z-10">
                 <p 
                   className={cn(typographyClasses.display3)}
@@ -399,7 +386,6 @@ function DepositPageContent() {
               </div>
             </NeumorphicInputCard>
 
-            {}
             <div className="relative h-[56px] w-full">
               <Button
                 className="w-full h-full"

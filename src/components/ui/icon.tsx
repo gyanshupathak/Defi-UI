@@ -15,7 +15,6 @@ export function Icon({ src, className, style }: IconProps) {
     fetch(src)
       .then((res) => res.text())
       .then((text) => {
-        // Update SVG to inherit color properly
         const updatedSvg = text.replace(
           /<svg([^>]*)>/,
           '<svg$1 style="display: block; width: 100%; height: 100%;" class="icon-svg">'
