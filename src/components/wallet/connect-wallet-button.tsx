@@ -1,8 +1,10 @@
 'use client';
 
 import * as React from 'react';
+import { useRef } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { designTokens } from '@/lib/design-system';
+import { useAnalytics } from '@/lib/hooks/use-analytics';
 
 interface ConnectWalletButtonProps {
   isBridgeContext?: boolean;
@@ -13,6 +15,8 @@ export function ConnectWalletButton({
   isBridgeContext = false,
   className 
 }: ConnectWalletButtonProps) {
+  const { analytics } = useAnalytics();
+  const trackedAddressRef = useRef<string | null>(null);
 
   return (
     <ConnectButton.Custom>
@@ -34,6 +38,14 @@ export function ConnectWalletButton({
           chain &&
           (!authenticationStatus ||
             authenticationStatus === 'authenticated');
+
+        // Track wallet connection (only once per address)
+        if (connected && account && chain && trackedAddressRef.current !== account.address) {
+          trackedAddressRef.current = account.address;
+          analytics.walletConnected(account.address, chain.id);
+        } else if (!connected) {
+          trackedAddressRef.current = null;
+        }
 
         return (
           <div

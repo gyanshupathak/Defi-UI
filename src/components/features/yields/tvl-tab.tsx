@@ -6,19 +6,23 @@ interface TVLTabProps {
   currentValue?: string
   currentDate?: string
   isEmpty?: boolean
+  vaultName?: "syUSD" | "syETH" | "syBTC"
 }
 
 export function TVLTab({ 
-  currentValue = "$185,053",
-  currentDate = "Current Date",
+  currentValue,
+  currentDate,
   isEmpty = false,
+  vaultName = "syUSD",
 }: TVLTabProps) {
   return (
     <TVLChart
       variant="yields"
-      isEmpty={false}
+      isEmpty={isEmpty}
       totalValue={currentValue}
       date={currentDate}
+      vaultName={vaultName}
+      useApi={true}
     />
   )
 }

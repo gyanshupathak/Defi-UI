@@ -1,18 +1,15 @@
 "use client"
 
-import React, { useState } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import Image from 'next/image';
 import svgPathsDefault from './svg-default';
-import svgPathsHover from './svg-hover';
-import svgPathsPressed from './svg-pressed';
 import svgPathsRibbon from './svg-ribbon';
 import { TokenType } from '../token-selector';
 import { tokenData, TokenData } from '../token-data';
 import { designTokens } from '@/lib/design-system';
 import { StrategyType } from '@/app/(dashboard)/yields/page';
-
-type ButtonState = 'default' | 'hover' | 'pressed';
+import InitiateDepositButton from '../initiate-deposit-button';
 
 // Helper components for text
 function Text({ text, additionalClassNames = "" }: { text: string; additionalClassNames?: string }) {
@@ -111,14 +108,6 @@ interface YieldsCircleProps {
 }
 
 export default function YieldsCircle({ tokenType = 'usd', isAnimating = false }: YieldsCircleProps) {
-  const [buttonState, setButtonState] = useState<ButtonState>('default');
-
-  const svgPaths = buttonState === 'hover' 
-    ? svgPathsHover 
-    : buttonState === 'pressed' 
-    ? svgPathsPressed 
-    : svgPathsDefault;
-
   const data = tokenData[tokenType];
 
   React.useEffect(() => {
@@ -128,9 +117,7 @@ export default function YieldsCircle({ tokenType = 'usd', isAnimating = false }:
   return (
     <div className="relative w-[600px] h-[600px]">
       <Circle 
-        svgPaths={svgPaths} 
-        buttonState={buttonState} 
-        setButtonState={setButtonState}
+        svgPaths={svgPathsDefault} 
         tokenData={data}
         tokenType={tokenType}
         isAnimating={isAnimating}
@@ -141,14 +128,12 @@ export default function YieldsCircle({ tokenType = 'usd', isAnimating = false }:
 
 interface CircleProps {
   svgPaths: any;
-  buttonState: ButtonState;
-  setButtonState: (state: ButtonState) => void;
   tokenData: TokenData;
   tokenType: TokenType;
   isAnimating?: boolean;
 }
 
-function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType, isAnimating = false }: CircleProps) {
+function Circle({ svgPaths, tokenData, tokenType, isAnimating = false }: CircleProps) {
   return (
     <div className="absolute left-[57px] size-[600px] top-[188px]">
       {/* Main circles - all circles at base z-index */}
@@ -366,7 +351,7 @@ function Circle({ svgPaths, buttonState, setButtonState, tokenData, tokenType, i
       </div>
       
       {/* Button - appears 1 sec after segments, above text */}
-      <Button svgPaths={svgPaths} buttonState={buttonState} setButtonState={setButtonState} isAnimating={isAnimating} />
+      <InitiateDepositButton isAnimating={isAnimating} />
     </div>
   );
 }
@@ -1041,99 +1026,6 @@ function CurveTextStableYield({ svgPaths, tokenData }: { svgPaths: any; tokenDat
   );
 }
 
-interface ButtonProps {
-  svgPaths: any;
-  buttonState: ButtonState;
-  setButtonState: (state: ButtonState) => void;
-  isAnimating?: boolean;
-}
-
-function Button({ svgPaths, buttonState, setButtonState, isAnimating = false }: ButtonProps) {
-  return (
-    <div className={`absolute h-[550px] left-[29px] top-[20px] w-[542px] ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '6000ms', animationFillMode: 'forwards', zIndex: 12 }}>
-      {/* Secondary Layer */}
-      <div className={clsx(
-        "absolute bottom-0 h-[141.611px] left-[calc(50%+0.24px)] -translate-x-1/2 w-[294.01px]",
-        "transition-all duration-150 ease-out",
-        buttonState === 'pressed' && "bottom-[-3px] opacity-80"
-      )}>
-        <div className="absolute inset-[-6.35%_-3.82%_-7.94%_-3.06%]">
-          <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 315 162">
-            <g filter="url(#filter0_dd_btn_sec)">
-              <path d={svgPaths.p22396800 || svgPaths.pe971480} fill="#F4F0FF" />
-            </g>
-            <defs>
-              <filter colorInterpolationFilters="sRGB" filterUnits="userSpaceOnUse" height="161.843" id="filter0_dd_btn_sec" width="314.242" x="0" y="0">
-                <feFlood floodOpacity="0" result="BackgroundImageFix" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="-3.372" dy="-3.372" />
-                <feGaussianBlur stdDeviation="2.81" />
-                <feComposite in2="hardAlpha" operator="out" />
-                <feColorMatrix values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0" />
-                <feBlend in2="BackgroundImageFix" result="effect1_dropShadow" />
-                <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
-                <feOffset dx="4.496" dy="4.496" />
-                <feGaussianBlur stdDeviation="3.372" />
-                <feComposite in2="hardAlpha" operator="out" />
-                <feColorMatrix values="0 0 0 0 0.0327817 0 0 0 0 0.151743 0 0 0 0 0.276112 0 0 0 0.15 0" />
-                <feBlend in2="effect1_dropShadow" result="effect2_dropShadow" />
-                <feBlend in="SourceGraphic" in2="effect2_dropShadow" result="shape" />
-              </filter>
-            </defs>
-          </svg>
-        </div>
-      </div>
-
-      {/* Main Button */}
-      <div 
-        className={clsx(
-          "absolute h-[119.504px] left-[calc(50%-0.34px)] -translate-x-1/2 w-[257.865px]",
-          "cursor-pointer transition-all duration-150 ease-out",
-          buttonState === 'default' && "bottom-[11px]",
-          buttonState === 'hover' && "bottom-[13px] brightness-105",
-          buttonState === 'pressed' && "bottom-[7px] brightness-95"
-        )}
-        style={{ pointerEvents: 'auto', zIndex: 10 }}
-        onMouseEnter={() => {
-          console.log('Button hover enter - buttonState:', buttonState);
-          setButtonState('hover');
-        }}
-        onMouseLeave={() => {
-          console.log('Button hover leave - buttonState:', buttonState);
-          setButtonState('default');
-        }}
-        onMouseDown={() => {
-          console.log('Button mouse down - buttonState:', buttonState);
-          setButtonState('pressed');
-        }}
-        onMouseUp={(e) => {
-          const rect = e.currentTarget.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-            setButtonState('hover');
-          } else {
-            setButtonState('default');
-          }
-        }}
-        onTouchStart={() => setButtonState('pressed')}
-        onTouchEnd={() => setButtonState('default')}
-      >
-        <svg className="block size-full" fill="none" preserveAspectRatio="none" viewBox="0 0 258 120" style={{ pointerEvents: 'none' }}>
-          <path d={svgPaths.p56f3800} fill="#5496DE" />
-        </svg>
-        
-        {/* DEPOSIT text */}
-        <div className="absolute left-1/2 top-[57%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-          <div className="flex flex-col items-center">
-            <p className="font-['Hanken_Grotesk:Bold',sans-serif] leading-[normal] text-[12.188px] text-white uppercase tracking-wider opacity-90 mb-1">Initiate</p>
-            <p className="font-['Hanken_Grotesk:Bold',sans-serif] leading-[normal] text-[24.18px] text-white">DEPOSIT</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function RibbonBase({ strategyType }: { strategyType: StrategyType }) {
   const getGradientColors = (strategy: StrategyType) => {

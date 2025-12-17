@@ -14,18 +14,33 @@ import { IncentivesTab } from "./incentives-tab"
 import { FAQsTab } from "./faqs-tab"
 import { DetailsTab } from "./details-tab"
 import { usePathname } from "next/navigation"
+import { useVaultTVL } from "@/lib/hooks/use-vault-tvl"
 
 interface YieldsDashboardProps {
   currentValue?: string
   currentDate?: string
   hasDeposits?: boolean
+  vaultName?: "syUSD" | "syETH" | "syBTC"
 }
 
 export function YieldsDashboard({ 
-  currentValue = "$185,053",
-  currentDate = "Current Date",
+  currentValue,
+  currentDate,
   hasDeposits,
+  vaultName = "syUSD",
 }: YieldsDashboardProps) {
+  // Fetch TVL data for the vault
+  const { formattedValue: apiFormattedValue, isLoading: isTvlLoading } = useVaultTVL(vaultName, {
+    staleTime: 30_000,
+  })
+
+  // Use API value if available, otherwise use prop
+  const effectiveValue = apiFormattedValue || currentValue || "$185,053"
+  const effectiveDate = currentDate || new Date().toLocaleDateString('en-US', { 
+    month: 'long', 
+    day: 'numeric', 
+    year: 'numeric' 
+  })
   const [activeTab, setActiveTab] = React.useState("tvl")
   const pathname = usePathname()
 
@@ -35,6 +50,7 @@ export function YieldsDashboard({
 
   const resolvedHasDeposits = React.useMemo(() => {
     if (typeof hasDeposits === "boolean") return hasDeposits
+    if (!currentValue) return false
     const numericValue = parseFloat(currentValue.replace(/[^0-9.]/g, "")) || 0
     return numericValue > 0
   }, [currentValue, hasDeposits])
@@ -70,9 +86,10 @@ export function YieldsDashboard({
           <DashboardCard height={cardHeight}>
             {activeTab === "tvl" && (
               <TVLTab 
-                currentValue={currentValue} 
-                currentDate={currentDate} 
+                currentValue={effectiveValue} 
+                currentDate={effectiveDate} 
                 isEmpty={!resolvedHasDeposits}
+                vaultName={vaultName}
               />
             )}
             {activeTab === "base-apy" && (

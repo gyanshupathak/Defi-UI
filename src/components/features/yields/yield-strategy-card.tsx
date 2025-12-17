@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { Button } from "@/components/ui/button"
 import { AnimatedNumber } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export interface YieldStrategyCardProps {
   name: string
@@ -44,12 +45,20 @@ export function YieldStrategyCard({
   className,
 }: YieldStrategyCardProps) {
   const router = useRouter()
+  const { analytics } = useAnalytics()
   const config = strategyConfig[variant]
   const icon = tokenIcon || config.icon
   const [isHovered, setIsHovered] = React.useState(false)
 
+  const handleCardClick = () => {
+    analytics.strategyCardClicked(symbol)
+    router.push(`/yields?strategy=${variant}`)
+  }
+
   const handleDepositClick = (e: React.MouseEvent) => {
     e.stopPropagation()
+    analytics.buttonClicked("deposit", `strategy_${variant}`)
+    analytics.depositInitiated(symbol)
     router.push(`/deposit?strategy=${variant}`)
   }
 
@@ -58,6 +67,7 @@ export function YieldStrategyCard({
       className={cn("relative h-[244px] w-[318px] cursor-pointer", className)}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div 
         className="absolute inset-0 rounded-[16px] transition-all duration-200"

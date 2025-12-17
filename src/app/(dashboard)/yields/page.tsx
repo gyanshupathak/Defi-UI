@@ -74,8 +74,7 @@ export default function YieldsPage() {
             style={{ flex: '1 1 auto', marginLeft: '56px' }}
           >
             <YieldsDashboard
-              currentValue="$185,053"
-              currentDate="Current Date"
+              vaultName="syUSD"
             />
           </div>
         </div>

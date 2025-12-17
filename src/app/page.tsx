@@ -8,9 +8,42 @@ import { PageContainer } from "@/components/ui/page-container"
 import { DashboardTabs } from "@/components/ui/dashboard-tabs"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { Flame } from "lucide-react"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useMultipleVaultTVL } from "@/lib/hooks/use-vault-tvl"
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState("top-yields")
+  const { analytics } = useAnalytics()
+
+  // Fetch TVL for all vaults (syUSD, syETH, syBTC)
+  const { 
+    tvlMap, 
+    formattedMap, 
+    isLoading: isTvlLoading 
+  } = useMultipleVaultTVL(["syUSD", "syETH", "syBTC"], {
+    staleTime: 30_000, // 30 seconds
+  })
+
+  // Calculate total TVL across all vaults for home page
+  const totalTvl = React.useMemo(() => {
+    return Object.values(tvlMap).reduce((sum, tvl) => sum + tvl, 0)
+  }, [tvlMap])
+
+  const formattedTotalTvl = React.useMemo(() => {
+    if (totalTvl >= 1_000_000) {
+      return `$${(totalTvl / 1_000_000).toFixed(2)}M`
+    }
+    if (totalTvl >= 1_000) {
+      return `$${(totalTvl / 1_000).toFixed(2)}K`
+    }
+    return `$${totalTvl.toFixed(2)}`
+  }, [totalTvl])
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId)
+    const tabLabel = tabs.find(t => t.id === tabId)?.label || tabId
+    analytics.tabSwitched(tabLabel)
+  }
 
   const tabs = [
     { id: "top-yields", label: "Top Yields" },
@@ -42,8 +75,14 @@ export default function Home() {
         <div className="flex-1 flex items-start">
           <TVLChart 
             isEmpty={false}
-            totalValue="$585,937"
-            date="12 November 2025"
+            totalValue={formattedTotalTvl}
+            date={new Date().toLocaleDateString('en-US', { 
+              month: 'long', 
+              day: 'numeric', 
+              year: 'numeric' 
+            })}
+            vaultName="syUSD"
+            useApi={true}
           />
         </div>
 
@@ -53,7 +92,7 @@ export default function Home() {
           <DashboardTabs
             tabs={tabs}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
+            onTabChange={handleTabChange}
           />
 
           <div 

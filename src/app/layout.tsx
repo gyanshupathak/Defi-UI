@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import { WalletProvider } from "@/components/providers/wallet-provider"
+import { AnalyticsProvider } from "@/components/providers/analytics-provider"
+import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata: Metadata = {
   title: "Lucidly Finance - Advanced Yield Platform",
@@ -12,12 +14,17 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+
   return (
     <html lang="en" className="h-full overflow-hidden">
       <body className="h-full overflow-hidden">
-        <WalletProvider>
-          {children}
-        </WalletProvider>
+        <AnalyticsProvider>
+          <WalletProvider>
+            {children}
+          </WalletProvider>
+        </AnalyticsProvider>
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   )
