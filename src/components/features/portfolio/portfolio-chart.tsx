@@ -330,8 +330,6 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           setIsHovering(true)
           const dataPoint = chartData[barIndex]
           
-          // Calculate the value to display based on active filter
-          // Use original segment values from baseChartData for accurate calculation
           let valueToDisplay = 0
           if (activeFilter === "total") {
             valueToDisplay = dataPoint.total || 0
@@ -346,7 +344,6 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
             valueToDisplay = dataPoint.segment1 || 0
           }
           
-          // Scale the value to match the chart scale (chart shows 0-500, default value is $15,289.28)
           const scaleFactor = parseFloat(defaultDisplayValue.replace(/[^0-9.]/g, '')) / 500
           const scaledValue = valueToDisplay * scaleFactor
           const formattedValue = `$${scaledValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
