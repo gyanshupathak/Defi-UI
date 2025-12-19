@@ -23,6 +23,7 @@ export default function PortfolioPage() {
   const tabTimeTracker = useTimeTracker()
   const [activeTab, setActiveTab] = React.useState("deposited")
   const previousTabRef = React.useRef<string>("deposited")
+  const [withdrawalRequestsCount, setWithdrawalRequestsCount] = React.useState(0)
   
   const hasDeposits = false
   const hasWithdrawalRequests = false
@@ -99,6 +100,7 @@ export default function PortfolioPage() {
             <PortfolioTabs 
               activeTab={activeTab}
               onTabChange={handleTabChange}
+              withdrawalRequestsCount={withdrawalRequestsCount}
             />
 
             <div style={{ marginTop: '24px' }}>
@@ -173,6 +175,9 @@ export default function PortfolioPage() {
                 !hasWithdrawalRequests ? (
                   <PortfolioRequests
                     onCancelRequest={handleCancelRequest}
+                    useApi={true}
+                    vaultAddress="0x279CAD277447965AF3d24a78197aad1B02a2c589" // syUSD vault
+                    onRequestsCountChange={setWithdrawalRequestsCount}
                   />
                 ) : (
                   <PortfolioDashboardEmptyState
@@ -286,7 +291,7 @@ export default function PortfolioPage() {
 
               {activeTab === "activity" && (
                 !hasActivity ? (
-                  <PortfolioActivity />
+                  <PortfolioActivity useApi={true} />
                 ) : (
                   <PortfolioDashboardEmptyState
                     icon={

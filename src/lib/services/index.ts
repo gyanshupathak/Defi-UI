@@ -4,5 +4,6 @@
 
 export * from './api-client'
 export * from './vault-service'
+export * from './portfolio-service'
 export * from './types'
 

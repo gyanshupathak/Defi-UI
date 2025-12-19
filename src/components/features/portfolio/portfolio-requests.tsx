@@ -1,11 +1,13 @@
 "use client"
 
 import * as React from "react"
+import { useAccount } from "wagmi"
 import { cn } from "@/lib/utils"
 import { designTokens, shadows, typographyClasses } from "@/lib/design-system"
 import { WithdrawalRequestCard } from "./withdrawal-request-card"
 import { Button } from "@/components/ui/button"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useWithdrawalRequests } from "@/lib/hooks/use-withdrawal-requests"
 
 export interface WithdrawalRequest {
   id: string
@@ -24,42 +26,149 @@ export interface PortfolioRequestsProps {
   emptyStateMessage?: string
   emptyStateDescription?: string
   onDepositClick?: () => void
+  vaultAddress?: string // Vault contract address
+  userAddress?: string // Optional - will use wagmi if not provided
+  useApi?: boolean // Enable API integration (default: true)
+  onRequestsCountChange?: (count: number) => void // Callback to update count in parent
 }
 
-const defaultRequests: WithdrawalRequest[] = [
-  {
-    id: "1",
-    date: "03 JAN 2025",
-    syAmount: "482",
-    syToken: "syUSD",
-    usdcAmount: "483",
-  },
-  {
-    id: "2",
-    date: "03 JAN 2025",
-    syAmount: "482",
-    syToken: "syUSD",
-    usdcAmount: "483",
-  },
-  {
-    id: "3",
-    date: "03 JAN 2025",
-    syAmount: "482",
-    syToken: "syUSD",
-    usdcAmount: "483",
-  },
-]
-
 export function PortfolioRequests({
-  requests = defaultRequests,
+  requests: propRequests,
   onCancelRequest,
   className,
   showEmptyState = true,
   emptyStateMessage = "No Pending Withdrawals",
   emptyStateDescription = "Ready to grow your funds? Start a secure on-chain deposit",
   onDepositClick,
+  vaultAddress,
+  userAddress: propUserAddress,
+  useApi = true,
+  onRequestsCountChange,
 }: PortfolioRequestsProps) {
   const { analytics } = useAnalytics()
+  const { address: wagmiAddress, isConnected } = useAccount()
+  
+  // Use provided address or fallback to wagmi address
+  const userAddress = propUserAddress || wagmiAddress
+  
+  // Default vault address for syUSD (can be made configurable)
+  const defaultVaultAddress = '0x279CAD277447965AF3d24a78197aad1B02a2c589' // syUSD vault
+  const effectiveVaultAddress = vaultAddress || defaultVaultAddress
+  
+  // Fetch withdrawal requests from API
+  const {
+    data: apiRequests,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    rawData,
+  } = useWithdrawalRequests(
+    effectiveVaultAddress,
+    userAddress,
+    'PENDING', // Prefer pending requests, but will fallback to other statuses if empty
+    {
+      enabled: useApi && !!userAddress && !!effectiveVaultAddress,
+      staleTime: 30_000,
+    }
+  )
+  
+  // Debug logging
+  React.useEffect(() => {
+    if (useApi) {
+      console.log('[PortfolioRequests] API enabled:', useApi)
+      console.log('[PortfolioRequests] User address:', userAddress)
+      console.log('[PortfolioRequests] Vault address:', effectiveVaultAddress)
+      console.log('[PortfolioRequests] API requests:', apiRequests)
+      console.log('[PortfolioRequests] Raw data:', rawData)
+      console.log('[PortfolioRequests] Loading:', isLoading)
+      console.log('[PortfolioRequests] Error:', isError, error)
+    }
+  }, [useApi, userAddress, effectiveVaultAddress, apiRequests, rawData, isLoading, isError, error])
+  
+  // Use API data if available, otherwise use prop requests
+  // Note: apiRequests is already transformed by the hook to match WithdrawalRequest interface
+  const requests = React.useMemo(() => {
+    if (useApi) {
+      // Always use API data when useApi is true, even if empty (to show proper empty state)
+      return apiRequests || []
+    }
+    return propRequests || []
+  }, [useApi, apiRequests, propRequests])
+  
+  // Notify parent of request count change
+  React.useEffect(() => {
+    if (onRequestsCountChange) {
+      onRequestsCountChange(requests.length)
+    }
+  }, [requests.length, onRequestsCountChange])
+  
+  // Show loading state
+  if (useApi && isLoading && !propRequests) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center text-center",
+          className
+        )}
+        style={{
+          minHeight: "360px",
+          gap: "16px",
+        }}
+      >
+        <p className={typographyClasses.label1} style={{ color: designTokens.colors.text.secondary }}>
+          Loading withdrawal requests...
+        </p>
+      </div>
+    )
+  }
+  
+  // Show error state
+  if (useApi && isError && !propRequests) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center text-center",
+          className
+        )}
+        style={{
+          minHeight: "360px",
+          gap: "16px",
+        }}
+      >
+        <p className={typographyClasses.label1} style={{ color: designTokens.colors.status.error }}>
+          Failed to load withdrawal requests
+        </p>
+        <Button
+          variant="default"
+          size="xs"
+          onClick={() => refetch()}
+        >
+          Retry
+        </Button>
+      </div>
+    )
+  }
+  
+  // Show connect wallet message if wallet not connected and using API
+  if (useApi && !userAddress && !propRequests) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center text-center",
+          className
+        )}
+        style={{
+          minHeight: "360px",
+          gap: "16px",
+        }}
+      >
+        <p className={typographyClasses.label1} style={{ color: designTokens.colors.text.secondary }}>
+          Please connect your wallet to view withdrawal requests
+        </p>
+      </div>
+    )
+  }
   
   const handleCancel = (requestId: string, syToken: string, amount: string) => {
     analytics.withdrawalRequestCancelled(requestId, syToken, amount)
@@ -180,21 +289,30 @@ export function PortfolioRequests({
 
   return (
     <div
-      className={cn("flex items-center", className)}
+      className={cn("flex flex-wrap items-start", className)}
       style={{
         gap: "31px",
+        width: "100%",
       }}
     >
       {requests.map((request) => (
-        <WithdrawalRequestCard
+        <div
           key={request.id}
-          date={request.date}
-          syAmount={request.syAmount}
-          syToken={request.syToken}
-          usdcAmount={request.usdcAmount}
-          tokenIcon={request.tokenIcon}
-          onCancel={() => handleCancel(request.id, request.syToken, request.syAmount)}
-        />
+          style={{
+            flex: "0 0 calc((100% - 62px) / 3)", // 3 per row: (100% - 2 gaps of 31px) / 3
+            minWidth: "0", // Allow flex to work properly
+            maxWidth: "calc((100% - 62px) / 3)",
+          }}
+        >
+          <WithdrawalRequestCard
+            date={request.date}
+            syAmount={request.syAmount}
+            syToken={request.syToken}
+            usdcAmount={request.usdcAmount}
+            tokenIcon={request.tokenIcon}
+            onCancel={() => handleCancel(request.id, request.syToken, request.syAmount)}
+          />
+        </div>
       ))}
     </div>
   )

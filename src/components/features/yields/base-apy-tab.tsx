@@ -7,6 +7,7 @@ import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-
 import { AnimatedNumber } from "@/components/animations"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useBaseAPY, type TimeRange } from "@/lib/hooks/use-base-apy"
 import {
   AreaChart,
   Area,
@@ -16,8 +17,6 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts"
-
-type TimeRange = "1D" | "1W" | "1M" | "3M" | "6M" | "1Y" | "ALL"
 
 interface BaseAPYTabProps {
   currentDate?: string
@@ -29,14 +28,39 @@ export function BaseAPYTab({
   isEmpty = false,
 }: BaseAPYTabProps) {
   const [timeRange, setTimeRange] = React.useState<TimeRange>("1M")
-  const initialValue = isEmpty ? "0.00%" : "16.23%"
-  const [displayValue, setDisplayValue] = React.useState(initialValue)
-  const [displayDate, setDisplayDate] = React.useState(currentDate)
-  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
-  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
   const { analytics } = useAnalytics()
   const hoverTimeTracker = React.useRef<{ startTime: number | null }>({ startTime: null })
   const previousTimeRangeRef = React.useRef<TimeRange>("1M")
+
+  // Fetch Base APY data from API
+  // Always fetch data - isEmpty only affects UI display
+  const {
+    chartData: apiChartData,
+    formattedLatestValue,
+    latestValue,
+    formattedData,
+    isLoading,
+    isError,
+  } = useBaseAPY(timeRange, {
+    enabled: true,
+    staleTime: 60_000, // 60 seconds
+  })
+
+  // Get the latest date from API data or use currentDate prop
+  const latestDate = React.useMemo(() => {
+    if (formattedData && formattedData.length > 0) {
+      return formattedData[formattedData.length - 1]?.formattedDate || currentDate
+    }
+    return currentDate
+  }, [formattedData, currentDate])
+
+  // Determine initial value based on API data or empty state
+  const initialValue = isEmpty ? "0.00%" : (formattedLatestValue || "0.00%")
+  const [displayValue, setDisplayValue] = React.useState(initialValue)
+  const [displayDate, setDisplayDate] = React.useState(latestDate)
+  
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
 
   const timeRangeOptions: DropdownOption<TimeRange>[] = [
     { id: "1M", label: "1M" },
@@ -45,70 +69,26 @@ export function BaseAPYTab({
     { id: "1Y", label: "1Y" },
   ]
 
-  const areaChartData = [
-    { x: 0, value: 12.5 },
-    { x: 1, value: 13.2 },
-    { x: 2, value: 14.1 },
-    { x: 3, value: 15.3 },
-    { x: 4, value: 14.8 },
-    { x: 5, value: 15.6 },
-    { x: 6, value: 16.0 },
-    { x: 7, value: 15.9 },
-    { x: 8, value: 16.2 },
-    { x: 9, value: 16.1 },
-    { x: 10, value: 16.3 },
-    { x: 11, value: 16.0 },
-    { x: 12, value: 16.2 },
-    { x: 13, value: 16.1 },
-    { x: 14, value: 16.0 },
-    { x: 15, value: 16.2 },
-    { x: 16, value: 16.1 },
-    { x: 17, value: 16.2 },
-    { x: 18, value: 16.1 },
-    { x: 19, value: 16.2 },
-    { x: 20, value: 16.2 },
-    { x: 21, value: 16.1 },
-    { x: 22, value: 16.2 },
-    { x: 23, value: 16.2 },
-    { x: 24, value: 16.2 },
-    { x: 25, value: 16.2 },
-    { x: 26, value: 16.2 },
-    { x: 27, value: 16.2 },
-    { x: 28, value: 16.2 },
-    { x: 29, value: 16.2 },
-    { x: 30, value: 16.2 },
-    { x: 31, value: 16.2 },
-    { x: 32, value: 16.2 },
-    { x: 33, value: 16.2 },
-    { x: 34, value: 16.2 },
-    { x: 35, value: 16.2 },
-    { x: 36, value: 16.2 },
-    { x: 37, value: 16.2 },
-    { x: 38, value: 16.2 },
-    { x: 39, value: 16.2 },
-    { x: 40, value: 16.2 },
-    { x: 41, value: 16.2 },
-    { x: 42, value: 16.2 },
-    { x: 43, value: 16.2 },
-    { x: 44, value: 16.2 },
-    { x: 45, value: 16.2 },
-    { x: 46, value: 16.2 },
-    { x: 47, value: 16.2 },
-    { x: 48, value: 16.2 },
-    { x: 49, value: 16.2 },
-    { x: 50, value: 16.2 },
-    { x: 51, value: 16.2 },
-    { x: 52, value: 16.2 },
-    { x: 53, value: 16.23 },
-  ]
+  // Update initial value when API data loads
+  React.useEffect(() => {
+    if (!isEmpty && formattedLatestValue && !isLoading) {
+      setDisplayValue(formattedLatestValue)
+      setDisplayDate(latestDate)
+    }
+  }, [formattedLatestValue, latestDate, isEmpty, isLoading])
 
+  // Generate empty chart data for empty state
   const emptyValue = 200
-  const emptyAreaChartData = areaChartData.map((point) => ({
-    ...point,
+  const emptyAreaChartData = Array.from({ length: 54 }, (_, i) => ({
+    x: i,
     value: emptyValue,
   }))
 
-  const chartData = isEmpty ? emptyAreaChartData : areaChartData
+  // Use API data if available, otherwise use empty data
+  const chartData = isEmpty 
+    ? emptyAreaChartData 
+    : (apiChartData && apiChartData.length > 0 ? apiChartData : emptyAreaChartData)
+  
   const yAxisDomain = isEmpty ? [0, 400] : ["auto", "auto"]
   const gradientId = isEmpty ? "colorBaseAPYEmpty" : "colorBaseAPY"
 
@@ -125,8 +105,17 @@ export function BaseAPYTab({
         const dataIndex = payload[0].payload.x
         const value = payload[0].value
         setHoveredIndex(dataIndex)
-        setDisplayValue(`${value.toFixed(2)}%`)
-        setDisplayDate(currentDate)
+        // Format value with proper sign handling
+        const formattedValue = value !== undefined && value !== null
+          ? `${value.toFixed(2)}%`
+          : '0.00%'
+        setDisplayValue(formattedValue)
+        
+        // Get the date from the formatted data if available
+        const dataPoint = formattedData && formattedData[dataIndex]
+        const hoverDate = dataPoint?.formattedDate || latestDate
+        setDisplayDate(hoverDate)
+        
         // Start time tracking for hover duration
         hoverTimeTracker.current.startTime = Date.now()
       } else if (!active && !isEmpty) {
@@ -138,9 +127,9 @@ export function BaseAPYTab({
         }
         setHoveredIndex(null)
         setDisplayValue(initialValue)
-        setDisplayDate(currentDate)
+        setDisplayDate(latestDate)
       }
-    }, [active, payload, isEmpty, currentDate, initialValue, analytics])
+    }, [active, payload, isEmpty, latestDate, initialValue, analytics, formattedData])
 
     return null
   }

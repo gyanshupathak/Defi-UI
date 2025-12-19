@@ -7,16 +7,18 @@ interface PortfolioTabsProps {
   activeTab?: string
   onTabChange?: (tab: string) => void
   className?: string
+  withdrawalRequestsCount?: number
 }
 
 export function PortfolioTabs({ 
   activeTab = "deposited",
   onTabChange,
-  className 
+  className,
+  withdrawalRequestsCount = 0,
 }: PortfolioTabsProps) {
   const tabs = [
     { id: "deposited", label: "Deposited Yields" },
-    { id: "withdrawal", label: "Withdrawal Requests", badge: 2 },
+    { id: "withdrawal", label: "Withdrawal Requests", badge: withdrawalRequestsCount > 0 ? withdrawalRequestsCount : undefined },
     { id: "activity", label: "Your Activity" },
   ]
 

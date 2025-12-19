@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ExternalLink, ArrowDown, ArrowUp, ArrowLeftRight, RefreshCw } from "lucide-react"
+import { useAccount } from "wagmi"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { type TableColumn } from "@/components/ui/data-table"
 import { StyledTable } from "@/components/ui/styled-table"
@@ -14,6 +15,7 @@ import { PortfolioDashboardEmptyState } from "./portfolio-dashboard-empty-state"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { usePortfolioActivity } from "@/lib/hooks/use-portfolio-activity"
 
 export type TransactionStatus = "deposit" | "withdraw" | "bridge"
 
@@ -55,6 +57,8 @@ export interface PortfolioActivityProps {
   className?: string
   showEmptyState?: boolean
   emptyStateMessage?: string
+  userAddress?: string // Optional - will use wagmi if not provided
+  useApi?: boolean // Enable API integration (default: true)
 }
 const statusConfig: Record<
   TransactionStatus,
@@ -85,83 +89,46 @@ const statusConfig: Record<
   },
 }
 
-const defaultTransactions: Transaction[] = [
-  {
-    id: "1",
-    date: "3rd January'25",
-    status: "deposit",
-    from: { amount: "482", token: "syUSD", chain: "Base" },
-    to: { amount: "483", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "2",
-    date: "28th July'25",
-    status: "bridge",
-    from: { amount: "1,0954", token: "syUSD", chain: "Base" },
-    to: { amount: "1,0955", token: "syUSD", chain: "Katana" },
-  },
-  {
-    id: "3",
-    date: "14th February'25",
-    status: "withdraw",
-    from: { amount: "1,937", token: "syUSD", chain: "Base" },
-    to: { amount: "1,938.09", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "4",
-    date: "22nd April'25",
-    status: "deposit",
-    from: { amount: "2,750", token: "syUSD", chain: "Base" },
-    to: { amount: "2,751.06", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "5",
-    date: "14th February'25",
-    status: "withdraw",
-    from: { amount: "1,937", token: "syUSD", chain: "Base" },
-    to: { amount: "1,938.09", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "6",
-    date: "28th July'25",
-    status: "bridge",
-    from: { amount: "1,0954", token: "syUSD", chain: "Base" },
-    to: { amount: "1,0955", token: "syUSD", chain: "Katana" },
-  },
-  {
-    id: "7",
-    date: "15th June'25",
-    status: "withdraw",
-    from: { amount: "1,094", token: "syUSD", chain: "Base" },
-    to: { amount: "1,095", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "8",
-    date: "15th June'25",
-    status: "withdraw",
-    from: { amount: "1,094", token: "syUSD", chain: "Base" },
-    to: { amount: "1,095", token: "USDC", chain: "Base" },
-  },
-  {
-    id: "9",
-    date: "28th July'25",
-    status: "bridge",
-    from: { amount: "1,0954", token: "syUSD", chain: "Base" },
-    to: { amount: "1,0955", token: "syUSD", chain: "Katana" },
-  },
-]
 
 
 export function PortfolioActivity({
-  transactions = defaultTransactions,
+  transactions: propTransactions,
   initialFilter,
   onFilterChange,
   onTransactionClick,
   className,
   showEmptyState = true,
   emptyStateMessage = "Deposit now to start tracking your activity!",
+  userAddress: propUserAddress,
+  useApi = true,
 }: PortfolioActivityProps) {
   const { analytics } = useAnalytics()
+  const { address: wagmiAddress, isConnected } = useAccount()
+  
+  // Use provided address or fallback to wagmi address
+  const userAddress = propUserAddress || wagmiAddress
+  
+  // Fetch portfolio activity from API
+  const {
+    data: apiTransactions,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = usePortfolioActivity(userAddress, 1, 10, {
+    enabled: useApi && !!userAddress,
+    staleTime: 30_000,
+  })
+  
+  // Use API data if available, otherwise use prop transactions
+  // Note: apiTransactions is already transformed by the hook to match Transaction interface
+  const transactions: Transaction[] = React.useMemo(() => {
+    if (useApi && apiTransactions && apiTransactions.length > 0) {
+      return apiTransactions
+    }
+    return propTransactions || []
+  }, [useApi, apiTransactions, propTransactions])
+  
   const [showFilters, setShowFilters] = React.useState(false)
   const [filter, setFilter] = React.useState<ActivityFilter>(initialFilter || {})
   const [pendingFilter, setPendingFilter] = React.useState<ActivityFilter>(initialFilter || {})
@@ -208,8 +175,8 @@ export function PortfolioActivity({
     }
     if (sortField) {
       result.sort((a, b) => {
-        let aValue: string | number
-        let bValue: string | number
+        let aValue: string | number = ""
+        let bValue: string | number = ""
 
         switch (sortField) {
           case "date":
@@ -221,12 +188,14 @@ export function PortfolioActivity({
             bValue = b.status
             break
           case "from":
-            aValue = a.from.amount
-            bValue = b.from.amount
+            // Remove commas and parse as number for proper numeric sorting
+            aValue = parseFloat(a.from.amount.replace(/,/g, "")) || 0
+            bValue = parseFloat(b.from.amount.replace(/,/g, "")) || 0
             break
           case "to":
-            aValue = a.to.amount
-            bValue = b.to.amount
+            // Remove commas and parse as number for proper numeric sorting
+            aValue = parseFloat(a.to.amount.replace(/,/g, "")) || 0
+            bValue = parseFloat(b.to.amount.replace(/,/g, "")) || 0
             break
           default:
             return 0
@@ -348,9 +317,54 @@ export function PortfolioActivity({
   ]
 
   const isEmpty = filteredTransactions.length === 0
+  const showLoadingState = useApi && isLoading && !propTransactions
+  const showErrorState = useApi && isError && !propTransactions
 
   return (
     <DashboardCard width="668px" height="640px" className={className}>
+      {/* Loading State */}
+      {showLoadingState && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
+          style={{
+            top: "72px",
+            width: "620px",
+            height: "calc(640px - 72px - 24px)",
+          }}
+        >
+          <div className="flex flex-col items-center gap-[16px]">
+            <RefreshCw className="animate-spin" size={24} style={{ color: designTokens.colors.text.secondary }} />
+            <p className={typographyClasses.label1} style={{ color: designTokens.colors.text.secondary }}>
+              Loading activity...
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {/* Error State */}
+      {showErrorState && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center"
+          style={{
+            top: "72px",
+            width: "620px",
+            height: "calc(640px - 72px - 24px)",
+          }}
+        >
+          <div className="flex flex-col items-center gap-[16px]">
+            <p className={typographyClasses.label1} style={{ color: designTokens.colors.status.error }}>
+              Failed to load activity
+            </p>
+            <Button
+              variant="default"
+              size="xs"
+              onClick={() => refetch()}
+            >
+              Retry
+            </Button>
+          </div>
+        </div>
+      )}
       <div
         className="absolute flex items-center justify-between"
         style={{
@@ -649,7 +663,7 @@ export function PortfolioActivity({
           overflow: "visible",
         }}
       >
-        {isEmpty ? (
+        {showLoadingState || showErrorState ? null : isEmpty ? (
           <PortfolioDashboardEmptyState
             icon={
               <svg
@@ -731,8 +745,8 @@ export function PortfolioActivity({
               </svg>
             }
             title="No Activity Yet"
-            description={emptyStateMessage || "Deposit now to start tracking your activity!"}
-            buttonText="Make a Deposit"
+            description={emptyStateMessage || (isConnected ? "Deposit now to start tracking your activity!" : "Connect your wallet to view your activity")}
+            buttonText={isConnected ? "Make a Deposit" : "Connect Wallet"}
             buttonVariant="blue"
           />
         ) : (

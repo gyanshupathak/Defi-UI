@@ -4,7 +4,7 @@
  */
 
 import { get, buildQueryString } from './api-client'
-import type { TVLResponse, VaultName, DepositsResponse, Period } from './types'
+import type { TVLResponse, VaultName, DepositsResponse, Period, BaseAPYResponse } from './types'
 
 const DEPOSITS_API_BASE_URL = 'https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod'
 
@@ -65,6 +65,23 @@ export async function fetchVaultDeposits(
   // Use full URL since it's a different base URL
   const fullUrl = `${DEPOSITS_API_BASE_URL}/api/${vaultName}/deposits${buildQueryString({ period })}`
   const response = await get<DepositsResponse>(fullUrl)
+  return response
+}
+
+/**
+ * Fetch Base APY historical data
+ * 
+ * @param period - The time period (daily, weekly, monthly)
+ * @returns Promise with array of base APY data points
+ * 
+ * API: https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod/api/base-apy?period={period}
+ */
+export async function fetchBaseAPY(
+  period: Period = 'daily'
+): Promise<BaseAPYResponse> {
+  // Use full URL since it's a different base URL
+  const fullUrl = `${DEPOSITS_API_BASE_URL}/api/base-apy${buildQueryString({ period })}`
+  const response = await get<BaseAPYResponse>(fullUrl)
   return response
 }
 
