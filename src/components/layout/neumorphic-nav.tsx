@@ -7,6 +7,7 @@ import { designTokens, typographyClasses } from "@/lib/design-system"
 import { NavMenu, NavMenuItem } from "./nav-menu"
 import { ConnectWalletButton } from "@/components/wallet/connect-wallet-button"
 import { NetworkSelector } from "@/components/wallet/network-selector"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 interface NeumorphicNavProps {
   logoImage?: string
@@ -28,11 +29,17 @@ export function NeumorphicNav({
 }: NeumorphicNavProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const { analytics } = useAnalytics()
 
   const isBridgeContext = pathname === "/bridge" || pathname === "/deposit" || pathname === "/withdraw"
 
   const handleLogoClick = () => {
+    analytics.logoClicked()
     router.push("/")
+  }
+
+  const handleSettingsClick = () => {
+    analytics.settingsClicked()
   }
 
   return (
@@ -111,6 +118,7 @@ export function NeumorphicNav({
           <NavMenu activeItem={activeMenuItem} className="flex-shrink-0" />
           <button
             key="settings-button"
+            onClick={handleSettingsClick}
             className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95"
             style={{ 
               padding: designTokens.spacing.navigation.iconButtonPadding,

@@ -9,40 +9,67 @@ import { DashboardTabs } from "@/components/ui/dashboard-tabs"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { Flame } from "lucide-react"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
-import { useMultipleVaultTVL } from "@/lib/hooks/use-vault-tvl"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
+// COMMENTED OUT: API calls disabled - using dummy data
+// import { useMultipleVaultTVL } from "@/lib/hooks/use-vault-tvl"
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState("top-yields")
   const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+  const tabTimeTracker = useTimeTracker()
+  const previousTabRef = React.useRef<string>("top-yields")
 
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("home_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track tab time spent
+  React.useEffect(() => {
+    tabTimeTracker.start()
+    return () => {
+      const duration = tabTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.tabTimeSpent(`home_${previousTabRef.current}`, duration)
+      }
+    }
+  }, [activeTab, analytics, tabTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("home_page", analytics)
+
+  // Track page performance
+  usePagePerformance("home_page", analytics)
+
+  // COMMENTED OUT: API calls disabled - using dummy data
   // Fetch TVL for all vaults (syUSD, syETH, syBTC)
-  const { 
-    tvlMap, 
-    formattedMap, 
-    isLoading: isTvlLoading 
-  } = useMultipleVaultTVL(["syUSD", "syETH", "syBTC"], {
-    staleTime: 30_000, // 30 seconds
-  })
+  // const { 
+  //   tvlMap, 
+  //   formattedMap, 
+  //   isLoading: isTvlLoading 
+  // } = useMultipleVaultTVL(["syUSD", "syETH", "syBTC"], {
+  //   staleTime: 30_000, // 30 seconds
+  // })
 
-  // Calculate total TVL across all vaults for home page
-  const totalTvl = React.useMemo(() => {
-    return Object.values(tvlMap).reduce((sum, tvl) => sum + tvl, 0)
-  }, [tvlMap])
-
-  const formattedTotalTvl = React.useMemo(() => {
-    if (totalTvl >= 1_000_000) {
-      return `$${(totalTvl / 1_000_000).toFixed(2)}M`
-    }
-    if (totalTvl >= 1_000) {
-      return `$${(totalTvl / 1_000).toFixed(2)}K`
-    }
-    return `$${totalTvl.toFixed(2)}`
-  }, [totalTvl])
+  // Use dummy total TVL value
+  const formattedTotalTvl = "$585,937"
 
   const handleTabChange = (tabId: string) => {
+    // Track tab change
+    if (previousTabRef.current !== tabId) {
+      analytics.tabSwitched(previousTabRef.current)
+      previousTabRef.current = tabId
+    }
     setActiveTab(tabId)
-    const tabLabel = tabs.find(t => t.id === tabId)?.label || tabId
-    analytics.tabSwitched(tabLabel)
   }
 
   const tabs = [
@@ -82,7 +109,7 @@ export default function Home() {
               year: 'numeric' 
             })}
             vaultName="syUSD"
-            useApi={true}
+            useApi={false}
           />
         </div>
 

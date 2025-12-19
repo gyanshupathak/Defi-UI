@@ -15,6 +15,10 @@ import { NoteCard } from "@/components/ui/note-card"
 import { designTokens, typographyClasses, getPnlColor, shadows } from "@/lib/design-system"
 import { cn, formatNumberWithCommas } from "@/lib/utils"
 import { AnimatedNumber } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 
 const USD_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const USDC_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
@@ -24,6 +28,25 @@ const WITHDRAW_ICON = "/images/icons/withdraw-icon.svg"
 function WithdrawPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("withdraw_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("withdraw_page", analytics)
+
+  // Track page performance
+  usePagePerformance("withdraw_page", analytics)
   const variant = searchParams.get('variant') as "usd" | "eth" | "btc" | null || "usd"
   
   const [amount, setAmount] = React.useState("0.00")
@@ -101,6 +124,15 @@ function WithdrawPageContent() {
         setAmount(formatNumberWithCommas(limitedValue.toFixed(2)))
       }
     }
+  }
+
+  const handleAmountFocus = () => {
+    analytics.formFieldFocused("withdraw_form", "amount")
+  }
+
+  const handleAmountBlur = () => {
+    const hasValue = amount !== "0.00" && amount !== ""
+    analytics.formFieldBlurred("withdraw_form", "amount", hasValue)
   }
 
   const handlePercentageChange = (newPercentage: number) => {
@@ -274,6 +306,7 @@ function WithdrawPageContent() {
                   type="network"
                   selectedValue={selectedNetwork}
                   onValueChange={(value) => setSelectedNetwork(value as Network)}
+                  location="withdraw_page"
                 />
               }
               insetContainers={{ top: 52, height: 125, width: 376 }}
@@ -283,6 +316,8 @@ function WithdrawPageContent() {
                   type="text"
                   value={amount}
                   onChange={handleAmountChange}
+                  onFocus={handleAmountFocus}
+                  onBlur={handleAmountBlur}
                   placeholder="0.00"
                   className={cn(
                     typographyClasses.display3,
@@ -370,6 +405,14 @@ function WithdrawPageContent() {
                 loading={false}
                 size="default"
                 showWithdrawIcon={true}
+                onClick={() => {
+                  const amountValue = amount.replace(/,/g, '')
+                  analytics.withdrawButtonClicked(
+                    config.symbol,
+                    amountValue !== "0.00" ? amountValue : undefined,
+                    selectedNetwork
+                  )
+                }}
               >
                 Request Withdrawal
               </Button>

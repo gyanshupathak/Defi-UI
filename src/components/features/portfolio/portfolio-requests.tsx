@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { designTokens, shadows, typographyClasses } from "@/lib/design-system"
 import { WithdrawalRequestCard } from "./withdrawal-request-card"
 import { Button } from "@/components/ui/button"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export interface WithdrawalRequest {
   id: string
@@ -58,7 +59,10 @@ export function PortfolioRequests({
   emptyStateDescription = "Ready to grow your funds? Start a secure on-chain deposit",
   onDepositClick,
 }: PortfolioRequestsProps) {
-  const handleCancel = (requestId: string) => {
+  const { analytics } = useAnalytics()
+  
+  const handleCancel = (requestId: string, syToken: string, amount: string) => {
+    analytics.withdrawalRequestCancelled(requestId, syToken, amount)
     onCancelRequest?.(requestId)
   }
 
@@ -162,7 +166,10 @@ export function PortfolioRequests({
             variant="blue"
             showDepositIcon
             style={{ width: "260px" }}
-            onClick={onDepositClick}
+            onClick={() => {
+              analytics.emptyStateButtonClicked("Make a Deposit", "portfolio_requests_empty")
+              onDepositClick?.()
+            }}
           >
             Make a Deposit
           </Button>
@@ -186,7 +193,7 @@ export function PortfolioRequests({
           syToken={request.syToken}
           usdcAmount={request.usdcAmount}
           tokenIcon={request.tokenIcon}
-          onCancel={() => handleCancel(request.id)}
+          onCancel={() => handleCancel(request.id, request.syToken, request.syAmount)}
         />
       ))}
     </div>

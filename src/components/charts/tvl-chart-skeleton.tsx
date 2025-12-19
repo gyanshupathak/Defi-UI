@@ -20,14 +20,21 @@ export function TVLChartSkeleton({
   variant = "home",
   className 
 }: TVLChartSkeletonProps) {
-  // Generate skeleton bars
+  // Generate skeleton bars with fixed heights to avoid hydration mismatch
+  // Using a deterministic pattern instead of Math.random()
+  const getBarHeight = (index: number) => {
+    // Use a simple pattern based on index to create variation
+    const pattern = [150, 180, 200, 170, 190, 160, 175, 185, 165, 195, 155, 180]
+    return pattern[index % pattern.length]
+  }
+  
   const skeletonBars = Array(54).fill(0).map((_, i) => (
     <div
       key={i}
       className="animate-pulse"
       style={{
         width: '10px',
-        height: `${Math.random() * 200 + 100}px`,
+        height: `${getBarHeight(i)}px`,
         backgroundColor: designTokens.colors.background.gradient,
         borderRadius: '2px',
         opacity: 0.3,

@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Check, ChevronDown } from "lucide-react"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export type Network = "Base" | "Ethereum" | "Arbitrum" | "Katana"
 export type BridgeToken = "syUSD" | "syETH" | "syBTC" | "USDC" | "USDS" | "SUSD"
@@ -55,6 +56,7 @@ interface UnifiedSelectorProps {
   disabled?: boolean
   placeholder?: string
   tokenFilter?: "all" | "yields-only"
+  location?: string // For analytics tracking (e.g., "deposit_page", "bridge_page")
 }
 
 export function UnifiedSelector({
@@ -66,10 +68,13 @@ export function UnifiedSelector({
   disabled = false,
   placeholder = "Select",
   tokenFilter = "all",
+  location = "unknown",
 }: UnifiedSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const [hoveredId, setHoveredId] = React.useState<string | null>(null)
+  const { analytics } = useAnalytics()
+  const previousValueRef = React.useRef<Network | BridgeToken | null | undefined>(selectedValue)
 
   const tokenOptions = tokenFilter === "yields-only" ? YIELDS_TOKENS : ALL_TOKENS
   const options = type === "network" ? NETWORKS : tokenOptions
@@ -99,9 +104,31 @@ export function UnifiedSelector({
     }
   }, [isOpen])
 
+  // Track selector changes
+  React.useEffect(() => {
+    if (previousValueRef.current !== selectedValue && previousValueRef.current !== null && selectedValue !== null) {
+      analytics.selectorChanged(
+        type,
+        previousValueRef.current.toString(),
+        selectedValue.toString(),
+        location
+      )
+    }
+    previousValueRef.current = selectedValue
+  }, [selectedValue, type, location, analytics])
+
   const handleSelect = (value: Network | BridgeToken) => {
     onValueChange?.(value)
     setIsOpen(false)
+  }
+
+  const handleSelectorClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!disabled) {
+      // Track selector click
+      analytics.selectorClicked(type, location)
+      setIsOpen(!isOpen)
+    }
   }
 
   return (
@@ -122,12 +149,7 @@ export function UnifiedSelector({
       
       <button
         type="button"
-        onClick={(e) => {
-          e.stopPropagation()
-          if (!disabled) {
-            setIsOpen(!isOpen)
-          }
-        }}
+        onClick={handleSelectorClick}
         disabled={disabled}
         aria-expanded={isOpen}
         className={cn(

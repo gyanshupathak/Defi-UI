@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { FAQCard } from "./faq-card"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 interface FAQItem {
   question: string
@@ -9,7 +10,28 @@ interface FAQItem {
 }
 
 export function FAQsTab() {
-  const [openIndex, setOpenIndex] = React.useState<number | null>(1) 
+  const { analytics } = useAnalytics()
+  const [openIndex, setOpenIndex] = React.useState<number | null>(1)
+  const faqTimeTrackers = React.useRef<Record<number, { startTime: number | null }>>({})
+
+  const handleToggle = (index: number) => {
+    const isCurrentlyOpen = openIndex === index
+    
+    if (isCurrentlyOpen) {
+      // Closing FAQ - track time spent
+      if (faqTimeTrackers.current[index]?.startTime !== null) {
+        const duration = Date.now() - faqTimeTrackers.current[index].startTime!
+        analytics.faqClosed(faqs[index].question, index, duration)
+        faqTimeTrackers.current[index].startTime = null
+      }
+      setOpenIndex(null)
+    } else {
+      // Opening FAQ
+      analytics.faqOpened(faqs[index].question, index)
+      faqTimeTrackers.current[index] = { startTime: Date.now() }
+      setOpenIndex(index)
+    }
+  } 
 
   const faqs: FAQItem[] = [
     {
@@ -52,7 +74,7 @@ export function FAQsTab() {
           key={index}
           item={faq}
           isOpen={openIndex === index}
-          onToggle={() => setOpenIndex(openIndex === index ? null : index)}
+          onToggle={() => handleToggle(index)}
         />
       ))}
     </div>

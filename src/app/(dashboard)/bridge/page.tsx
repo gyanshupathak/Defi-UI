@@ -10,6 +10,10 @@ import { UnifiedSelector, type Network, type BridgeToken } from "@/components/ui
 import { NeumorphicInputCard } from "@/components/ui/neumorphic-input-card"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn, formatNumberWithCommas } from "@/lib/utils"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 const TOKEN_ICONS: Record<BridgeToken, string> = {
   syUSD: "/images/icons/USD-stable.svg",
   syETH: "/images/icons/ETH-stable.svg",
@@ -20,6 +24,25 @@ const TOKEN_ICONS: Record<BridgeToken, string> = {
 }
 
 export default function BridgePage() {
+  const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("bridge_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("bridge_page", analytics)
+
+  // Track page performance
+  usePagePerformance("bridge_page", analytics)
   const [amount, setAmount] = React.useState("0.00")
   const [sourceNetwork, setSourceNetwork] = React.useState<Network>("Base")
   const [destNetwork, setDestNetwork] = React.useState<Network>("Katana")
@@ -62,6 +85,15 @@ export default function BridgePage() {
     }
   }
 
+  const handleAmountFocus = () => {
+    analytics.formFieldFocused("bridge_form", "amount")
+  }
+
+  const handleAmountBlur = () => {
+    const hasValue = amount !== "0.00" && amount !== ""
+    analytics.formFieldBlurred("bridge_form", "amount", hasValue)
+  }
+
   const handlePercentageChange = (newPercentage: number) => {
     const newAmount = (balance * newPercentage) / 100
     setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
@@ -98,6 +130,7 @@ export default function BridgePage() {
               selectedValue={selectedToken}
               onValueChange={(value) => setSelectedToken(value as BridgeToken)}
               tokenFilter="yields-only"
+              location="bridge_page"
             />
           }
           insetContainers={[
@@ -146,6 +179,7 @@ export default function BridgePage() {
               type="network"
               selectedValue={sourceNetwork}
               onValueChange={(value) => setSourceNetwork(value as Network)}
+              location="bridge_page"
             />
           </div>
 
@@ -190,6 +224,7 @@ export default function BridgePage() {
               type="network"
               selectedValue={destNetwork}
               onValueChange={(value) => setDestNetwork(value as Network)}
+              location="bridge_page"
             />
           </div>
 
@@ -198,6 +233,8 @@ export default function BridgePage() {
               type="text"
               value={amount}
               onChange={handleAmountChange}
+              onFocus={handleAmountFocus}
+              onBlur={handleAmountBlur}
               placeholder="0.00"
               className="font-['Hanken_Grotesk',sans-serif] font-bold leading-normal text-[24px] bg-transparent border-none outline-none w-[180px]"
               style={{ 
@@ -250,6 +287,15 @@ export default function BridgePage() {
             disabled={amount === "0.00" || parseFloat(amount.replace(/,/g, '')) === 0}
             loading={false}
             size="default"
+            onClick={() => {
+              const amountValue = amount.replace(/,/g, '')
+              analytics.bridgeButtonClicked(
+                selectedToken,
+                amountValue !== "0.00" ? amountValue : undefined,
+                sourceNetwork,
+                destNetwork
+              )
+            }}
           >
             Bridge
           </Button>

@@ -12,9 +12,10 @@ interface IncentiveCardProps {
   description: string
   logoPath: string
   redirectUrl?: string
+  onCardClick?: () => void
 }
 
-export function IncentiveCard({ multiplier, title, description, logoPath, redirectUrl }: IncentiveCardProps) {
+export function IncentiveCard({ multiplier, title, description, logoPath, redirectUrl, onCardClick }: IncentiveCardProps) {
   const [isHovered, setIsHovered] = React.useState(false)
 
   return (
@@ -27,6 +28,7 @@ export function IncentiveCard({ multiplier, title, description, logoPath, redire
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={onCardClick}
     >
       <div 
         className="absolute inset-0 transition-all duration-200"

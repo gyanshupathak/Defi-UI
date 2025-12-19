@@ -15,12 +15,35 @@ import { NoteCard } from "@/components/ui/note-card"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { cn, formatNumberWithCommas } from "@/lib/utils"
 import { AnimatedNumberPartial } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 const USD_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const WALLET_ICON = "/images/icons/wallet-logo.svg"
 
 function DepositPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("deposit_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("deposit_page", analytics)
+
+  // Track page performance
+  usePagePerformance("deposit_page", analytics)
   const [strategy, setStrategy] = React.useState<"usd" | "eth" | "btc">(
     (searchParams.get('strategy') as "usd" | "eth" | "btc") || "usd"
   )
@@ -102,6 +125,15 @@ function DepositPageContent() {
         setAmount(formatNumberWithCommas(limitedValue.toFixed(2)))
       }
     }
+  }
+
+  const handleAmountFocus = () => {
+    analytics.formFieldFocused("deposit_form", "amount")
+  }
+
+  const handleAmountBlur = () => {
+    const hasValue = amount !== "0.00" && amount !== ""
+    analytics.formFieldBlurred("deposit_form", "amount", hasValue)
   }
 
   const handlePercentageChange = (newPercentage: number) => {
@@ -309,6 +341,7 @@ function DepositPageContent() {
                   type="network"
                   selectedValue={depositNetwork}
                   onValueChange={(value) => setDepositNetwork(value as Network)}
+                  location="deposit_page"
                 />
               }
               insetContainers={{ top: 52, height: 125, width: 376 }}
@@ -318,6 +351,8 @@ function DepositPageContent() {
                   type="text"
                   value={amount}
                   onChange={handleAmountChange}
+                  onFocus={handleAmountFocus}
+                  onBlur={handleAmountBlur}
                   placeholder="0.00"
                   className={cn(
                     typographyClasses.display3,
@@ -366,6 +401,7 @@ function DepositPageContent() {
                   type="network"
                   selectedValue={vaultNetwork}
                   onValueChange={(value) => setVaultNetwork(value as Network)}
+                  location="deposit_page"
                 />
               }
               insetContainers={{ top: 52, height: 71, width: 376 }}
@@ -394,6 +430,15 @@ function DepositPageContent() {
                 loading={false}
                 size="default"
                 showDepositIcon={true}
+                onClick={() => {
+                  const amountValue = amount.replace(/,/g, '')
+                  analytics.depositButtonClicked(
+                    config.symbol,
+                    amountValue !== "0.00" ? amountValue : undefined,
+                    depositNetwork,
+                    vaultNetwork
+                  )
+                }}
               >
                 Deposit
               </Button>

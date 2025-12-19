@@ -13,6 +13,7 @@ import { AssetTag } from "@/components/ui/asset-tag"
 import { PortfolioDashboardEmptyState } from "./portfolio-dashboard-empty-state"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export type TransactionStatus = "deposit" | "withdraw" | "bridge"
 
@@ -160,11 +161,13 @@ export function PortfolioActivity({
   showEmptyState = true,
   emptyStateMessage = "Deposit now to start tracking your activity!",
 }: PortfolioActivityProps) {
+  const { analytics } = useAnalytics()
   const [showFilters, setShowFilters] = React.useState(false)
   const [filter, setFilter] = React.useState<ActivityFilter>(initialFilter || {})
   const [pendingFilter, setPendingFilter] = React.useState<ActivityFilter>(initialFilter || {})
   const [sortField, setSortField] = React.useState<SortField | null>(null)
   const [sortDirection, setSortDirection] = React.useState<SortDirection>("desc")
+  const previousActivityFilterRef = React.useRef<string>("all")
   const filteredTransactions = React.useMemo(() => {
     let result = [...transactions]
 
@@ -260,14 +263,19 @@ export function PortfolioActivity({
 
   const handleSort = React.useCallback(
     (field: SortField) => {
+      const newDirection = sortField === field 
+        ? (sortDirection === "asc" ? "desc" : "asc")
+        : "asc"
+      // Track table column sort
+      analytics.tableColumnSorted(field, newDirection)
       if (sortField === field) {
-        setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+        setSortDirection(newDirection)
       } else {
         setSortField(field)
-        setSortDirection("asc")
+        setSortDirection(newDirection)
       }
     },
-    [sortField, sortDirection]
+    [sortField, sortDirection, analytics]
   )
 
   const uniqueStatuses = React.useMemo(
@@ -357,6 +365,11 @@ export function PortfolioActivity({
             options={activityOptions}
             activeValue={selectedActivityFilter}
             onValueChange={(value) => {
+              // Track activity filter change
+              if (previousActivityFilterRef.current !== value) {
+                analytics.activityFilterChanged(previousActivityFilterRef.current, value)
+                previousActivityFilterRef.current = value
+              }
               if (value === "all") {
                 handleFilterChange({ ...filter, status: undefined })
               } else {
@@ -371,7 +384,10 @@ export function PortfolioActivity({
 
         <button
           type="button"
-          onClick={() => setShowFilters(!showFilters)}
+          onClick={() => {
+            analytics.filtersButtonClicked()
+            setShowFilters(!showFilters)
+          }}
           className="flex items-center justify-center rounded-[99px] border border-solid flex-shrink-0 cursor-pointer transition-all"
           style={{
             borderColor: "rgba(0, 0, 0, 0.15)",
@@ -465,15 +481,19 @@ export function PortfolioActivity({
                         iconSrc={TOKEN_ICONS[token]}
                         isSelected={isSelected}
                         onClick={() => {
+                          const current = pendingFilter.tokens || []
+                          const isCurrentlySelected = current.includes(token)
+                          // Track asset tag click
+                          analytics.assetTagClicked(token, !isCurrentlySelected)
                           setPendingFilter((prev) => {
-                            const current = prev.tokens || []
-                            if (current.includes(token)) {
-                              const next = current.filter((t) => t !== token)
+                            const currentTokens = prev.tokens || []
+                            if (currentTokens.includes(token)) {
+                              const next = currentTokens.filter((t) => t !== token)
                               return { ...prev, tokens: next.length ? next : undefined }
                             } else {
                               return {
                                 ...prev,
-                                tokens: [...current, token],
+                                tokens: [...currentTokens, token],
                               }
                             }
                           })
@@ -529,6 +549,7 @@ export function PortfolioActivity({
                       }
                       className="w-full"
                       placeholder="Select"
+                      location="portfolio_activity_filters"
                     />
                   </div>
                 ))}
@@ -573,6 +594,7 @@ export function PortfolioActivity({
                       }
                       className="w-full"
                       placeholder="Select"
+                      location="portfolio_activity_filters"
                     />
                   </div>
                 ))}
@@ -582,7 +604,10 @@ export function PortfolioActivity({
               <div className="flex items-center justify-between gap-[8px]">
                 <button
                   type="button"
-                  onClick={() => setPendingFilter({})}
+                  onClick={() => {
+                    analytics.filterResetAllClicked()
+                    setPendingFilter({})
+                  }}
                   className="rounded-[99px] px-[24px] py-[8px] transition-all flex-1"
                   style={{
                     backgroundColor: designTokens.colors.background.main,
@@ -601,6 +626,7 @@ export function PortfolioActivity({
                   variant="default"
                   size="xs"
                   onClick={() => {
+                    analytics.filterApplyClicked()
                     handleFilterChange(pendingFilter)
                     setShowFilters(false)
                   }}
@@ -837,7 +863,10 @@ export function PortfolioActivity({
               <div
                 key={row.id}
                 className="flex items-center cursor-pointer hover:bg-opacity-5 transition-colors w-full"
-                onClick={() => onTransactionClick?.(row)}
+                onClick={() => {
+                  analytics.transactionRowClicked(row.id, row.status)
+                  onTransactionClick?.(row)
+                }}
                 style={{
                   borderBottom: isLast
                     ? "none"

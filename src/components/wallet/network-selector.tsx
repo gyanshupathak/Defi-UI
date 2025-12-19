@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useChainId, useChains, useAccount } from 'wagmi';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { designTokens } from '@/lib/design-system';
+import { useAnalytics } from '@/lib/hooks/use-analytics';
 
 interface NetworkSelectorProps {
   ethereumLogo?: string;
@@ -35,6 +36,20 @@ export function NetworkSelector({ ethereumLogo = DEFAULT_ETH_LOGO }: NetworkSele
   const chains = useChains();
   const currentChain = chains.find((chain) => chain.id === chainId);
   const { openChainModal } = useChainModal();
+  const { analytics } = useAnalytics();
+  const previousChainIdRef = React.useRef<number | null>(null);
+
+  // Track network changes
+  React.useEffect(() => {
+    if (isConnected && chainId && previousChainIdRef.current !== null && previousChainIdRef.current !== chainId) {
+      const fromNetwork = NETWORK_NAMES[previousChainIdRef.current] || 'Unknown';
+      const toNetwork = NETWORK_NAMES[chainId] || currentChain?.name || 'Unknown';
+      analytics?.networkChanged(fromNetwork, toNetwork, previousChainIdRef.current, chainId);
+    }
+    if (isConnected && chainId) {
+      previousChainIdRef.current = chainId;
+    }
+  }, [chainId, isConnected, analytics, currentChain?.name]);
 
   // Don't show network selector if wallet is not connected
   if (!isConnected) {
@@ -45,9 +60,18 @@ export function NetworkSelector({ ethereumLogo = DEFAULT_ETH_LOGO }: NetworkSele
   const networkIcon = NETWORK_ICONS[chainId] || ethereumLogo || DEFAULT_ETH_LOGO;
   const networkName = NETWORK_NAMES[chainId] || currentChain?.name || 'Unknown';
 
+  const handleNetworkClick = () => {
+    if (analytics) {
+      analytics.networkClicked(networkName, chainId);
+    }
+    if (openChainModal) {
+      openChainModal();
+    }
+  };
+
   return (
     <button
-      onClick={openChainModal}
+      onClick={handleNetworkClick}
       className="flex items-center justify-center shrink-0 hover:opacity-80 transition-all active:scale-95 relative group"
       style={{
         padding: designTokens.spacing.navigation.iconButtonPadding,

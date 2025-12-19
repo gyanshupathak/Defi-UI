@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { designTokens, typographyClasses, shadows, getPnlColor } from "@/lib/design-system"
 import { AnimatedNumber } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 const { popIn, popInHover } = shadows
 import { Button } from "@/components/ui/button"
@@ -48,6 +49,7 @@ export function PortfolioStrategyCard({
   className,
 }: PortfolioStrategyCardProps) {
   const router = useRouter()
+  const { analytics } = useAnalytics()
   const config = strategyConfig[variant]
   const icon = tokenIcon || config.icon
   const isPositive = pnl >= 0
@@ -55,7 +57,13 @@ export function PortfolioStrategyCard({
   const pnlSign = pnl >= 0 ? '+' : ''
   const [isHovered, setIsHovered] = React.useState(false)
 
-  const handleWithdraw = () => {
+  const handleCardClick = () => {
+    analytics.portfolioStrategyCardClicked(symbol)
+  }
+
+  const handleWithdraw = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    analytics.portfolioWithdrawButtonClicked(symbol, 'portfolio_strategy_card')
     router.push(`/withdraw?variant=${variant}`)
   }
 
@@ -65,6 +73,7 @@ export function PortfolioStrategyCard({
       style={{ height: '267px' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleCardClick}
     >
       <div 
         className="absolute inset-0 rounded-[16px] transition-all duration-200"
@@ -172,10 +181,7 @@ export function PortfolioStrategyCard({
                 ? "rgba(247, 147, 26, 1)"
                 : undefined
             }
-            onClick={(e) => {
-              e.stopPropagation()
-              handleWithdraw()
-            }}
+            onClick={handleWithdraw}
           >
             Withdraw
           </Button>

@@ -5,6 +5,8 @@ import { designTokens, typographyClasses } from "@/lib/design-system"
 import { ChartContainerWrapper } from "./chart-container-wrapper"
 import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-selector"
 import { AnimatedNumber } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import {
   AreaChart,
   Area,
@@ -32,6 +34,9 @@ export function BaseAPYTab({
   const [displayDate, setDisplayDate] = React.useState(currentDate)
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [isInitialLoad, setIsInitialLoad] = React.useState(true)
+  const { analytics } = useAnalytics()
+  const hoverTimeTracker = React.useRef<{ startTime: number | null }>({ startTime: null })
+  const previousTimeRangeRef = React.useRef<TimeRange>("1M")
 
   const timeRangeOptions: DropdownOption<TimeRange>[] = [
     { id: "1M", label: "1M" },
@@ -122,12 +127,20 @@ export function BaseAPYTab({
         setHoveredIndex(dataIndex)
         setDisplayValue(`${value.toFixed(2)}%`)
         setDisplayDate(currentDate)
+        // Start time tracking for hover duration
+        hoverTimeTracker.current.startTime = Date.now()
       } else if (!active && !isEmpty) {
+        // Track hover duration
+        if (hoverTimeTracker.current.startTime !== null) {
+          const duration = Date.now() - hoverTimeTracker.current.startTime
+          analytics.chartHoverEnded('base_apy', duration, 'yields_page')
+          hoverTimeTracker.current.startTime = null
+        }
         setHoveredIndex(null)
         setDisplayValue(initialValue)
         setDisplayDate(currentDate)
       }
-    }, [active, payload, isEmpty, currentDate, initialValue])
+    }, [active, payload, isEmpty, currentDate, initialValue, analytics])
 
     return null
   }
@@ -174,7 +187,16 @@ export function BaseAPYTab({
       >
         <DropdownSelector
           selectedValue={timeRange}
-          onValueChange={setTimeRange}
+          onValueChange={(newRange) => {
+            // Track time range selector click
+            analytics.timeRangeSelectorClicked('base_apy')
+            // Track time range change
+            if (previousTimeRangeRef.current !== newRange) {
+              analytics.timeRangeChanged('base_apy', previousTimeRangeRef.current, newRange)
+              previousTimeRangeRef.current = newRange as TimeRange
+            }
+            setTimeRange(newRange as TimeRange)
+          }}
           options={timeRangeOptions}
           minWidth="120px"
         />

@@ -1,12 +1,39 @@
+"use client"
+
+import * as React from "react"
 import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
 import { BaseCircularComponent } from "@/components/features/yields/base-circular-component"
 import { YieldsDashboard } from "@/components/features/yields/yields-dashboard"
 import { PageContainer } from "@/components/ui/page-container"
 import { designTokens } from "@/lib/design-system"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 
 export type StrategyType = "flagship" | "delta-neutral" | "leverage-looping"
 
 export default function YieldsPage() {
+  const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("yields_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("yields_page", analytics)
+
+  // Track page performance
+  usePagePerformance("yields_page", analytics)
+
   return (
     <div 
       className="relative w-full h-screen flex flex-col"

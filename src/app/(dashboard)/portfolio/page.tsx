@@ -12,13 +12,58 @@ import {
   PortfolioDashboardEmptyState,
 } from "@/components/features/portfolio"
 import { designTokens } from "@/lib/design-system"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
+import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 
 export default function PortfolioPage() {
+  const { analytics } = useAnalytics()
+  const pageTimeTracker = useTimeTracker()
+  const tabTimeTracker = useTimeTracker()
   const [activeTab, setActiveTab] = React.useState("deposited")
+  const previousTabRef = React.useRef<string>("deposited")
   
   const hasDeposits = false
   const hasWithdrawalRequests = false
   const hasActivity = false
+
+  // Track page-level time
+  React.useEffect(() => {
+    pageTimeTracker.start()
+    return () => {
+      const duration = pageTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.pageTimeSpent("portfolio_page", duration)
+      }
+    }
+  }, [analytics, pageTimeTracker])
+
+  // Track tab time spent
+  React.useEffect(() => {
+    tabTimeTracker.start()
+    return () => {
+      const duration = tabTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.tabTimeSpent(`portfolio_${previousTabRef.current}`, duration)
+      }
+    }
+  }, [activeTab, analytics, tabTimeTracker])
+
+  // Track scroll depth
+  useScrollDepth("portfolio_page", analytics)
+
+  // Track page performance
+  usePagePerformance("portfolio_page", analytics)
+
+  const handleTabChange = (tabId: string) => {
+    // Track tab change
+    if (previousTabRef.current !== tabId) {
+      analytics.portfolioTabChanged(previousTabRef.current, tabId)
+      previousTabRef.current = tabId
+    }
+    setActiveTab(tabId)
+  }
 
   const handleCancelRequest = (requestId: string) => {
     console.log("Cancel request:", requestId)
@@ -53,7 +98,7 @@ export default function PortfolioPage() {
           >
             <PortfolioTabs 
               activeTab={activeTab}
-              onTabChange={setActiveTab}
+              onTabChange={handleTabChange}
             />
 
             <div style={{ marginTop: '24px' }}>

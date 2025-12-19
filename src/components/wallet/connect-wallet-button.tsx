@@ -43,7 +43,9 @@ export function ConnectWalletButton({
         if (connected && account && chain && trackedAddressRef.current !== account.address) {
           trackedAddressRef.current = account.address;
           analytics.walletConnected(account.address, chain.id);
-        } else if (!connected) {
+        } else if (!connected && trackedAddressRef.current !== null) {
+          // Track wallet disconnection
+          analytics.walletDisconnected();
           trackedAddressRef.current = null;
         }
 
@@ -62,8 +64,11 @@ export function ConnectWalletButton({
             {(() => {
               if (!connected) {
                 return (
-                  <button
-                    onClick={openConnectModal}
+                    <button
+                    onClick={() => {
+                      analytics.walletConnectClicked();
+                      openConnectModal();
+                    }}
                     type="button"
                     className="relative inline-flex items-center justify-center whitespace-nowrap focus-visible:outline-none"
                     style={{

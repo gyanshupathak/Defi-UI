@@ -351,7 +351,7 @@ function Circle({ svgPaths, tokenData, tokenType, isAnimating = false }: CircleP
       </div>
       
       {/* Button - appears 1 sec after segments, above text */}
-      <InitiateDepositButton isAnimating={isAnimating} />
+      <InitiateDepositButton isAnimating={isAnimating} token={tokenData.symbol} />
     </div>
   );
 }

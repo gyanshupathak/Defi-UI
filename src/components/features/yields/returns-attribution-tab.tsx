@@ -7,12 +7,28 @@ import { StrategyFilterCard } from "./strategy-filter-card"
 import { ChartContainerWrapper } from "./chart-container-wrapper"
 import { YieldsDateLabels } from "./yields-date-labels"
 import { YieldsNoteCard } from "./yields-note-card"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 
 interface ReturnsAttributionTabProps {
   className?: string
 }
 
 export function ReturnsAttributionTab({ className }: ReturnsAttributionTabProps) {
+  const { analytics } = useAnalytics()
+  const timeTracker = useTimeTracker()
+
+  // Track time spent on returns attribution tab
+  React.useEffect(() => {
+    timeTracker.start()
+    return () => {
+      const duration = timeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.tabTimeSpent('returns_attribution', duration)
+      }
+    }
+  }, [analytics, timeTracker])
+
   return (
     <>
 

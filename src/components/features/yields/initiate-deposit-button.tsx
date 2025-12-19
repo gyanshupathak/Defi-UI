@@ -5,18 +5,22 @@ import clsx from 'clsx';
 import svgPathsDefault from './imports/svg-default';
 import svgPathsHover from './imports/svg-hover';
 import svgPathsPressed from './imports/svg-pressed';
+import { useAnalytics } from '@/lib/hooks/use-analytics';
 
 export type ButtonState = 'default' | 'hover' | 'pressed';
 
 interface InitiateDepositButtonProps {
   isAnimating?: boolean;
   onButtonClick?: () => void;
+  token?: string; // Token symbol (syUSD, syETH, syBTC)
 }
 
 export default function InitiateDepositButton({ 
   isAnimating = false,
-  onButtonClick 
+  onButtonClick,
+  token = 'unknown'
 }: InitiateDepositButtonProps) {
+  const { analytics } = useAnalytics()
   const [buttonState, setButtonState] = useState<ButtonState>('default');
 
   const svgPaths = buttonState === 'hover' 
@@ -26,6 +30,8 @@ export default function InitiateDepositButton({
     : svgPathsDefault;
 
   const handleClick = () => {
+    // Track button click
+    analytics.initiateDepositClicked(token)
     if (onButtonClick) {
       onButtonClick();
     }

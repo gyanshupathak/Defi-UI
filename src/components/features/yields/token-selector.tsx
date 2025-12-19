@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { designTokens } from "@/lib/design-system"
 import clsx from "clsx"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export type TokenType = "usd" | "eth" | "btc"
 
@@ -37,17 +38,24 @@ const tokens = [
 ]
 
 export function TokenSelector({ selectedToken, onTokenChange }: TokenSelectorProps) {
+  const { analytics } = useAnalytics()
+  
+  const getTokenSymbol = (tokenId: TokenType): string => {
+    const token = tokens.find(t => t.id === tokenId)
+    return token?.symbol || tokenId
+  }
+
   const handleClick = React.useCallback((tokenId: TokenType, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Token selector clicked:', tokenId, 'current selected:', selectedToken);
     if (tokenId !== selectedToken) {
-      console.log('Calling onTokenChange with:', tokenId);
+      // Track token change
+      const fromSymbol = getTokenSymbol(selectedToken)
+      const toSymbol = getTokenSymbol(tokenId)
+      analytics.tokenSelectorChanged(fromSymbol, toSymbol)
       onTokenChange(tokenId);
-    } else {
-      console.log('Token already selected, skipping update');
     }
-  }, [onTokenChange, selectedToken]);
+  }, [onTokenChange, selectedToken, analytics]);
 
   return (
     <div className="flex items-center gap-2 relative z-50">

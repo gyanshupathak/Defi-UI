@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { WalletProvider } from "@/components/providers/wallet-provider"
 import { AnalyticsProvider } from "@/components/providers/analytics-provider"
+import { ErrorBoundary } from "@/components/providers/error-boundary"
 import { GoogleAnalytics } from "@next/third-parties/google"
 
 export const metadata: Metadata = {
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full overflow-hidden">
       <body className="h-full overflow-hidden">
-        <AnalyticsProvider>
-          <WalletProvider>
-            {children}
-          </WalletProvider>
-        </AnalyticsProvider>
+        <ErrorBoundary>
+          <AnalyticsProvider>
+            <WalletProvider>
+              {children}
+            </WalletProvider>
+          </AnalyticsProvider>
+        </ErrorBoundary>
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>

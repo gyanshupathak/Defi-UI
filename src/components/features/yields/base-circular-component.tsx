@@ -5,6 +5,7 @@ import YieldCircle from "./imports/Frame";
 import { Ribbon } from "./imports/Frame";
 import { TokenSelector, TokenType } from "./token-selector";
 import { StrategyType } from "@/app/(dashboard)/yields/page";
+import { useAnalytics } from "@/lib/hooks/use-analytics";
 
 export function BaseCircularComponent() {
   const [selectedToken, setSelectedToken] = React.useState<TokenType>("usd");

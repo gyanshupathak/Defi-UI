@@ -2,8 +2,10 @@
 
 import * as React from "react"
 import { IncentiveCard } from "./incentive-card"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export function IncentivesTab() {
+  const { analytics } = useAnalytics()
 
   const incentives = [
     {
@@ -44,6 +46,9 @@ export function IncentivesTab() {
           description={incentive.description}
           logoPath={incentive.logoPath}
           redirectUrl={incentive.redirectUrl}
+          onCardClick={() => {
+            analytics.incentiveCardClicked(incentive.title, incentive.multiplier)
+          }}
         />
       ))}
     </div>

@@ -8,6 +8,7 @@ import { EmptyChart } from "@/components/charts/empty-chart"
 import { PortfolioMetricTag } from "@/components/ui/portfolio-metric-tag"
 import { FilterTabSelector } from "@/components/ui/filter-tab-selector"
 import { AnimatedNumber } from "@/components/animations"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 import {
   BarChart,
   Bar,
@@ -180,6 +181,7 @@ const formatPortfolioData = (): StackedBarChartDataPoint[] => {
 }
 
 export function PortfolioChart({ className, isEmpty = false }: PortfolioChartProps) {
+  const { analytics } = useAnalytics()
   const [activeFilter, setActiveFilter] = React.useState("total")
   const [timePeriod, setTimePeriod] = React.useState("1M")
   const defaultDisplayValue = "$15,289.28"
@@ -187,6 +189,9 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
   const [displayDate, setDisplayDate] = React.useState("")
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const [isHovering, setIsHovering] = React.useState(false)
+  const hoverTimeTracker = React.useRef<{ startTime: number | null }>({ startTime: null })
+  const previousFilterRef = React.useRef<string>("total")
+  const previousTimePeriodRef = React.useRef<string>("1M")
 
   const numericValue = parseFloat(displayValue.replace(/[^0-9.]/g, "")) || 0
   const showEmpty = isEmpty || numericValue === 0
@@ -352,10 +357,18 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           if (dataPoint.formattedDate) {
             setDisplayDate(dataPoint.formattedDate)
           }
+          // Start time tracking for hover duration
+          hoverTimeTracker.current.startTime = Date.now()
         }
       }
 
       const handleMouseLeave = () => {
+        // Track hover duration
+        if (hoverTimeTracker.current.startTime !== null) {
+          const duration = Date.now() - hoverTimeTracker.current.startTime
+          analytics.portfolioChartHovered(duration)
+          hoverTimeTracker.current.startTime = null
+        }
         setHoveredIndex(null)
         setIsHovering(false)
         setDisplayValue(defaultDisplayValue)
@@ -397,6 +410,12 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           bottom: '60px',
         }}
         onMouseLeave={() => {
+          // Track hover duration
+          if (hoverTimeTracker.current.startTime !== null) {
+            const duration = Date.now() - hoverTimeTracker.current.startTime
+            analytics.portfolioChartHovered(duration)
+            hoverTimeTracker.current.startTime = null
+          }
           setHoveredIndex(null)
           setIsHovering(false)
           setDisplayValue(defaultDisplayValue)
@@ -447,7 +466,16 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
       >
         <DropdownSelector
           selectedValue={timePeriod}
-          onValueChange={setTimePeriod}
+          onValueChange={(newPeriod) => {
+            // Track time period selector click
+            analytics.portfolioTimePeriodSelectorClicked()
+            // Track time period change
+            if (previousTimePeriodRef.current !== newPeriod) {
+              analytics.portfolioTimePeriodChanged(previousTimePeriodRef.current, newPeriod)
+              previousTimePeriodRef.current = newPeriod
+            }
+            setTimePeriod(newPeriod)
+          }}
           options={timeRangeOptions}
           minWidth="120px"
         />
@@ -489,7 +517,14 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
           <FilterTabSelector
             options={filterOptions}
             activeValue={activeFilter}
-            onValueChange={setActiveFilter}
+            onValueChange={(newFilter) => {
+              // Track filter change
+              if (previousFilterRef.current !== newFilter) {
+                analytics.portfolioFilterChanged(previousFilterRef.current, newFilter)
+                previousFilterRef.current = newFilter
+              }
+              setActiveFilter(newFilter)
+            }}
           />
         </div>
 

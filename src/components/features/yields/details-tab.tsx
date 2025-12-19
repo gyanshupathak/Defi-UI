@@ -3,6 +3,7 @@
 import * as React from "react"
 import { designTokens, shadows } from "@/lib/design-system"
 import Image from "next/image"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 function ShareIcon({ className }: { className?: string }) {
   return (
@@ -263,6 +264,8 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
 }
 
 export function DetailsTab() {
+  const { analytics } = useAnalytics()
+
   const tokenImages = [
     "/images/icons/base.png",
     "/images/icons/base.png",
@@ -270,7 +273,8 @@ export function DetailsTab() {
     "/images/icons/base.png",
   ]
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, addressType: string) => {
+    analytics.addressCopied(addressType, text)
     navigator.clipboard.writeText(text).catch(() => {
       const textArea = document.createElement("textarea")
       textArea.value = text
@@ -335,7 +339,7 @@ export function DetailsTab() {
           label="Contract Address"
           value="0x82...2d23"
           showCopyIcon
-          onCopy={() => handleCopy("0x82...2d23")}
+          onCopy={() => handleCopy("0x82...2d23", "Contract Address")}
         />
         <DetailRow
           label="Management Fees"
@@ -349,7 +353,7 @@ export function DetailsTab() {
           label="Audited by"
           value="Pashov Audit Group"
           showCopyIcon
-          onCopy={() => handleCopy("Pashov Audit Group")}
+          onCopy={() => handleCopy("Pashov Audit Group", "Audited by")}
         />
         <DetailRow
           label="Vault Deployment Date"
@@ -359,19 +363,19 @@ export function DetailsTab() {
           label="Rate Provider Address"
           value="0x32...2f19"
           showCopyIcon
-          onCopy={() => handleCopy("0x32...2f19")}
+          onCopy={() => handleCopy("0x32...2f19", "Rate Provider Address")}
         />
         <DetailRow
           label="Fee Receipt"
           value="0x32...2f19"
           showCopyIcon
-          onCopy={() => handleCopy("0x32...2f19")}
+          onCopy={() => handleCopy("0x32...2f19", "Fee Receipt")}
         />
         <DetailRow
           label="Owner Address"
           value="0x52...3d64"
           showCopyIcon
-          onCopy={() => handleCopy("0x52...3d64")}
+          onCopy={() => handleCopy("0x52...3d64", "Owner Address")}
         />
       </div>
     </div>

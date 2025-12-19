@@ -15,6 +15,8 @@ import { FAQsTab } from "./faqs-tab"
 import { DetailsTab } from "./details-tab"
 import { usePathname } from "next/navigation"
 import { useVaultTVL } from "@/lib/hooks/use-vault-tvl"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 
 interface YieldsDashboardProps {
   currentValue?: string
@@ -43,10 +45,34 @@ export function YieldsDashboard({
   })
   const [activeTab, setActiveTab] = React.useState("tvl")
   const pathname = usePathname()
+  const { analytics } = useAnalytics()
+  const tabTimeTracker = useTimeTracker()
+  const previousTabRef = React.useRef<string>("tvl")
 
   React.useEffect(() => {
     setActiveTab("tvl")
+    previousTabRef.current = "tvl"
   }, [pathname])
+
+  // Track tab time spent
+  React.useEffect(() => {
+    tabTimeTracker.start()
+    return () => {
+      const duration = tabTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.tabTimeSpent(previousTabRef.current, duration)
+      }
+    }
+  }, [activeTab, analytics, tabTimeTracker])
+
+  const handleTabChange = (tabId: string) => {
+    // Track tab change
+    if (previousTabRef.current !== tabId) {
+      analytics.yieldsTabChanged(previousTabRef.current, tabId)
+      previousTabRef.current = tabId
+    }
+    setActiveTab(tabId)
+  }
 
   const resolvedHasDeposits = React.useMemo(() => {
     if (typeof hasDeposits === "boolean") return hasDeposits
@@ -72,7 +98,7 @@ export function YieldsDashboard({
       <DashboardTabs
         tabs={tabs}
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
       />
 
       <div 

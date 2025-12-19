@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { designTokens, typographyClasses } from "@/lib/design-system"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export interface PortfolioDashboardEmptyStateProps {
   icon?: React.ReactNode
@@ -25,8 +26,10 @@ export function PortfolioDashboardEmptyState({
   showButton = true,
 }: PortfolioDashboardEmptyStateProps) {
   const router = useRouter()
+  const { analytics } = useAnalytics()
 
   const handleButtonClick = () => {
+    analytics.emptyStateButtonClicked(buttonText, "portfolio_page")
     if (onButtonClick) {
       onButtonClick()
     } else {

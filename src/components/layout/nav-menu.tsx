@@ -4,6 +4,7 @@ import * as React from "react"
 import { useRouter, usePathname } from "next/navigation"
 import { designTokens } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
 
 export type NavMenuItem = "yields" | "bridge" | "portfolio" | "docs" | "none"
 
@@ -47,6 +48,7 @@ export function NavMenu({
 
   const router = useRouter()
   const pathname = usePathname()
+  const { analytics } = useAnalytics()
 
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -67,6 +69,9 @@ export function NavMenu({
   const handleItemClick = (key: NavMenuItem) => {
     if (key === "none") return
 
+    // Track navigation menu change
+    analytics.navMenuChanged(key, menuConfig[key].path)
+    
     router.push(menuConfig[key].path)
     onItemClick?.(key)
   }

@@ -9,6 +9,8 @@ import { YieldsDateLabels } from "./yields-date-labels"
 import { YieldsNoteCard } from "./yields-note-card"
 import { FilterTabSelector } from "@/components/ui/filter-tab-selector"
 import { EmptyChart } from "@/components/charts/empty-chart"
+import { useAnalytics } from "@/lib/hooks/use-analytics"
+import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import {
   BarChart,
   Bar,
@@ -37,18 +39,41 @@ interface AllocationsTabProps {
 export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
   const [viewType, setViewType] = React.useState<ViewType>("chart")
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
+  const { analytics } = useAnalytics()
+  const hoverTimeTracker = React.useRef<{ startTime: number | null }>({ startTime: null })
+  const previousViewRef = React.useRef<ViewType>("chart")
+  const viewTimeTracker = useTimeTracker()
   
   const viewOptions = [
     { id: "chart" as ViewType, label: "Chart" },
     { id: "table" as ViewType, label: "Table" },
   ]
+
+  // Track view time spent
+  React.useEffect(() => {
+    viewTimeTracker.start()
+    return () => {
+      const duration = viewTimeTracker.stop()
+      if (duration && duration > 0) {
+        analytics.tabTimeSpent(`allocations_${previousViewRef.current}`, duration)
+      }
+    }
+  }, [viewType, analytics, viewTimeTracker])
   
+  const handleViewChange = (newView: ViewType) => {
+    if (previousViewRef.current !== newView) {
+      analytics.allocationsViewChanged(previousViewRef.current, newView)
+      previousViewRef.current = newView
+    }
+    setViewType(newView)
+  }
+
   const viewTabs = (
     <div className="absolute" style={{ right: '24px', top: '16px' }}>
       <FilterTabSelector
         options={viewOptions}
         activeValue={viewType}
-        onValueChange={setViewType}
+        onValueChange={handleViewChange}
       />
     </div>
   )
@@ -154,10 +179,18 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
       const handleMouseEnter = () => {
         if (barIndex >= 0 && barIndex < barData.length) {
           setHoveredIndex(barIndex)
+          // Start time tracking for hover
+          hoverTimeTracker.current.startTime = Date.now()
         }
       }
 
       const handleMouseLeave = () => {
+        // Track hover end with duration
+        if (hoverTimeTracker.current.startTime !== null) {
+          const duration = Date.now() - hoverTimeTracker.current.startTime
+          analytics.allocationsChartHovered(duration)
+          hoverTimeTracker.current.startTime = null
+        }
         setHoveredIndex(null)
       }
 
