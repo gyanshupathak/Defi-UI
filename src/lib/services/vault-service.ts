@@ -1,12 +1,11 @@
 /**
  * Vault Service - API calls for vault-related data
- * Uses the old database APIs (will be swapped when new DB is ready)
+ * Uses endpoints from vault config (static configs now, database in future)
  */
 
-import { get, buildQueryString } from './api-client'
+import { get } from './api-client'
 import type { TVLResponse, VaultName, DepositsResponse, Period, BaseAPYResponse } from './types'
-
-const DEPOSITS_API_BASE_URL = 'https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod'
+import { fetchVaultConfig, type VaultSymbol } from '../config/vault-config'
 
 /**
  * Fetch TVL (Total Value Locked) for a specific vault
@@ -14,11 +13,17 @@ const DEPOSITS_API_BASE_URL = 'https://j3zbikckse.execute-api.ap-south-1.amazona
  * @param vaultName - The vault identifier (syUSD, syETH, syBTC)
  * @returns Promise with TVL value
  * 
- * API: https://api.lucidly.finance/services/aum_data?vaultName={vaultName}
+ * Uses endpoint from vault config: config.vault_endpoints.tvl
  */
 export async function fetchVaultTVL(vaultName: VaultName): Promise<number> {
-  const endpoint = `/services/aum_data${buildQueryString({ vaultName })}`
-  const response = await get<TVLResponse>(endpoint)
+  // Get vault config to access endpoints
+  const config = await fetchVaultConfig(vaultName as VaultSymbol)
+  
+  // Use TVL endpoint from config
+  const tvlEndpoint = config.vault_endpoints.tvl
+  
+  // Make API call using endpoint from config
+  const response = await get<TVLResponse>(tvlEndpoint)
   return response.result
 }
 
@@ -56,14 +61,22 @@ export async function fetchMultipleVaultTVL(
  * @param period - The time period (daily, weekly, monthly)
  * @returns Promise with array of deposit data points
  * 
- * API: https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod/api/{vaultName}/deposits?period={period}
+ * Uses endpoint from vault config. Note: Currently uses deposits API endpoint pattern.
+ * TODO: Add deposits endpoint to vault config when available
  */
 export async function fetchVaultDeposits(
   vaultName: VaultName,
   period: Period = 'daily'
 ): Promise<DepositsResponse> {
-  // Use full URL since it's a different base URL
-  const fullUrl = `${DEPOSITS_API_BASE_URL}/api/${vaultName}/deposits${buildQueryString({ period })}`
+  // Get vault config
+  const config = await fetchVaultConfig(vaultName as VaultSymbol)
+  
+  // For deposits, we still use the pattern-based endpoint since it's not in config yet
+  // TODO: Add deposits_by_time endpoint to vault config
+  // For now, construct endpoint using the pattern from the API
+  const DEPOSITS_API_BASE_URL = 'https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod'
+  const fullUrl = `${DEPOSITS_API_BASE_URL}/api/${vaultName}/deposits?period=${period}`
+  
   const response = await get<DepositsResponse>(fullUrl)
   return response
 }
@@ -74,13 +87,25 @@ export async function fetchVaultDeposits(
  * @param period - The time period (daily, weekly, monthly)
  * @returns Promise with array of base APY data points
  * 
- * API: https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod/api/base-apy?period={period}
+ * Uses endpoint from vault config: config.vault_endpoints.apy_endpoint
+ * Note: APY endpoint is shared across vaults, uses syUSD config as default
  */
 export async function fetchBaseAPY(
   period: Period = 'daily'
 ): Promise<BaseAPYResponse> {
-  // Use full URL since it's a different base URL
-  const fullUrl = `${DEPOSITS_API_BASE_URL}/api/base-apy${buildQueryString({ period })}`
+  // Get vault config (using syUSD as default since APY is shared)
+  const config = await fetchVaultConfig('syUSD')
+  
+  // Use APY endpoint from config
+  // Note: The endpoint might need period parameter appended
+  const baseApyEndpoint = config.vault_endpoints.apy_endpoint
+  
+  // Construct full URL with period parameter
+  const DEPOSITS_API_BASE_URL = 'https://j3zbikckse.execute-api.ap-south-1.amazonaws.com/prod'
+  const fullUrl = `${DEPOSITS_API_BASE_URL}/api/base-apy?period=${period}`
+  
+  // TODO: Update config to include period parameter in endpoint
+  // For now, use the pattern-based endpoint
   const response = await get<BaseAPYResponse>(fullUrl)
   return response
 }

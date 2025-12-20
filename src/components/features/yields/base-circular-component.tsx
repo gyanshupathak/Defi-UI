@@ -3,23 +3,16 @@
 import * as React from "react"
 import YieldCircle from "./imports/Frame";
 import { Ribbon } from "./imports/Frame";
-import { TokenSelector, TokenType } from "./token-selector";
 import { StrategyType } from "@/app/(dashboard)/yields/page";
-import { useAnalytics } from "@/lib/hooks/use-analytics";
+import { getVariantFromVaultSymbol, type VaultSymbol } from "@/lib/config/vault-config";
 
-export function BaseCircularComponent() {
-  const [selectedToken, setSelectedToken] = React.useState<TokenType>("usd");
+interface BaseCircularComponentProps {
+  vaultSymbol: VaultSymbol
+}
+
+export function BaseCircularComponent({ vaultSymbol }: BaseCircularComponentProps) {
   const [isAnimating, setIsAnimating] = React.useState(false);
   const hasAnimatedRef = React.useRef(false);
-
-  const handleTokenChange = React.useCallback((token: TokenType) => {
-    console.log('BaseCircularComponent: Token changing from', selectedToken, 'to', token);
-    setSelectedToken(token);
-  }, [selectedToken]);
-
-  React.useEffect(() => {
-    console.log('BaseCircularComponent: Selected token is now:', selectedToken);
-  }, [selectedToken]);
 
   // Trigger animation only once on initial mount
   React.useEffect(() => {
@@ -29,8 +22,13 @@ export function BaseCircularComponent() {
     }
   }, []);
 
+  // Get token type from vault symbol
+  const tokenType = React.useMemo(() => {
+    return getVariantFromVaultSymbol(vaultSymbol);
+  }, [vaultSymbol]);
+
   // Map token to strategy: syUSD → Flagship, syETH → Delta Neutral, syBTC → Leverage Looping
-  const getStrategyFromToken = (token: TokenType): StrategyType => {
+  const getStrategyFromToken = (token: 'usd' | 'eth' | 'btc'): StrategyType => {
     switch (token) {
       case "usd":
         return "flagship";
@@ -43,7 +41,7 @@ export function BaseCircularComponent() {
     }
   };
 
-  const strategyType = getStrategyFromToken(selectedToken);
+  const strategyType = getStrategyFromToken(tokenType);
 
   // Get gradient colors based on strategy
   const getGradientColors = (strategy: StrategyType) => {
@@ -63,9 +61,6 @@ export function BaseCircularComponent() {
 
   return (
     <div className="flex flex-col items-center gap-4 w-full">
-      <div className={`relative ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '4500ms', animationFillMode: 'forwards', zIndex: 10 }}>
-        <TokenSelector selectedToken={selectedToken} onTokenChange={handleTokenChange} />
-      </div>
       <div className="relative flex items-end justify-center" style={{ marginTop: "250px" }}>
         <div 
           className={`absolute pointer-events-none ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`}
@@ -102,7 +97,7 @@ export function BaseCircularComponent() {
           </svg>
         </div>
         <div className="-translate-y-[420px] -translate-x-[55px]">
-          <YieldCircle tokenType={selectedToken} isAnimating={isAnimating} />
+          <YieldCircle tokenType={tokenType} isAnimating={isAnimating} />
         </div>
         <div className={`absolute top-[-265px] left-1/2 -translate-x-1/2 ${isAnimating ? 'opacity-0 animate-fade-in' : 'opacity-0'}`} style={{ zIndex: 10, animationDelay: '4000ms', animationFillMode: 'forwards' }}>
           <Ribbon strategyType={strategyType} />

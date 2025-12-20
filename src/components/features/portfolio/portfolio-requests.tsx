@@ -7,7 +7,7 @@ import { designTokens, shadows, typographyClasses } from "@/lib/design-system"
 import { WithdrawalRequestCard } from "./withdrawal-request-card"
 import { Button } from "@/components/ui/button"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
-import { useWithdrawalRequests } from "@/lib/hooks/use-withdrawal-requests"
+import { useWithdrawalRequests } from "@/lib/hooks/use-portfolio"
 
 export interface WithdrawalRequest {
   id: string

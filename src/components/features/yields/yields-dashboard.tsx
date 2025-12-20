@@ -14,7 +14,7 @@ import { IncentivesTab } from "./incentives-tab"
 import { FAQsTab } from "./faqs-tab"
 import { DetailsTab } from "./details-tab"
 import { usePathname } from "next/navigation"
-import { useVaultTVL } from "@/lib/hooks/use-vault-tvl"
+import { useVaultTVL } from "@/lib/hooks/use-vault"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 

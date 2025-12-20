@@ -15,7 +15,7 @@ import { PortfolioDashboardEmptyState } from "./portfolio-dashboard-empty-state"
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
-import { usePortfolioActivity } from "@/lib/hooks/use-portfolio-activity"
+import { usePortfolioActivity } from "@/lib/hooks/use-portfolio"
 
 export type TransactionStatus = "deposit" | "withdraw" | "bridge"
 

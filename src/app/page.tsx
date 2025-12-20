@@ -13,7 +13,7 @@ import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
 // COMMENTED OUT: API calls disabled - using dummy data
-// import { useMultipleVaultTVL } from "@/lib/hooks/use-vault-tvl"
+// import { useMultipleVaultTVL } from "@/lib/hooks/use-vault"
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState("top-yields")

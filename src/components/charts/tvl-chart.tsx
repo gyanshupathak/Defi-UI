@@ -7,8 +7,7 @@ import { ChartContainerWrapper } from "@/components/features/yields/chart-contai
 import { EmptyChart } from "./empty-chart"
 import { TVLChartSkeleton } from "./tvl-chart-skeleton"
 import { AnimatedNumber } from "@/components/animations"
-import { useVaultTVL } from "@/lib/hooks/use-vault-tvl"
-import { useVaultDeposits } from "@/lib/hooks/use-vault-deposits"
+import { useVaultTVL, useVaultDeposits } from "@/lib/hooks/use-vault"
 import {
   BarChart,
   Bar,

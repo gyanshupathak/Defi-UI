@@ -7,7 +7,7 @@ import { DropdownSelector, type DropdownOption } from "@/components/ui/dropdown-
 import { AnimatedNumber } from "@/components/animations"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
-import { useBaseAPY, type TimeRange } from "@/lib/hooks/use-base-apy"
+import { useBaseAPY, type TimeRange } from "@/lib/hooks/use-vault"
 import {
   AreaChart,
   Area,

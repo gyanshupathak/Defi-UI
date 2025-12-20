@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { NeumorphicNav } from "@/components/layout/neumorphic-nav"
 import { BaseCircularComponent } from "@/components/features/yields/base-circular-component"
 import { YieldsDashboard } from "@/components/features/yields/yields-dashboard"
@@ -10,12 +12,26 @@ import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
+import { getVaultSymbolFromVariant, type VaultSymbol } from "@/lib/config/vault-config"
 
 export type StrategyType = "flagship" | "delta-neutral" | "leverage-looping"
 
-export default function YieldsPage() {
+function YieldsPageContent() {
+  const searchParams = useSearchParams()
   const { analytics } = useAnalytics()
   const pageTimeTracker = useTimeTracker()
+
+  // Get vault symbol from query params, default to syUSD
+  // If accessed from navbar (no query param), default to syUSD
+  // If accessed from strategy card, use the strategy variant
+  const strategyParam = searchParams.get('strategy')
+  const vaultSymbol: VaultSymbol = React.useMemo(() => {
+    if (strategyParam) {
+      return getVaultSymbolFromVariant(strategyParam as 'usd' | 'eth' | 'btc')
+    }
+    // Default to syUSD when accessed from navbar
+    return 'syUSD'
+  }, [strategyParam])
 
   // Track page-level time
   React.useEffect(() => {
@@ -92,7 +108,7 @@ export default function YieldsPage() {
             <div 
               className="flex items-center justify-center relative w-full"
             >
-              <BaseCircularComponent />
+              <BaseCircularComponent vaultSymbol={vaultSymbol} />
             </div>
           </div>
 
@@ -101,11 +117,37 @@ export default function YieldsPage() {
             style={{ flex: '1 1 auto', marginLeft: '56px' }}
           >
             <YieldsDashboard
-              vaultName="syUSD"
+              vaultName={vaultSymbol}
             />
           </div>
         </div>
       </PageContainer>
     </div>
+  )
+}
+
+export default function YieldsPage() {
+  return (
+    <Suspense fallback={
+      <div 
+        className="relative w-full h-screen flex flex-col"
+        style={{ 
+          backgroundColor: designTokens.colors.background.main,
+          overflowX: 'hidden',
+          overflowY: 'auto',
+        }}
+      >
+        <div style={{ overflow: 'visible', position: 'relative', zIndex: 10 }}>
+          <NeumorphicNav activeMenuItem="yields" />
+        </div>
+        <PageContainer>
+          <div className="flex items-center justify-center h-full">
+            <p style={{ color: designTokens.colors.text.primary }}>Loading...</p>
+          </div>
+        </PageContainer>
+      </div>
+    }>
+      <YieldsPageContent />
+    </Suspense>
   )
 }

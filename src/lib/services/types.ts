@@ -3,6 +3,8 @@
  * Types for API responses from the old database
  */
 
+import type { VaultSymbol } from '../config/vault-config'
+
 /**
  * TVL (Total Value Locked) API Response
  * Endpoint: /services/aum_data?vaultName={vaultName}
@@ -31,8 +33,9 @@ export interface DepositsResponse {
 
 /**
  * Vault identifier type
+ * Re-exported from vault-config for consistency
  */
-export type VaultName = 'syUSD' | 'syETH' | 'syBTC'
+export type VaultName = VaultSymbol
 
 /**
  * Period type for historical data
