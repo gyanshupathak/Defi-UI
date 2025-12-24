@@ -3,9 +3,10 @@
  * All vault hooks consolidated in one file for better organization
  */
 
+import * as React from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchVaultTVL, fetchMultipleVaultTVL, fetchVaultDeposits, fetchBaseAPY } from '@/lib/services/vault-service'
-import type { VaultName, Period, DepositDataPoint, BaseAPYDataPoint } from '@/lib/services/types'
+import { fetchVaultTVL, fetchMultipleVaultTVL, fetchVaultDeposits, fetchBaseAPY, fetchVaultAPY, fetchCurrencyRate, fetchCombinedVaultTVL } from '@/lib/services/vault-service'
+import type { VaultName, Period, DepositDataPoint, BaseAPYDataPoint, TVLByTimeDataPoint } from '@/lib/services/types'
 
 /**
  * Format TVL value for display
@@ -236,6 +237,48 @@ function mapTimeRangeToPeriod(timeRange: TimeRange): Period {
 }
 
 /**
+ * Hook to fetch current APY for a vault
+ * 
+ * @param vaultSymbol - Vault symbol to get endpoint from config
+ * @param options - Query options (enabled, refetchInterval, etc.)
+ */
+export function useVaultAPY(
+  vaultSymbol: string,
+  options?: {
+    enabled?: boolean
+    refetchInterval?: number
+    staleTime?: number
+  }
+) {
+  const {
+    data: apy,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery({
+    queryKey: ['vault-apy', vaultSymbol],
+    queryFn: () => fetchVaultAPY(vaultSymbol),
+    enabled: options?.enabled !== false && !!vaultSymbol,
+    refetchInterval: options?.refetchInterval,
+    staleTime: options?.staleTime ?? 60_000, // 60 seconds default
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  })
+
+  return {
+    apy: apy ?? 0,
+    formattedAPY: apy !== undefined && apy !== null ? `${apy.toFixed(2)}%` : '0.00%',
+    isLoading,
+    isError,
+    error,
+    refetch,
+    lastUpdated: dataUpdatedAt,
+  }
+}
+
+/**
  * Hook to fetch Base APY historical data
  * 
  * @param timeRange - The time range (1M, 3M, 6M, 1Y)
@@ -340,3 +383,97 @@ export function useBaseAPY(
     lastUpdated: dataUpdatedAt,
   }
 }
+
+/**
+ * Hook to fetch currency rate for an asset
+ * Currently hardcoded for BTC (syBTC), will be moved to config later
+ * 
+ * @param assetName - The asset name (default: 'BTC')
+ * @param options - Query options (enabled, refetchInterval, etc.)
+ */
+export function useCurrencyRate(
+  assetName: string = 'BTC',
+  options?: {
+    enabled?: boolean
+    refetchInterval?: number
+    staleTime?: number
+  }
+) {
+  const {
+    data: currencyRate,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery({
+    queryKey: ['currency-rate', assetName],
+    queryFn: () => fetchCurrencyRate(assetName),
+    enabled: options?.enabled !== false && !!assetName,
+    refetchInterval: options?.refetchInterval,
+    staleTime: options?.staleTime ?? 60_000, // 60 seconds default
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  })
+
+  return {
+    rate: currencyRate?.rate ?? 0,
+    updatedAt: currencyRate?.updatedAt ?? 0,
+    formattedRate: currencyRate?.rate ? `$${currencyRate.rate.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '$0.00',
+    isLoading,
+    isError,
+    error,
+    refetch,
+    lastUpdated: dataUpdatedAt,
+  }
+}
+
+/**
+ * Hook to fetch combined TVL for all vaults with currency conversion
+ * Converts non-USD vaults (like syBTC) to USD
+ * 
+ * @param vaultNames - Array of vault identifiers
+ * @param options - Query options (enabled, refetchInterval, etc.)
+ */
+export function useCombinedVaultTVL(
+  vaultNames: VaultName[],
+  options?: {
+    enabled?: boolean
+    refetchInterval?: number
+    staleTime?: number
+  }
+) {
+  const {
+    data: combinedTVL,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    dataUpdatedAt,
+  } = useQuery({
+    queryKey: ['combined-vault-tvl', ...vaultNames.sort()],
+    queryFn: () => fetchCombinedVaultTVL(vaultNames),
+    enabled: options?.enabled !== false && vaultNames.length > 0,
+    refetchInterval: options?.refetchInterval,
+    staleTime: options?.staleTime ?? 30_000, // 30 seconds default
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  })
+
+  // Format as exact value with commas (no K/M suffixes)
+  const formattedValue = React.useMemo(() => {
+    if (combinedTVL === undefined) return undefined
+    return `$${Math.round(combinedTVL).toLocaleString()}`
+  }, [combinedTVL])
+
+  return {
+    tvl: combinedTVL ?? 0,
+    formattedValue: formattedValue ?? '$0',
+    isLoading,
+    isError,
+    error,
+    refetch,
+    lastUpdated: dataUpdatedAt,
+  }
+}
+

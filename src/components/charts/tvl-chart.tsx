@@ -7,7 +7,6 @@ import { ChartContainerWrapper } from "@/components/features/yields/chart-contai
 import { EmptyChart } from "./empty-chart"
 import { TVLChartSkeleton } from "./tvl-chart-skeleton"
 import { AnimatedNumber } from "@/components/animations"
-import { useVaultTVL, useVaultDeposits } from "@/lib/hooks/use-vault"
 import {
   BarChart,
   Bar,
@@ -34,9 +33,10 @@ interface TVLChartProps {
   className?: string
   variant?: "home" | "yields"
   isEmpty?: boolean
-  vaultName?: "syUSD" | "syETH" | "syBTC"
+  vaultName?: string // Dynamic vault name from API
   useApi?: boolean // Whether to fetch from API (default: true)
   period?: "daily" | "weekly" | "monthly" // Period for historical data
+  isLoading?: boolean // Loading state for combined TVL
 }
 const defaultHomeData = [
   100, 100, 100, 100, 100, 100, 100, 100, 
@@ -80,16 +80,10 @@ const formatDataForChart = (
   data: number[],
   defaultTotalValue: string,
   defaultDate: string,
-  variant: "home" | "yields",
-  depositsData?: Array<{ formattedDate: string; value: number; formattedValue: string }>
+  variant: "home" | "yields"
 ): ChartDataPoint[] => {
-  // Use dates from deposits data if available, otherwise generate last 7 days
-  const dates = depositsData && depositsData.length > 0
-    ? depositsData.map(d => d.formattedDate)
-    : generateDatesForLast7Days()
-  
-  // Ensure we have at least 7 dates for the chart
-  const chartDates = dates.length >= 7 ? dates.slice(0, 7) : [...dates, ...generateDatesForLast7Days().slice(dates.length)]
+  // Generate dates for last 7 days
+  const chartDates = generateDatesForLast7Days()
   
   const barsPerDay = [8, 8, 8, 8, 8, 8, 6]
   const maxBarHeight = variant === "home" ? 500 : 400
@@ -106,22 +100,23 @@ const formatDataForChart = (
       }
     }
     
-    // Use actual value from deposits data if available, otherwise calculate from bar height
-    let calculatedValue: number
+    // Calculate value from bar height (dummy data)
+    // Parse the totalValue properly - handle "K" and "M" suffixes
+    let numericValue = parseFloat(defaultTotalValue.replace(/[^0-9.]/g, ''))
+    if (defaultTotalValue.includes('K')) {
+      numericValue = numericValue * 1000
+    } else if (defaultTotalValue.includes('M')) {
+      numericValue = numericValue * 1000000
+    }
+    const scaleFactor = numericValue / maxBarHeight
+    const calculatedValue = value * scaleFactor
+    // Format the value properly with K/M suffixes
     let formattedValue: string
-    
-    if (depositsData && depositsData.length > 0) {
-      // Map bar index to deposits data index
-      const depositsIndex = Math.min(
-        Math.floor((dateIndex / barsPerDay.length) * depositsData.length),
-        depositsData.length - 1
-      )
-      calculatedValue = depositsData[depositsIndex].value
-      formattedValue = depositsData[depositsIndex].formattedValue
+    if (calculatedValue >= 1_000_000) {
+      formattedValue = `$${(calculatedValue / 1_000_000).toFixed(2)}M`
+    } else if (calculatedValue >= 1_000) {
+      formattedValue = `$${(calculatedValue / 1_000).toFixed(2)}K`
     } else {
-      // Scale the bar value based on actual TVL
-      const scaleFactor = parseFloat(defaultTotalValue.replace(/[^0-9.]/g, '')) / maxBarHeight
-      calculatedValue = value * scaleFactor
       formattedValue = `$${Math.round(calculatedValue).toLocaleString()}`
     }
     
@@ -145,125 +140,66 @@ export function TVLChart({
   vaultName = "syUSD",
   useApi = true,
   period = "daily",
+  isLoading = false,
 }: TVLChartProps) {
-  // Fetch TVL from API if enabled
-  const { 
-    tvl: apiTvl, 
-    formattedValue: apiFormattedValue, 
-    isLoading: isTvlLoading,
-    isError: isTvlError 
-  } = useVaultTVL(vaultName, {
-    enabled: useApi && !isEmpty,
-    staleTime: 30_000, // 30 seconds
-  })
-
-  // Fetch historical deposits data for chart
-  const {
-    formattedData: depositsData,
-    latestValue: depositsLatestValue,
-    isLoading: isDepositsLoading,
-    isError: isDepositsError,
-  } = useVaultDeposits(vaultName, period, {
-    enabled: useApi && !isEmpty,
-    staleTime: 60_000, // 60 seconds
-  })
-
-  // Determine which value to use (API or prop)
-  // Prefer deposits latest value if available, otherwise use TVL
-  const effectiveTvl = useApi && !isEmpty && !isTvlLoading && !isTvlError 
-    ? apiTvl 
-    : undefined
-  
-  // Use deposits latest value if available, otherwise use TVL formatted value
+  // Use the totalValue prop (combined TVL from syUSD + syBTC converted to USD)
   const effectiveFormattedValue = React.useMemo(() => {
-    if (useApi && !isEmpty && depositsLatestValue > 0 && !isDepositsError) {
-      // Format deposits latest value
-      if (depositsLatestValue >= 1_000_000) {
-        return `$${(depositsLatestValue / 1_000_000).toFixed(2)}M`
-      }
-      if (depositsLatestValue >= 1_000) {
-        return `$${(depositsLatestValue / 1_000).toFixed(2)}K`
-      }
-      return `$${depositsLatestValue.toFixed(2)}`
-    }
-    if (useApi && !isEmpty && !isTvlLoading && !isTvlError) {
-      return apiFormattedValue
-    }
+    if (isEmpty) return "$0"
+    // Always use totalValue if provided, otherwise use default
     return totalValue || (variant === "home" ? "$585,937" : "$185,053")
-  }, [useApi, isEmpty, depositsLatestValue, isDepositsError, isTvlLoading, isTvlError, apiFormattedValue, totalValue, variant])
+  }, [isEmpty, totalValue, variant])
 
   const defaultTotalValue = variant === "home" ? "$585,937" : "$185,053"
-  const initialValue = isEmpty ? "$0" : effectiveFormattedValue
   const [displayValue, setDisplayValue] = React.useState(() => {
     if (isEmpty) return "$0"
     return effectiveFormattedValue
   })
-  const [displayDate, setDisplayDate] = React.useState(date || new Date().toLocaleDateString('en-US', { 
+  const todayDate = new Date().toLocaleDateString('en-US', { 
     month: 'long', 
     day: 'numeric', 
     year: 'numeric' 
-  }))
+  })
+  const [displayDate, setDisplayDate] = React.useState(date || todayDate)
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
-  const [isInitialLoad, setIsInitialLoad] = React.useState(true)
+  const [hasAnimated, setHasAnimated] = React.useState(false)
+  const [initialValue] = React.useState(() => effectiveFormattedValue)
 
-  // Update display value when API data loads
-  React.useEffect(() => {
-    if (!isEmpty && !isTvlLoading && effectiveFormattedValue) {
-      setDisplayValue(effectiveFormattedValue)
-    }
-  }, [effectiveFormattedValue, isEmpty, isTvlLoading])
-  
-  // Show loading skeleton while fetching
-  if (useApi && !isEmpty && (isTvlLoading || isDepositsLoading)) {
-    return <TVLChartSkeleton variant={variant} className={className} />
-  }
-
-  // Use real deposits data if available, otherwise fall back to mock data
+  // Use dummy chart data (no deposits API)
   const chartDataArray = React.useMemo(() => {
     if (isEmpty) return emptyStateData
-    
-    // If we have real deposits data, use it
-    if (useApi && depositsData && depositsData.length > 0 && !isDepositsError) {
-      // Extract values from deposits data and scale to chart bar heights
-      const maxBarHeight = variant === "home" ? 500 : 400
-      const maxValue = Math.max(...depositsData.map(d => d.value), 1)
-      const scaleFactor = maxBarHeight / maxValue
-      
-      // Generate bars per day based on data points
-      // For daily period, we want multiple bars per day to match the design
-      const barsPerDataPoint = Math.ceil(54 / depositsData.length)
-      const chartValues: number[] = []
-      
-      depositsData.forEach((point) => {
-        const scaledValue = point.value * scaleFactor
-        for (let i = 0; i < barsPerDataPoint; i++) {
-          // Add slight variation to bars within the same day
-          const variation = (Math.random() - 0.5) * 0.1 * scaledValue
-          chartValues.push(Math.max(0, scaledValue + variation))
-        }
-      })
-      
-      // Ensure we have exactly 54 bars
-      while (chartValues.length < 54) {
-        chartValues.push(chartValues[chartValues.length - 1] || 0)
-      }
-      return chartValues.slice(0, 54)
-    }
-    
-    // Fall back to provided data or defaults
     return data || (variant === "home" ? defaultHomeData : defaultYieldsData)
-  }, [isEmpty, depositsData, isDepositsError, useApi, variant, data])
+  }, [isEmpty, data, variant])
 
   const chartData = formatDataForChart(
     chartDataArray, 
     effectiveFormattedValue, 
     displayDate, 
-    variant,
-    depositsData
+    variant
   ).map((item, index) => ({
     ...item,
     index,
   }))
+  
+  // Update display value when effective value changes (only if not hovering)
+  React.useEffect(() => {
+    if (!isEmpty && effectiveFormattedValue && hoveredIndex === null) {
+      setDisplayValue(effectiveFormattedValue)
+      // Mark as animated if this is a new value (not the initial one)
+      if (effectiveFormattedValue !== initialValue) {
+        setHasAnimated(true)
+      }
+    }
+  }, [effectiveFormattedValue, isEmpty, hoveredIndex, initialValue])
+  
+  // Mark as animated after initial render
+  React.useEffect(() => {
+    if (!isEmpty && !hasAnimated) {
+      const timer = setTimeout(() => {
+        setHasAnimated(true)
+      }, 1500) // After animation duration (1.2s + buffer)
+      return () => clearTimeout(timer)
+    }
+  }, [isEmpty, hasAnimated])
   
   // Update display value when effective value changes (for non-hovered state)
   React.useEffect(() => {
@@ -272,8 +208,14 @@ export function TVLChart({
       if (displayValue !== valueToUse) {
         setDisplayValue(valueToUse)
       }
+      setDisplayDate(date || todayDate)
     }
-  }, [effectiveFormattedValue, isEmpty, hoveredIndex, defaultTotalValue, displayValue])
+  }, [effectiveFormattedValue, isEmpty, hoveredIndex, defaultTotalValue, displayValue, date, todayDate])
+  
+  // Show loading skeleton while fetching
+  if (isLoading && !isEmpty) {
+    return <TVLChartSkeleton variant={variant} className={className} />
+  }
 
   const CustomBarShape = (props: any) => {
     const { payload, x, y, width, height } = props
@@ -321,16 +263,6 @@ export function TVLChart({
         }))
       }
     }
-    
-    // Update display value when effective value changes
-    React.useEffect(() => {
-      if (!isEmpty && hoveredIndex === null) {
-        const valueToUse = effectiveFormattedValue || defaultTotalValue
-        if (displayValue !== valueToUse) {
-          setDisplayValue(valueToUse)
-        }
-      }
-    }, [effectiveFormattedValue, isEmpty, hoveredIndex, defaultTotalValue, displayValue])
 
     return (
       <rect
@@ -372,7 +304,7 @@ export function TVLChart({
               color: designTokens.colors.text.primary,
             }}
           >
-            {isInitialLoad && displayValue === initialValue ? (
+            {hoveredIndex === null && !hasAnimated ? (
               displayValue.startsWith('$') ? (
                 <>
                   $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
@@ -453,13 +385,17 @@ export function TVLChart({
               className={`${typographyClasses.display1} w-full`}
               style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
             >
-              {displayValue.startsWith('$') ? (
+            {hoveredIndex === null && !hasAnimated ? (
+              displayValue.startsWith('$') ? (
                 <>
-                  $<AnimatedNumber key={displayValue} value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
                 </>
               ) : (
-                <AnimatedNumber key={displayValue} value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-              )}
+                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
+              )
+            ) : (
+              displayValue
+            )}
             </div>
             <p 
               className={`${typographyClasses.label1} w-full`}
@@ -567,7 +503,7 @@ export function TVLChart({
             className={`${typographyClasses.display1} w-full`}
             style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
           >
-            {isInitialLoad && displayValue === initialValue ? (
+            {hoveredIndex === null && !hasAnimated ? (
               displayValue.startsWith('$') ? (
                 <>
                   $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
@@ -608,7 +544,7 @@ export function TVLChart({
             color: designTokens.colors.text.primary,
           }}
         >
-          {isInitialLoad && displayValue === initialValue ? (
+          {hoveredIndex === null && !hasAnimated ? (
             (() => {
               const valueToParse = totalValue || displayValue || defaultTotalValue
               let numericValue = parseFloat(valueToParse.replace(/[^0-9.]/g, ''))
@@ -616,7 +552,7 @@ export function TVLChart({
               if (!numericValue || isNaN(numericValue) || numericValue === 0) {
                 numericValue = 185053 // Default for yields variant
               }
-              
+                
               return displayValue.startsWith('$') || valueToParse.startsWith('$') ? (
                 <>
                   $<AnimatedNumber key="initial" value={numericValue} decimals={0} delay={0.1} duration={1.2} />
@@ -626,10 +562,7 @@ export function TVLChart({
               )
             })()
           ) : (
-            (() => {
-              const valueToShow = displayValue && displayValue !== "$0" ? displayValue : (totalValue || defaultTotalValue)
-              return valueToShow
-            })()
+            displayValue
           )}
         </div>
         <p 

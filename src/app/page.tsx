@@ -6,14 +6,44 @@ import { TVLChart } from "@/components/charts/tvl-chart"
 import { YieldStrategyCard } from "@/components/features/yields/yield-strategy-card"
 import { PageContainer } from "@/components/ui/page-container"
 import { DashboardTabs } from "@/components/ui/dashboard-tabs"
-import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
-import { Flame } from "lucide-react"
+import { designTokens } from "@/lib/design-system"
+import { Flame, Loader2 } from "lucide-react"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
-// COMMENTED OUT: API calls disabled - using dummy data
-// import { useMultipleVaultTVL } from "@/lib/hooks/use-vault"
+import { useAllVaultSymbols } from "@/lib/hooks/use-vault-config"
+import { useCombinedVaultTVL, useVaultAPY } from "@/lib/hooks/use-vault"
+import { getVariantFromVaultSymbol, fetchVaultConfig, type VaultSymbol, type VaultConfig } from "@/lib/config/vault-config"
+import { useQueries } from "@tanstack/react-query"
+
+type LoadedVaultConfig = NonNullable<VaultConfig>
+
+function VaultCard({ symbol, config }: { symbol: VaultSymbol; config: LoadedVaultConfig }) {
+  // Use symbol from config if available, otherwise use the prop symbol
+  // This ensures we're using the correct symbol from the API
+  const actualSymbol = config.vault_constants.symbol || symbol
+  
+  // Fetch APY for this vault using the actual symbol from config
+  // This ensures we use the correct symbol for APY fetching
+  const { apy } = useVaultAPY(actualSymbol, {
+    enabled: !!config, // Only fetch when config is loaded
+  })
+  
+  const variant = getVariantFromVaultSymbol(actualSymbol)
+  const vaultName = config.vault_constants.name
+  const vaultLogo = config.vault_constants.logo // Get logo from API
+  
+  return (
+    <YieldStrategyCard
+      name={vaultName}
+      symbol={actualSymbol}
+      apy={apy}
+      variant={variant}
+      tokenIcon={vaultLogo || undefined} // Pass logo if available, undefined will trigger fallback
+    />
+  )
+}
 
 export default function Home() {
   const [activeTab, setActiveTab] = React.useState("top-yields")
@@ -50,18 +80,82 @@ export default function Home() {
   // Track page performance
   usePagePerformance("home_page", analytics)
 
-  // COMMENTED OUT: API calls disabled - using dummy data
-  // Fetch TVL for all vaults (syUSD, syETH, syBTC)
-  // const { 
-  //   tvlMap, 
-  //   formattedMap, 
-  //   isLoading: isTvlLoading 
-  // } = useMultipleVaultTVL(["syUSD", "syETH", "syBTC"], {
-  //   staleTime: 30_000, // 30 seconds
-  // })
+  // Fetch all available vaults from API - explicitly enable the query
+  const { data: allVaultSymbols = [], isLoading: isLoadingVaults, error: vaultSymbolsError, isFetching } = useAllVaultSymbols({
+    enabled: true, // Explicitly enable
+  })
+  
+  // Create stable string key for memoization
+  const symbolsKey = React.useMemo(() => {
+    return allVaultSymbols.length > 0 ? allVaultSymbols.join(',') : ''
+  }, [allVaultSymbols])
+  
+  // Memoize queries array to prevent infinite loops
+  const configQueriesArray = React.useMemo(() => {
+    if (!allVaultSymbols || allVaultSymbols.length === 0) {
+      return []
+    }
+    return allVaultSymbols.map((symbol) => ({
+      queryKey: ['vault-config', symbol] as const,
+      queryFn: () => fetchVaultConfig(symbol),
+      enabled: !!symbol,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      retry: 2,
+    }))
+  }, [symbolsKey])
+  
+  // Fetch configs for all symbols using useQueries - this prevents infinite loops
+  const configQueries = useQueries({
+    queries: configQueriesArray,
+  })
 
-  // Use dummy total TVL value
-  const formattedTotalTvl = "$585,937"
+  // Build configs map from queries - filter out null configs
+  // Use a ref to track previous data and only update when data actually changes
+  const prevDataRef = React.useRef<string>('')
+  const prevMapRef = React.useRef<Record<string, VaultConfig>>({})
+  const configsBySymbol = React.useMemo(() => {
+    // Create a stable key from actual query data
+    const dataKey = configQueries.map((q, i) => {
+      const symbol = allVaultSymbols[i]
+      const dataId = q.data ? `${symbol}:${q.data.vault_constants.symbol}` : `${symbol}:null`
+      const status = q.status
+      return `${dataId}:${status}`
+    }).join('|')
+    
+    // Only rebuild if data actually changed
+    if (dataKey === prevDataRef.current && prevDataRef.current !== '') {
+      return prevMapRef.current
+    }
+    
+    prevDataRef.current = dataKey
+    const map: Record<string, VaultConfig> = {}
+    configQueries.forEach((query, index) => {
+      const symbol = allVaultSymbols[index]
+      // Only include non-null configs
+      if (symbol && query.data && query.data !== null) {
+        map[symbol] = query.data
+      }
+    })
+    prevMapRef.current = map
+    return map
+  }, [configQueries, allVaultSymbols])
+
+  const isConfigsLoading = configQueries.some(query => query.isLoading)
+  const configError = configQueries.find(query => query.error)?.error as Error | null
+  
+  // Note: We don't pre-fetch configs here to avoid useQueries hook order issues
+  // Instead, each VaultCard component fetches its own config and filters null configs
+  // VaultCard will handle category filtering internally
+
+  // Fetch combined TVL for all vaults with currency conversion (syUSD + syBTC converted to USD)
+  const { 
+    formattedValue: formattedTotalTvl,
+    isLoading: isCombinedTvlLoading 
+  } = useCombinedVaultTVL(allVaultSymbols, {
+    enabled: allVaultSymbols.length > 0 && !isLoadingVaults,
+    staleTime: 30_000, // 30 seconds
+  })
 
   const handleTabChange = (tabId: string) => {
     // Track tab change
@@ -101,15 +195,16 @@ export default function Home() {
         >
         <div className="flex-1 flex items-start">
           <TVLChart 
-            isEmpty={false}
+            isEmpty={allVaultSymbols.length === 0}
             totalValue={formattedTotalTvl}
             date={new Date().toLocaleDateString('en-US', { 
               month: 'long', 
               day: 'numeric', 
               year: 'numeric' 
             })}
-            vaultName="syUSD"
+            vaultName="Combined"
             useApi={false}
+            isLoading={isCombinedTvlLoading}
           />
         </div>
 
@@ -154,35 +249,75 @@ export default function Home() {
             className="flex-1 flex flex-col justify-start mt-[32px]"
             style={{ gap: designTokens.spacing.card.gapInternal }}
           >
-            <div 
-              className="flex"
-              style={{ gap: designTokens.spacing.card.gap }}
-            >
-              <YieldStrategyCard
-                name="Stable Yield USD"
-                symbol="syUSD"
-                apy={18.18}
-                variant="usd"
-              />
-              <YieldStrategyCard
-                name="Stable Yield ETH"
-                symbol="syETH"
-                apy={10.37}
-                variant="eth"
-              />
-            </div>
+            {(vaultSymbolsError || configError) && (
+              <div className="flex items-center justify-center p-8">
+                <p style={{ color: 'red' }}>
+                  Error loading vaults: {vaultSymbolsError instanceof Error ? vaultSymbolsError.message : configError?.message ?? 'Unknown error'}
+                </p>
+              </div>
+            )}
+            {!vaultSymbolsError && !configError && (
+              <>
+                {/* Always render the container, even if empty, to maintain stable structure */}
+                <div 
+                  className="flex flex-wrap"
+                  style={{ gap: designTokens.spacing.card.gap }}
+                >
+                  {(() => {
+                    const isLoadingState = isLoadingVaults || isConfigsLoading || isFetching
+                    if (isLoadingState) {
+                      return (
+                        <div className="flex justify-center w-full" style={{ paddingTop: '140px', paddingBottom: '64px' }}>
+                          <Loader2 className="animate-spin" size={32} style={{ color: designTokens.colors.text.primary, opacity: 0.6 }} />
+                        </div>
+                      )
+                    }
 
-            <div 
-              className="flex"
-              style={{ gap: designTokens.spacing.card.gap }}
-            >
-              <YieldStrategyCard
-                name="Stable Yield BTC"
-                symbol="syBTC"
-                apy={12.06}
-                variant="btc"
-              />
-            </div>
+                    const categoryToTabMap: Record<string, string> = {
+                      'Flagship': 'flagship',
+                      'Delta neutral': 'delta-neutral',
+                      'Leverage Looping': 'leverage-looping',
+                    }
+
+                    const filteredSymbols = allVaultSymbols.filter((symbol) => {
+                      const config = configsBySymbol[symbol]
+                      if (!config) return false // skip null configs
+                      if (activeTab === 'top-yields') return true
+                      const targetCategory = Object.keys(categoryToTabMap).find(
+                        (cat) => categoryToTabMap[cat] === activeTab
+                      )
+                      return targetCategory ? config.vault_constants.category === targetCategory : true
+                    })
+
+                    if (filteredSymbols.length === 0) {
+                      return (
+                        <div className="flex justify-center w-full" style={{ paddingTop: '140px', paddingBottom: '64px' }}>
+                          <p style={{ color: designTokens.colors.text.primary }}>
+                            {allVaultSymbols.length === 0
+                              ? 'No vaults available'
+                              : activeTab === 'top-yields'
+                                ? 'No vaults available'
+                                : 'No vaults available in this category'}
+                          </p>
+                        </div>
+                      )
+                    }
+
+                    return filteredSymbols.map((symbol) => {
+                      const config = configsBySymbol[symbol]
+                      if (!config) return null
+                      return (
+                        <VaultCard 
+                          key={symbol} 
+                          symbol={symbol} 
+                          config={config}
+                        />
+                      )
+                    })
+                  })()}
+                </div>
+              </>
+            )}
           </div>
         </div>
         </div>

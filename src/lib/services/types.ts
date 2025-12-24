@@ -85,6 +85,15 @@ export interface TVLData {
 }
 
 /**
+ * TVL By Time Data Point (for historical TVL chart)
+ */
+export interface TVLByTimeDataPoint {
+  date: string
+  value: number
+  timestamp?: number
+}
+
+/**
  * Portfolio Activity API Response
  * Endpoint: /api/user-activity/{userAddress}?page={page}&limit={limit}
  */

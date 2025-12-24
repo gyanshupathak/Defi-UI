@@ -21,19 +21,36 @@ export interface YieldStrategyCardProps {
 const strategyConfig = {
   usd: {
     color: designTokens.colors.strategy.usd,
-    name: "Stable Yield USD",
     icon: "/images/icons/USD-stable.svg",
   },
   eth: {
     color: designTokens.colors.strategy.eth,
-    name: "Stable Yield ETH",
     icon: "/images/icons/ETH-stable.svg",
   },
   btc: {
     color: designTokens.colors.strategy.btc,
-    name: "Stable Yield BTC",
     icon: "/images/icons/BTC Stable (1).svg",
   },
+}
+
+// Helper function to check if a string is a valid URL
+function isValidUrl(url: string): boolean {
+  if (!url || url.trim() === '') return false
+  // Check for placeholder values
+  if (url.toUpperCase() === 'CDN_URL' || url === 'CDN_URL') return false
+  // Check if it's a valid URL (starts with http:// or https://) or relative path (starts with /)
+  try {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      new URL(url)
+      return true
+    }
+    if (url.startsWith('/')) {
+      return true
+    }
+    return false
+  } catch {
+    return false
+  }
 }
 
 export function YieldStrategyCard({
@@ -47,8 +64,19 @@ export function YieldStrategyCard({
   const router = useRouter()
   const { analytics } = useAnalytics()
   const config = strategyConfig[variant]
-  const icon = tokenIcon || config.icon
+  // Use tokenIcon from API if it's a valid URL, otherwise fall back to variant-based icon
+  const initialIcon = (tokenIcon && isValidUrl(tokenIcon)) ? tokenIcon : config.icon
+  const [icon, setIcon] = React.useState(initialIcon)
   const [isHovered, setIsHovered] = React.useState(false)
+  
+  // Reset icon if tokenIcon changes and is valid
+  React.useEffect(() => {
+    if (tokenIcon && isValidUrl(tokenIcon)) {
+      setIcon(tokenIcon)
+    } else {
+      setIcon(config.icon)
+    }
+  }, [tokenIcon, config.icon])
 
   const handleCardClick = () => {
     analytics.strategyCardClicked(symbol)
@@ -92,6 +120,13 @@ export function YieldStrategyCard({
               alt={name}
               fill
               className="object-contain"
+              unoptimized={icon.startsWith('http')} // Allow external CDN URLs
+              onError={() => {
+                // Fallback to variant icon if API logo fails to load
+                if (icon !== config.icon) {
+                  setIcon(config.icon)
+                }
+              }}
             />
           </div>
         </div>

@@ -1,14 +1,13 @@
 /**
  * Vault Configuration
- * Centralized configuration for all vaults (syUSD, syETH, syBTC)
+ * Centralized configuration for all vaults
  * 
- * CURRENT: Uses static config file (vault-configs.ts) - acts as mock database
- * FUTURE: Will fetch from database via backend API: GET /api/vaults/:symbol/config
+ * Fetches vault configurations from API: GET /services/vault_config?vaultSymbol={symbol}
  */
 
-import { getVaultConfig as getStaticVaultConfig } from './vault-configs'
+import { get } from '../services/api-client'
 
-export type VaultSymbol = 'syUSD' | 'syETH' | 'syBTC'
+export type VaultSymbol = string // Dynamic type - can be any vault symbol from API
 
 export interface VaultConstants {
   address: string
@@ -130,27 +129,44 @@ export interface VaultConfigResponse {
 }
 
 /**
- * Fetch vault configuration
+ * Fetch vault configuration from API
  * 
- * CURRENT: Returns static config from vault-configs.ts (mock database)
- * FUTURE: Will call backend API to fetch from database:
- *   const endpoint = `/api/vaults/${vaultSymbol}/config`
- *   const response = await get<VaultConfigResponse>(endpoint)
- *   return response.result
+ * @param vaultSymbol - The vault symbol (e.g., 'syUSD', 'syETH', 'syBTC')
+ * @returns Promise with vault configuration (null if config doesn't exist)
  */
-export async function fetchVaultConfig(vaultSymbol: VaultSymbol): Promise<VaultConfig> {
-  // TODO: Replace with database API call
-  // For now, use static configs (acts as mock database)
-  return Promise.resolve(getStaticVaultConfig(vaultSymbol))
-  
-  // Future implementation:
-  // const endpoint = `/api/vaults/${vaultSymbol}/config`
-  // const response = await get<VaultConfigResponse>(endpoint)
-  // return response.result
+export async function fetchVaultConfig(vaultSymbol: VaultSymbol): Promise<VaultConfig | null> {
+  const endpoint = `https://api.lucidly.finance/services/vault_config?vaultSymbol=${encodeURIComponent(vaultSymbol)}`
+  try {
+    const response = await get<{ result: VaultConfig | null }>(endpoint)
+    // API returns null for vaults without configs
+    return response.result || null
+  } catch (error) {
+    console.error(`[fetchVaultConfig] Error fetching config for ${vaultSymbol}:`, error)
+    return null
+  }
+}
+
+/**
+ * Fetch all available vault symbols from API
+ * 
+ * @returns Promise with array of vault symbols
+ */
+export async function fetchAllVaultSymbols(): Promise<VaultSymbol[]> {
+  const endpoint = 'https://api.lucidly.finance/services/vault_data'
+  console.log('[fetchAllVaultSymbols] Making API call to:', endpoint)
+  try {
+    const response = await get<{ result: VaultSymbol[] }>(endpoint)
+    console.log('[fetchAllVaultSymbols] API response:', response)
+    return response.result
+  } catch (error) {
+    console.error('[fetchAllVaultSymbols] API error:', error)
+    throw error
+  }
 }
 
 /**
  * Get vault symbol from strategy variant
+ * Maps common variants to known vault symbols
  */
 export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc'): VaultSymbol {
   switch (variant) {
@@ -167,23 +183,26 @@ export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc'): Vault
 
 /**
  * Get variant from vault symbol
+ * Maps vault symbols to UI variants
+ * IMPORTANT: Check BTC before ETH to avoid conflicts (e.g., if symbol contains both)
  */
 export function getVariantFromVaultSymbol(symbol: VaultSymbol): 'usd' | 'eth' | 'btc' {
-  switch (symbol) {
-    case 'syUSD':
-      return 'usd'
-    case 'syETH':
-      return 'eth'
-    case 'syBTC':
-      return 'btc'
-    default:
-      return 'usd'
+  const lowerSymbol = symbol.toLowerCase().trim()
+  
+  // Check for BTC first (most specific, before ETH to avoid conflicts)
+  if (lowerSymbol.includes('btc')) {
+    return 'btc'
   }
+  // Check for ETH second
+  if (lowerSymbol.includes('eth')) {
+    return 'eth'
+  }
+  // Check for USD or stable last (most general)
+  if (lowerSymbol.includes('usd') || lowerSymbol.includes('stable')) {
+    return 'usd'
+  }
+  // Default to USD for unknown symbols
+  return 'usd'
 }
 
-/**
- * Re-export static configs for direct access if needed
- * Main usage should be through fetchVaultConfig() function
- */
-export { VAULT_CONFIGS } from './vault-configs'
 

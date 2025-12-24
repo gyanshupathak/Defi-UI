@@ -7,7 +7,6 @@ import { RainbowKitProvider, darkTheme, lightTheme } from '@rainbow-me/rainbowki
 import { wagmiConfig } from '@/lib/wagmi-config';
 import '@rainbow-me/rainbowkit/styles.css';
 
-// Create a query client instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -16,9 +15,8 @@ const queryClient = new QueryClient({
   },
 });
 
-// Custom theme to match your neumorphic design
 const customTheme = lightTheme({
-  accentColor: '#7F56D9', // Your primary color
+  accentColor: '#7F56D9',
   accentColorForeground: 'white',
   borderRadius: 'large',
   fontStack: 'system',
@@ -30,7 +28,6 @@ interface WalletProviderProps {
 }
 
 export function WalletProvider({ children }: WalletProviderProps) {
-  // Always render providers - Wagmi and RainbowKit handle SSR internally
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
