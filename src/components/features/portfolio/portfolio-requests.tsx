@@ -18,6 +18,7 @@ export interface WithdrawalRequest {
   syToken: string
   usdcAmount: string
   tokenIcon?: string
+  _status?: WithdrawalRequestStatus // Internal status for cancel button logic
 }
 
 export interface PortfolioRequestsProps {
@@ -94,8 +95,14 @@ export function PortfolioRequests({
   // Note: apiRequests is already transformed by the hook to match WithdrawalRequest interface
   const requests = React.useMemo(() => {
     if (useApi) {
-      // Always use API data when useApi is true, even if empty (to show proper empty state)
-      return apiRequests || []
+      // Use API data when available
+      // apiRequests will be undefined while loading, empty array [] when loaded with no data
+      // Only use empty array if we're sure data has been loaded (not loading and not error)
+      if (apiRequests !== undefined) {
+        return apiRequests
+      }
+      // If still loading or query hasn't run, return empty array to show loading state
+      return []
     }
     return propRequests || []
   }, [useApi, apiRequests, propRequests])
@@ -108,7 +115,9 @@ export function PortfolioRequests({
   }, [requests.length, onRequestsCountChange])
   
   // Show loading state
-  if (useApi && isLoading && !propRequests) {
+  // Show loading if: using API, currently loading, and no prop requests provided
+  // Also show loading if query hasn't run yet (apiRequests is undefined and not in error state)
+  if (useApi && (isLoading || (apiRequests === undefined && !isError && userAddress)) && !propRequests) {
     return (
       <div
         className={cn(
@@ -177,7 +186,16 @@ export function PortfolioRequests({
     onCancelRequest?.(requestId)
   }
 
-  if (requests.length === 0 && showEmptyState) {
+  // Only show empty state if:
+  // 1. We're using API and have confirmed there's no data (apiRequests is [] not undefined)
+  // 2. OR we're using prop requests and they're empty
+  // 3. AND showEmptyState is true
+  const shouldShowEmptyState = showEmptyState && (
+    (useApi && apiRequests !== undefined && requests.length === 0) ||
+    (!useApi && requests.length === 0)
+  )
+  
+  if (shouldShowEmptyState) {
     return (
       <div
         className={cn(
@@ -272,19 +290,22 @@ export function PortfolioRequests({
           </p>
         </div>
 
-        <div style={{ marginTop: "8px" }}>
-          <Button
-            variant="blue"
-            showDepositIcon
-            style={{ width: "260px" }}
-            onClick={() => {
-              analytics.emptyStateButtonClicked("Make a Deposit", "portfolio_requests_empty")
-              onDepositClick?.()
-            }}
-          >
-            Make a Deposit
-          </Button>
-        </div>
+        {/* Only show deposit button for pending withdrawals, not for completed ones */}
+        {status === 'PENDING' && (
+          <div style={{ marginTop: "8px" }}>
+            <Button
+              variant="blue"
+              showDepositIcon
+              style={{ width: "260px" }}
+              onClick={() => {
+                analytics.emptyStateButtonClicked("Make a Deposit", "portfolio_requests_empty")
+                onDepositClick?.()
+              }}
+            >
+              Make a Deposit
+            </Button>
+          </div>
+        )}
       </div>
     )
   }
@@ -297,7 +318,7 @@ export function PortfolioRequests({
         width: "100%",
       }}
     >
-      {requests.map((request) => (
+      {requests.map((request: WithdrawalRequest) => (
         <div
           key={request.id}
           style={{
@@ -312,8 +333,8 @@ export function PortfolioRequests({
             syToken={request.syToken}
             usdcAmount={request.usdcAmount}
             tokenIcon={request.tokenIcon}
-            // Only show cancel button for pending requests
-            onCancel={status === 'PENDING' ? () => handleCancel(request.id, request.syToken, request.syAmount) : undefined}
+            // Show cancel button only for pending requests (check request's actual status, not prop status)
+            onCancel={(request._status || status) === 'PENDING' ? () => handleCancel(request.id, request.syToken, request.syAmount) : undefined}
           />
         </div>
       ))}

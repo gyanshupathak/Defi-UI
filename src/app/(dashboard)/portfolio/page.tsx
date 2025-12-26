@@ -253,9 +253,9 @@ export default function PortfolioPage() {
                   onCancelRequest={handleCancelRequest}
                   useApi={true}
                   vaultAddress="0x279CAD277447965AF3d24a78197aad1B02a2c589" // syUSD vault
-                  status="PENDING"
-                  emptyStateMessage="No Pending Withdrawals"
-                  emptyStateDescription="Ready to grow your funds? Start a secure on-chain deposit"
+                  status="FULFILLED"
+                  emptyStateMessage="No Withdrawal Requests"
+                  emptyStateDescription="Your withdrawal requests (pending and completed) will appear here"
                   onRequestsCountChange={setWithdrawalRequestsCount}
                 />
               )}
