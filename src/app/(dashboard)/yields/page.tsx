@@ -27,7 +27,7 @@ function YieldsPageContent() {
   const strategyParam = searchParams.get('strategy')
   const vaultSymbol: VaultSymbol = React.useMemo(() => {
     if (strategyParam) {
-      return getVaultSymbolFromVariant(strategyParam as 'usd' | 'eth' | 'btc')
+      return getVaultSymbolFromVariant(strategyParam as 'usd' | 'eth' | 'btc' | 'hlp')
     }
     // Default to syUSD when accessed from navbar
     return 'syUSD'
@@ -117,7 +117,7 @@ function YieldsPageContent() {
             style={{ flex: '1 1 auto', marginLeft: '56px' }}
           >
             <YieldsDashboard
-              vaultName={vaultSymbol}
+              vaultName={vaultSymbol as "syUSD" | "syETH" | "syBTC"}
             />
           </div>
         </div>

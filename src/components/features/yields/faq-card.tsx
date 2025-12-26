@@ -13,15 +13,17 @@ interface FAQCardProps {
   item: FAQItem
   isOpen: boolean
   onToggle: () => void
+  width?: string | number
 }
 
-export function FAQCard({ item, isOpen, onToggle }: FAQCardProps) {
+export function FAQCard({ item, isOpen, onToggle, width = '668px' }: FAQCardProps) {
+  const cardWidth = typeof width === 'number' ? `${width}px` : width
+  
   return (
     <div 
       className="relative"
       style={{
-        width: '668px',
-        height: isOpen ? '100px' : '70px',
+        width: cardWidth === '100%' ? '100%' : cardWidth,
       }}
     >
       <div 
@@ -40,23 +42,20 @@ export function FAQCard({ item, isOpen, onToggle }: FAQCardProps) {
       </div>
 
       <div 
-        className="absolute flex flex-col"
+        className="relative flex flex-col"
         style={{
-          left: '24px',
-          top: '20px',
-          width: '620px',
-          paddingTop: '4px',
-          paddingBottom: '4px',
+          padding: '20px 24px',
+          width: '100%',
         }}
       >
         <div 
-          className="flex items-center justify-between"
+          className="flex items-start justify-between gap-4"
           style={{
             width: '100%',
           }}
         >
           <p 
-            className="text-[14px] leading-[22px] font-medium"
+            className="text-[14px] leading-[22px] font-medium flex-1"
             style={{
               color: designTokens.colors.text.primary,
               fontFamily: "'Hanken Grotesk', sans-serif",
@@ -67,10 +66,11 @@ export function FAQCard({ item, isOpen, onToggle }: FAQCardProps) {
           <button
             type="button"
             onClick={onToggle}
-            className="flex items-center justify-center cursor-pointer bg-transparent border-0 p-0"
+            className="flex items-center justify-center cursor-pointer bg-transparent border-0 p-0 shrink-0"
             style={{
               width: '16px',
               height: '16px',
+              marginTop: '2px',
             }}
           >
             <ChevronDown 

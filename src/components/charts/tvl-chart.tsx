@@ -6,7 +6,6 @@ import { UnifiedChartContainer } from "./unified-chart-container"
 import { ChartContainerWrapper } from "@/components/features/yields/chart-container-wrapper"
 import { EmptyChart } from "./empty-chart"
 import { TVLChartSkeleton } from "./tvl-chart-skeleton"
-import { AnimatedNumber } from "@/components/animations"
 import {
   BarChart,
   Bar,
@@ -26,6 +25,13 @@ interface ChartDataPoint {
   index?: number
 }
 
+interface ChartDataPointWithDate {
+  scaledValue: number
+  originalValue: number
+  date: string
+  periodIndex?: number // Index of the period this data point belongs to (0-6)
+}
+
 interface TVLChartProps {
   data?: number[]
   totalValue?: string
@@ -37,6 +43,8 @@ interface TVLChartProps {
   useApi?: boolean // Whether to fetch from API (default: true)
   period?: "daily" | "weekly" | "monthly" // Period for historical data
   isLoading?: boolean // Loading state for combined TVL
+  periodDates?: string[] // Array of 7 date labels for x-axis
+  chartDataWithDates?: ChartDataPointWithDate[] // Data with dates and original values for hover
 }
 const defaultHomeData = [
   100, 100, 100, 100, 100, 100, 100, 100, 
@@ -80,12 +88,22 @@ const formatDataForChart = (
   data: number[],
   defaultTotalValue: string,
   defaultDate: string,
-  variant: "home" | "yields"
+  variant: "home" | "yields",
+  periodDates?: string[] // Optional period dates for x-axis labels
 ): ChartDataPoint[] => {
-  // Generate dates for last 7 days
-  const chartDates = generateDatesForLast7Days()
+  // Only use provided period dates from API (real data), don't generate dummy dates
+  const chartDates = periodDates && periodDates.length === 7 ? periodDates : []
   
-  const barsPerDay = [8, 8, 8, 8, 8, 8, 6]
+  // Calculate bars per period based on total data length
+  // Distribute all bars across 7 periods
+  const totalBars = data.length
+  const numPeriods = 7
+  const barsPerPeriod = Math.floor(totalBars / numPeriods)
+  const remainder = totalBars % numPeriods
+  const barsPerDay: number[] = Array(numPeriods).fill(barsPerPeriod)
+  // Add remainder to last period
+  barsPerDay[numPeriods - 1] += remainder
+  
   const maxBarHeight = variant === "home" ? 500 : 400
   
   return data.map((value, index) => {
@@ -141,17 +159,33 @@ export function TVLChart({
   useApi = true,
   period = "daily",
   isLoading = false,
+  periodDates,
+  chartDataWithDates,
 }: TVLChartProps) {
   // Use the totalValue prop (combined TVL from syUSD + syBTC converted to USD)
+  // Note: totalValue should be shown even if chart bars are empty (isEmpty=true)
   const effectiveFormattedValue = React.useMemo(() => {
-    if (isEmpty) return "$0"
-    // Always use totalValue if provided, otherwise use default
-    return totalValue || (variant === "home" ? "$585,937" : "$185,053")
-  }, [isEmpty, totalValue, variant])
+    console.log('[TVLChart] isEmpty:', isEmpty)
+    console.log('[TVLChart] totalValue:', totalValue)
+    console.log('[TVLChart] variant:', variant)
+    
+    // Always use totalValue if provided, regardless of isEmpty
+    // isEmpty only affects chart bars, not the total value display
+    if (totalValue) {
+      console.log('[TVLChart] Using provided totalValue:', totalValue)
+      return totalValue
+    }
+    
+    // Only use default if totalValue is not provided
+    const defaultValue = variant === "home" ? "$585,937" : "$185,053"
+    console.log('[TVLChart] Using default value:', defaultValue)
+    return defaultValue
+  }, [totalValue, variant])
 
   const defaultTotalValue = variant === "home" ? "$585,937" : "$185,053"
   const [displayValue, setDisplayValue] = React.useState(() => {
-    if (isEmpty) return "$0"
+    // Always use effectiveFormattedValue, even if chart is empty
+    // isEmpty only affects chart bars, not the total value display
     return effectiveFormattedValue
   })
   const todayDate = new Date().toLocaleDateString('en-US', { 
@@ -161,8 +195,6 @@ export function TVLChart({
   })
   const [displayDate, setDisplayDate] = React.useState(date || todayDate)
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
-  const [hasAnimated, setHasAnimated] = React.useState(false)
-  const [initialValue] = React.useState(() => effectiveFormattedValue)
 
   // Use dummy chart data (no deposits API)
   const chartDataArray = React.useMemo(() => {
@@ -170,56 +202,65 @@ export function TVLChart({
     return data || (variant === "home" ? defaultHomeData : defaultYieldsData)
   }, [isEmpty, data, variant])
 
-  const chartData = formatDataForChart(
-    chartDataArray, 
-    effectiveFormattedValue, 
-    displayDate, 
-    variant
-  ).map((item, index) => ({
-    ...item,
-    index,
-  }))
-  
-  // Update display value when effective value changes (only if not hovering)
-  React.useEffect(() => {
-    if (!isEmpty && effectiveFormattedValue && hoveredIndex === null) {
-      setDisplayValue(effectiveFormattedValue)
-      // Mark as animated if this is a new value (not the initial one)
-      if (effectiveFormattedValue !== initialValue) {
-        setHasAnimated(true)
-      }
+  // Format chart data with actual dates and values from API
+  const chartData = React.useMemo(() => {
+    if (chartDataWithDates && chartDataWithDates.length > 0) {
+      // Use actual data from API
+      return chartDataWithDates.map((point, index) => {
+        // Format date: "Month Day, Year" (e.g., "May 20, 2025")
+        const dateObj = new Date(point.date)
+        const formattedDate = dateObj.toLocaleDateString('en-US', { 
+          month: 'long', 
+          day: 'numeric', 
+          year: 'numeric' 
+        })
+        
+        // Format value: Full number with commas, no K/M suffixes
+        // Show full number with commas (e.g., 208,040)
+        const formattedValue = `$${Math.round(point.originalValue).toLocaleString('en-US', {
+          minimumFractionDigits: 0,
+          maximumFractionDigits: 0,
+        })}`
+        
+        return {
+          value: point.scaledValue,
+          originalValue: point.originalValue,
+          label: `bar-${index}`,
+          date: formattedDate,
+          formattedValue,
+          formattedDate,
+          index,
+        }
+      })
     }
-  }, [effectiveFormattedValue, isEmpty, hoveredIndex, initialValue])
+    
+    // Fallback to original formatDataForChart if no chartDataWithDates
+    return formatDataForChart(
+      chartDataArray, 
+      effectiveFormattedValue, 
+      displayDate, 
+      variant,
+      periodDates
+    ).map((item, index) => ({
+      ...item,
+      index,
+    }))
+  }, [chartDataWithDates, chartDataArray, effectiveFormattedValue, displayDate, variant, periodDates])
   
-  // Mark as animated after initial render
+  // Update display value and date when not hovering
   React.useEffect(() => {
-    if (!isEmpty && !hasAnimated) {
-      const timer = setTimeout(() => {
-        setHasAnimated(true)
-      }, 1500) // After animation duration (1.2s + buffer)
-      return () => clearTimeout(timer)
-    }
-  }, [isEmpty, hasAnimated])
-  
-  // Update display value when effective value changes (for non-hovered state)
-  React.useEffect(() => {
-    if (!isEmpty && hoveredIndex === null) {
+    if (hoveredIndex === null) {
       const valueToUse = effectiveFormattedValue || defaultTotalValue
-      if (displayValue !== valueToUse) {
-        setDisplayValue(valueToUse)
-      }
+      setDisplayValue(valueToUse)
       setDisplayDate(date || todayDate)
     }
-  }, [effectiveFormattedValue, isEmpty, hoveredIndex, defaultTotalValue, displayValue, date, todayDate])
+  }, [effectiveFormattedValue, hoveredIndex, defaultTotalValue, date, todayDate])
   
-  // Show loading skeleton while fetching
-  if (isLoading && !isEmpty) {
-    return <TVLChartSkeleton variant={variant} className={className} />
-  }
+  // Don't show loading skeleton - show chart directly
 
   const CustomBarShape = (props: any) => {
     const { payload, x, y, width, height } = props
-    const barIndex = payload?.index ?? chartData.findIndex(d => d.value === payload?.value && d.label === payload?.label)
+    const barIndex = payload?.index ?? chartData.findIndex((d: any) => d.value === payload?.value && d.label === payload?.label)
     const isHovered = hoveredIndex === barIndex
     
     const getBarFill = () => {
@@ -304,17 +345,7 @@ export function TVLChart({
               color: designTokens.colors.text.primary,
             }}
           >
-            {hoveredIndex === null && !hasAnimated ? (
-              displayValue.startsWith('$') ? (
-                <>
-                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-                </>
-              ) : (
-                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-              )
-            ) : (
-              displayValue
-            )}
+            {displayValue}
           </div>
           <p 
             className={typographyClasses.label1}
@@ -385,17 +416,7 @@ export function TVLChart({
               className={`${typographyClasses.display1} w-full`}
               style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
             >
-            {hoveredIndex === null && !hasAnimated ? (
-              displayValue.startsWith('$') ? (
-                <>
-                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-                </>
-              ) : (
-                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-              )
-            ) : (
-              displayValue
-            )}
+            {displayValue}
             </div>
             <p 
               className={`${typographyClasses.label1} w-full`}
@@ -451,28 +472,31 @@ export function TVLChart({
         </ResponsiveContainer>
       </div>
 
-      <div 
-        className="absolute flex items-center justify-between text-center"
-        style={{ 
-          left: designTokens.spacing.graph.tvlChart.contentPaddingX,
-          top: designTokens.spacing.graph.tvlChart.datesTop,
-          width: designTokens.spacing.graph.tvlChart.contentWidth,
-          opacity: designTokens.spacing.graph.tvlChart.datesOpacity,
-        }}
-      >
-        {generateDatesForLast7Days().map((date: string, index: number) => (
-          <p 
-            key={index}
-            className={typographyClasses.label1}
-            style={{ 
-              color: designTokens.colors.text.primary,
-              opacity: designTokens.spacing.graph.tvlChart.dateOpacity,
-            }}
-          >
-            {date}
-          </p>
-        ))}
-      </div>
+      {/* Only show dates when periodDates is provided from API (real data) */}
+      {periodDates && periodDates.length === 7 && (
+        <div 
+          className="absolute flex items-center justify-between text-center"
+          style={{ 
+            left: designTokens.spacing.graph.tvlChart.contentPaddingX,
+            top: designTokens.spacing.graph.tvlChart.datesTop,
+            width: designTokens.spacing.graph.tvlChart.contentWidth,
+            opacity: designTokens.spacing.graph.tvlChart.datesOpacity,
+          }}
+        >
+          {periodDates.map((date: string, index: number) => (
+            <p 
+              key={index}
+              className={typographyClasses.label1}
+              style={{ 
+                color: designTokens.colors.text.primary,
+                opacity: designTokens.spacing.graph.tvlChart.dateOpacity,
+              }}
+            >
+              {date}
+            </p>
+          ))}
+        </div>
+      )}
 
       <div 
         className="absolute flex flex-col"
@@ -503,17 +527,7 @@ export function TVLChart({
             className={`${typographyClasses.display1} w-full`}
             style={{ letterSpacing: designTokens.spacing.graph.tvlChart.valueTracking }}
           >
-            {hoveredIndex === null && !hasAnimated ? (
-              displayValue.startsWith('$') ? (
-                <>
-                  $<AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-                </>
-              ) : (
-                <AnimatedNumber key="initial" value={parseFloat(displayValue.replace(/[^0-9.]/g, '')) || 0} decimals={0} delay={0.1} duration={1.2} />
-              )
-            ) : (
-              displayValue
-            )}
+            {displayValue}
           </div>
           <p 
             className={`${typographyClasses.label1} w-full`}
@@ -526,7 +540,6 @@ export function TVLChart({
     </UnifiedChartContainer>
     )
   }
-
   
   return (
     <>
@@ -544,26 +557,7 @@ export function TVLChart({
             color: designTokens.colors.text.primary,
           }}
         >
-          {hoveredIndex === null && !hasAnimated ? (
-            (() => {
-              const valueToParse = totalValue || displayValue || defaultTotalValue
-              let numericValue = parseFloat(valueToParse.replace(/[^0-9.]/g, ''))
-              
-              if (!numericValue || isNaN(numericValue) || numericValue === 0) {
-                numericValue = 185053 // Default for yields variant
-              }
-                
-              return displayValue.startsWith('$') || valueToParse.startsWith('$') ? (
-                <>
-                  $<AnimatedNumber key="initial" value={numericValue} decimals={0} delay={0.1} duration={1.2} />
-                </>
-              ) : (
-                <AnimatedNumber key="initial" value={numericValue} decimals={0} delay={0.1} duration={1.2} />
-              )
-            })()
-          ) : (
-            displayValue
-          )}
+          {displayValue}
         </div>
         <p 
           className={typographyClasses.label1}
@@ -609,6 +603,31 @@ export function TVLChart({
           </ResponsiveContainer>
         </div>
       </ChartContainerWrapper>
+
+      {/* Date labels on x-axis - only show when not empty and we have periodDates from API */}
+      {!isEmpty && periodDates && periodDates.length === 7 && (
+        <div 
+          className="absolute flex items-center justify-between text-center"
+          style={{
+            left: '24px',
+            top: '519.26px',
+            width: '620px',
+            height: '16.743px',
+          }}
+        >
+          {periodDates.map((dateLabel: string, index: number) => (
+            <p 
+              key={index}
+              className={`${typographyClasses.label1} opacity-80 relative shrink-0`}
+              style={{ 
+                color: designTokens.colors.text.primary,
+              }}
+            >
+              {dateLabel}
+            </p>
+          ))}
+        </div>
+      )}
     </>
   )
 }

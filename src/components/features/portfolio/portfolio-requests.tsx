@@ -2,12 +2,14 @@
 
 import * as React from "react"
 import { useAccount } from "wagmi"
+import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { designTokens, shadows, typographyClasses } from "@/lib/design-system"
 import { WithdrawalRequestCard } from "./withdrawal-request-card"
 import { Button } from "@/components/ui/button"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useWithdrawalRequests } from "@/lib/hooks/use-portfolio"
+import type { WithdrawalRequestStatus } from "@/lib/services/types"
 
 export interface WithdrawalRequest {
   id: string
@@ -30,6 +32,7 @@ export interface PortfolioRequestsProps {
   userAddress?: string // Optional - will use wagmi if not provided
   useApi?: boolean // Enable API integration (default: true)
   onRequestsCountChange?: (count: number) => void // Callback to update count in parent
+  status?: WithdrawalRequestStatus // Request status to fetch (default: 'PENDING')
 }
 
 export function PortfolioRequests({
@@ -44,6 +47,7 @@ export function PortfolioRequests({
   userAddress: propUserAddress,
   useApi = true,
   onRequestsCountChange,
+  status = 'PENDING',
 }: PortfolioRequestsProps) {
   const { analytics } = useAnalytics()
   const { address: wagmiAddress, isConnected } = useAccount()
@@ -66,7 +70,7 @@ export function PortfolioRequests({
   } = useWithdrawalRequests(
     effectiveVaultAddress,
     userAddress,
-    'PENDING', // Prefer pending requests, but will fallback to other statuses if empty
+    status, // Use provided status (default: 'PENDING')
     {
       enabled: useApi && !!userAddress && !!effectiveVaultAddress,
       staleTime: 30_000,
@@ -116,9 +120,7 @@ export function PortfolioRequests({
           gap: "16px",
         }}
       >
-        <p className={typographyClasses.label1} style={{ color: designTokens.colors.text.secondary }}>
-          Loading withdrawal requests...
-        </p>
+        <Loader2 className="animate-spin" size={32} style={{ color: designTokens.colors.text.primary, opacity: 0.6 }} />
       </div>
     )
   }
@@ -137,7 +139,7 @@ export function PortfolioRequests({
         }}
       >
         <p className={typographyClasses.label1} style={{ color: designTokens.colors.status.error }}>
-          Failed to load withdrawal requests
+          {status === 'FULFILLED' ? 'Failed to load completed withdrawals' : 'Failed to load withdrawal requests'}
         </p>
         <Button
           variant="default"
@@ -164,7 +166,7 @@ export function PortfolioRequests({
         }}
       >
         <p className={typographyClasses.label1} style={{ color: designTokens.colors.text.secondary }}>
-          Please connect your wallet to view withdrawal requests
+          {status === 'FULFILLED' ? 'Please connect your wallet to view completed withdrawals' : 'Please connect your wallet to view withdrawal requests'}
         </p>
       </div>
     )
@@ -310,7 +312,8 @@ export function PortfolioRequests({
             syToken={request.syToken}
             usdcAmount={request.usdcAmount}
             tokenIcon={request.tokenIcon}
-            onCancel={() => handleCancel(request.id, request.syToken, request.syAmount)}
+            // Only show cancel button for pending requests
+            onCancel={status === 'PENDING' ? () => handleCancel(request.id, request.syToken, request.syAmount) : undefined}
           />
         </div>
       ))}

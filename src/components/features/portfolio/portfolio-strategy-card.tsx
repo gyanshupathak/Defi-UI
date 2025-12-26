@@ -16,7 +16,7 @@ export interface PortfolioStrategyCardProps {
   symbol: string
   pnl: number 
   totalBalance: string
-  variant: "usd" | "eth" | "btc"
+  variant: "usd" | "eth" | "btc" | "hlp"
   tokenIcon?: string
   className?: string
 }
@@ -37,6 +37,31 @@ const strategyConfig = {
     name: "Stable Yield BTC",
     icon: "/images/icons/BTC Stable (1).svg",
   },
+  hlp: {
+    color: designTokens.colors.strategy.hlp,
+    name: "Stable Yield HLP",
+    icon: "/images/icons/syHLP.svg",
+  },
+}
+
+// Helper function to check if a string is a valid URL
+function isValidUrl(url: string): boolean {
+  if (!url || url.trim() === '') return false
+  // Check for placeholder values
+  if (url.toUpperCase() === 'CDN_URL' || url === 'CDN_URL') return false
+  // Check if it's a valid URL (starts with http:// or https://) or relative path (starts with /)
+  try {
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      new URL(url)
+      return true
+    }
+    if (url.startsWith('/')) {
+      return true
+    }
+    return false
+  } catch {
+    return false
+  }
 }
 
 export function PortfolioStrategyCard({
@@ -51,11 +76,27 @@ export function PortfolioStrategyCard({
   const router = useRouter()
   const { analytics } = useAnalytics()
   const config = strategyConfig[variant]
-  const icon = tokenIcon || config.icon
+  // Use tokenIcon from API if it's a valid URL, otherwise fall back to variant-based icon
+  const initialIcon = (tokenIcon && isValidUrl(tokenIcon)) ? tokenIcon : config.icon
+  const [icon, setIcon] = React.useState(initialIcon)
   const isPositive = pnl >= 0
   const pnlColor = getPnlColor(pnl)
   const pnlSign = pnl >= 0 ? '+' : ''
   const [isHovered, setIsHovered] = React.useState(false)
+  
+  // Reset icon if tokenIcon changes and is valid
+  React.useEffect(() => {
+    if (tokenIcon && isValidUrl(tokenIcon)) {
+      setIcon(tokenIcon)
+    } else {
+      setIcon(config.icon)
+    }
+  }, [tokenIcon, config.icon])
+  
+  // Handle image loading error - fallback to config icon
+  const handleImageError = () => {
+    setIcon(config.icon)
+  }
 
   const handleCardClick = () => {
     analytics.portfolioStrategyCardClicked(symbol)
@@ -96,6 +137,7 @@ export function PortfolioStrategyCard({
               alt={name}
               fill
               className="object-contain"
+              onError={handleImageError}
             />
           </div>
         </div>
@@ -172,6 +214,8 @@ export function PortfolioStrategyCard({
                 ? "rgba(98, 126, 234, 0.15)" 
                 : variant === "btc" 
                 ? "rgba(247, 147, 26, 0.15)"
+                : variant === "hlp"
+                ? "rgba(37, 153, 82, 0.15)"
                 : undefined
             }
             textColor={
@@ -179,6 +223,8 @@ export function PortfolioStrategyCard({
                 ? "rgba(98, 126, 234, 1)" 
                 : variant === "btc" 
                 ? "rgba(247, 147, 26, 1)"
+                : variant === "hlp"
+                ? "rgba(37, 153, 82, 1)"
                 : undefined
             }
             onClick={handleWithdraw}

@@ -6,9 +6,11 @@ import { Check, ChevronDown } from "lucide-react"
 import { designTokens, typographyClasses } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
+import type { VaultConfig } from "@/lib/config/vault-config"
+import { getNetworkImage, getTokenImage, NETWORK_IMAGE_FALLBACKS, TOKEN_IMAGE_FALLBACKS } from "@/lib/utils/vault-images"
 
-export type Network = "Base" | "Ethereum" | "Arbitrum" | "Katana"
-export type BridgeToken = "syUSD" | "syETH" | "syBTC" | "USDC" | "USDS" | "SUSD"
+export type Network = "Base" | "Ethereum" | "Arbitrum" | "Katana" | "HyperEVM"
+export type BridgeToken = "syUSD" | "syETH" | "syBTC" | "syHLP" | "USDC" | "USDS" | "SUSD"
 
 export interface NetworkOption {
   id: Network
@@ -24,16 +26,18 @@ export interface BridgeTokenOption {
 }
 
 const NETWORKS: NetworkOption[] = [
-  { id: "Base", name: "Base", icon: "/images/icons/base.png" },
-  { id: "Ethereum", name: "Ethereum", icon: "/images/icons/eth.svg" },
-  { id: "Arbitrum", name: "Arbitrum", icon: "/images/icons/base.png" }, 
-  { id: "Katana", name: "Katana", icon: "/images/icons/katana.png" },
+  { id: "Base", name: "Base", icon: NETWORK_IMAGE_FALLBACKS["Base"] },
+  { id: "Ethereum", name: "Ethereum", icon: NETWORK_IMAGE_FALLBACKS["Ethereum"] },
+  { id: "Arbitrum", name: "Arbitrum", icon: NETWORK_IMAGE_FALLBACKS["Arbitrum"] }, 
+  { id: "Katana", name: "Katana", icon: NETWORK_IMAGE_FALLBACKS["Katana"] },
+  { id: "HyperEVM", name: "HyperEVM", icon: NETWORK_IMAGE_FALLBACKS["HyperEVM"] },
 ]
 
 const YIELDS_TOKENS: BridgeTokenOption[] = [
   { id: "syUSD", name: "syUSD", icon: "/images/icons/USD-stable.svg", category: "yields" },
   { id: "syETH", name: "syETH", icon: "/images/icons/ETH-stable.svg", category: "yields" },
   { id: "syBTC", name: "syBTC", icon: "/images/icons/BTC Stable (1).svg", category: "yields" },
+  { id: "syHLP", name: "syHLP", icon: "/images/icons/syHLP.svg", category: "yields" },
 ]
 
 const ASSETS_TOKENS: BridgeTokenOption[] = [
@@ -57,6 +61,8 @@ interface UnifiedSelectorProps {
   placeholder?: string
   tokenFilter?: "all" | "yields-only"
   location?: string // For analytics tracking (e.g., "deposit_page", "bridge_page")
+  vaultConfig?: VaultConfig | null // Optional vault config to get images from
+  allowedNetworks?: Network[] // Optional array of allowed networks (for filtering)
 }
 
 export function UnifiedSelector({
@@ -69,16 +75,81 @@ export function UnifiedSelector({
   placeholder = "Select",
   tokenFilter = "all",
   location = "unknown",
+  vaultConfig,
+  allowedNetworks,
 }: UnifiedSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const [hoveredId, setHoveredId] = React.useState<string | null>(null)
+  const [imageErrors, setImageErrors] = React.useState<Set<string>>(new Set())
   const { analytics } = useAnalytics()
   const previousValueRef = React.useRef<Network | BridgeToken | null | undefined>(selectedValue)
 
-  const tokenOptions = tokenFilter === "yields-only" ? YIELDS_TOKENS : ALL_TOKENS
-  const options = type === "network" ? NETWORKS : tokenOptions
+  // Get options with images from config if available
+  const networksWithConfigImages = React.useMemo(() => {
+    let networks = NETWORKS.map(network => ({
+      ...network,
+      icon: getNetworkImage(
+        vaultConfig,
+        network.name,
+        network.icon
+      ),
+    }))
+    
+    // Filter networks if allowedNetworks is provided
+    if (allowedNetworks && allowedNetworks.length > 0) {
+      networks = networks.filter(network => allowedNetworks.includes(network.id))
+    }
+    
+    return networks
+  }, [vaultConfig, allowedNetworks])
+
+  const yieldsTokensWithConfigImages = React.useMemo(() => {
+    return YIELDS_TOKENS.map(token => ({
+      ...token,
+      icon: getTokenImage(
+        vaultConfig,
+        token.id,
+        undefined, // Search all networks
+        token.icon
+      ),
+    }))
+  }, [vaultConfig])
+
+  const assetsTokensWithConfigImages = React.useMemo(() => {
+    return ASSETS_TOKENS.map(token => ({
+      ...token,
+      icon: getTokenImage(
+        vaultConfig,
+        token.id,
+        undefined, // Search all networks
+        token.icon
+      ),
+    }))
+  }, [vaultConfig])
+
+  const tokenOptions = tokenFilter === "yields-only" 
+    ? yieldsTokensWithConfigImages 
+    : [...yieldsTokensWithConfigImages, ...assetsTokensWithConfigImages]
+  const options = type === "network" ? networksWithConfigImages : tokenOptions
   const selectedOption = selectedValue ? options.find(opt => opt.id === selectedValue) : null
+
+  // Get the actual icon to display (use fallback if image failed to load)
+  const getDisplayIcon = (optionId: string, originalIcon: string): string => {
+    if (imageErrors.has(optionId)) {
+      // Use fallback based on type
+      if (type === "network") {
+        return NETWORK_IMAGE_FALLBACKS[optionId] || NETWORK_IMAGE_FALLBACKS["Base"]
+      } else {
+        return TOKEN_IMAGE_FALLBACKS[optionId] || originalIcon
+      }
+    }
+    return originalIcon
+  }
+
+  const handleImageError = (optionId: string) => {
+    setImageErrors(prev => new Set(prev).add(optionId))
+  }
 
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -104,12 +175,18 @@ export function UnifiedSelector({
     }
   }, [isOpen])
 
+  // Reset image errors when selected value or config changes
+  React.useEffect(() => {
+    setImageErrors(new Set())
+  }, [selectedValue, vaultConfig])
+
   // Track selector changes
   React.useEffect(() => {
-    if (previousValueRef.current !== selectedValue && previousValueRef.current !== null && selectedValue !== null) {
+    const previousValue = previousValueRef.current
+    if (previousValue !== selectedValue && previousValue !== null && previousValue !== undefined && selectedValue !== null && selectedValue !== undefined) {
       analytics.selectorChanged(
         type,
-        previousValueRef.current.toString(),
+        previousValue.toString(),
         selectedValue.toString(),
         location
       )
@@ -172,11 +249,12 @@ export function UnifiedSelector({
             type === "network" ? "size-[16px]" : "w-[16px] h-[16px]"
           )}>
             <Image
-              src={selectedOption.icon}
+              src={getDisplayIcon(selectedOption.id, selectedOption.icon)}
               alt={selectedOption.name}
               width={16}
               height={16}
               className={type === "network" ? "object-cover w-full h-full" : "object-contain w-full h-full"}
+              onError={() => handleImageError(selectedOption.id)}
             />
           </div>
         )}
@@ -248,11 +326,12 @@ export function UnifiedSelector({
                   <div className="flex items-center gap-[8px] min-w-0 flex-1">
                     <div className="flex items-center justify-center shrink-0 size-[20px]">
                       <Image
-                        src={option.icon}
+                        src={getDisplayIcon(option.id, option.icon)}
                         alt={option.name}
                         width={20}
                         height={20}
                         className="object-cover w-full h-full"
+                        onError={() => handleImageError(option.id)}
                       />
                     </div>
                     <p
@@ -292,7 +371,7 @@ export function UnifiedSelector({
                   </p>
                 )}
                 <div className="flex flex-col gap-[12px]">
-                  {YIELDS_TOKENS.map((option) => (
+                  {yieldsTokensWithConfigImages.map((option) => (
                     <button
                       key={option.id}
                       type="button"
@@ -322,11 +401,12 @@ export function UnifiedSelector({
                       <div className="flex items-center gap-[8px] min-w-0 flex-1">
                         <div className="flex items-center justify-center shrink-0 w-[20px] h-[20px]">
                           <Image
-                            src={option.icon}
+                            src={getDisplayIcon(option.id, option.icon)}
                             alt={option.name}
                             width={20}
                             height={20}
                             className="object-contain w-full h-full"
+                            onError={() => handleImageError(option.id)}
                           />
                         </div>
                         <p
@@ -364,7 +444,7 @@ export function UnifiedSelector({
                     Assets
                   </p>
                   <div className="flex flex-col gap-[12px]">
-                    {ASSETS_TOKENS.map((option) => (
+                    {assetsTokensWithConfigImages.map((option) => (
                     <button
                       key={option.id}
                       type="button"
@@ -394,11 +474,12 @@ export function UnifiedSelector({
                       <div className="flex items-center gap-[8px] min-w-0 flex-1">
                         <div className="flex items-center justify-center shrink-0 w-[20px] h-[20px]">
                           <Image
-                            src={option.icon}
+                            src={getDisplayIcon(option.id, option.icon)}
                             alt={option.name}
                             width={20}
                             height={20}
                             className="object-contain w-full h-full"
+                            onError={() => handleImageError(option.id)}
                           />
                         </div>
                         <p

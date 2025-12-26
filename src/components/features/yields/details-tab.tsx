@@ -4,6 +4,8 @@ import * as React from "react"
 import { designTokens, shadows } from "@/lib/design-system"
 import Image from "next/image"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
+import type { VaultConfig } from "@/lib/config/vault-config"
+import imagesData from "@/lib/utils/images.json"
 
 function ShareIcon({ className }: { className?: string }) {
   return (
@@ -22,15 +24,27 @@ function ShareIcon({ className }: { className?: string }) {
 }
 
 function DeBankIcon({ className }: { className?: string }) {
+  // Get DeBank icon from images.json (CDN), fallback to local
+  const debankImage = imagesData.images_by_category.Assets.find(
+    (img) => img.filename.toLowerCase() === 'debank.svg'
+  )
+  const debankUrl = debankImage?.url || "/images/icons/debank.svg"
+  const [imageError, setImageError] = React.useState(false)
+  
   return (
     <div className="relative shrink-0" style={{ width: '14px', height: '14px' }}>
       <Image
-        src="/images/icons/base.png"
-        alt="Base"
+        src={imageError ? "/images/icons/debank.svg" : debankUrl}
+        alt="DeBank"
         fill
         className="object-contain"
+        unoptimized={debankUrl.endsWith('.svg')}
         onError={(e) => {
-          (e.target as HTMLImageElement).style.display = 'none'
+          if (!imageError) {
+            setImageError(true)
+          } else {
+            (e.target as HTMLImageElement).style.display = 'none'
+          }
         }}
       />
     </div>
@@ -96,11 +110,9 @@ function DetailRow({ label, value, showCopyIcon = false, onCopy }: DetailRowProp
 
 interface ExposureCardProps {
   title: string
-  tokenImages: string[]
-  additionalCount: number
 }
 
-function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps) {
+function ExposureCard({ title }: ExposureCardProps) {
   return (
     <div
       className="relative rounded-[16px]"
@@ -120,63 +132,13 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
           overflow: 'hidden',
         }}
       >
-        {}
         <div className="flex flex-col gap-[8px] items-start justify-end" style={{ width: '170px', maxWidth: '170px', overflow: 'hidden' }}>
-          <div className="flex items-start pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
-            {tokenImages.map((img, index) => (
-              <div
-                key={index}
-                className="relative rounded-full shrink-0"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  marginRight: index < tokenImages.length - 1 ? '-6px' : '0',
-                  zIndex: tokenImages.length - index,
-                }}
-              >
-                {img.startsWith('/') ? (
-                  <Image
-                    src={img}
-                    alt={`Token ${index + 1}`}
-                    fill
-                    className="object-cover rounded-full pointer-events-none"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none'
-                    }}
-                  />
-                ) : (
-                  <Image
-                    src={img}
-                    alt={`Token ${index + 1}`}
-                    fill
-                    className="object-cover rounded-full pointer-events-none"
-                    unoptimized={img.endsWith('.svg')}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none'
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-            <div
-              className="grid grid-cols-[max-content] grid-rows-[max-content] justify-items-start leading-[0] relative shrink-0 rounded-[99px]"
-              style={{
-                width: '24px',
-                height: '24px',
-                marginLeft: '-6px',
-                backgroundColor: '#f2f2f2',
-              }}
+          <div className="flex items-center pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
+            <p
+              className="font-['Hanken_Grotesk',sans-serif] font-normal leading-normal text-[16px] text-black"
             >
-              <p
-                className="col-[1] row-[1] font-['Hanken_Grotesk',sans-serif] font-normal leading-normal text-[12px] text-black"
-                style={{
-                  marginLeft: '8px',
-                  marginTop: '4px',
-                }}
-              >
-                +{additionalCount}
-              </p>
-            </div>
+              --
+            </p>
           </div>
           <p
             className="font-['Hanken_Grotesk',sans-serif] font-medium leading-normal text-[12px] text-black tracking-[0.6px] opacity-50 whitespace-nowrap shrink-0"
@@ -186,69 +148,18 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
           </p>
         </div>
 
-        {}
         <div className="flex flex-row items-center self-stretch">
           <div className="bg-[#d9d9d9] h-full shrink-0 w-px" />
         </div>
 
-        {}
         <div className="flex items-start">
           <div className="flex flex-col gap-[8px] items-start justify-end" style={{ width: '170px', maxWidth: '170px', overflow: 'hidden' }}>
-            <div className="flex items-start pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
-              {tokenImages.map((img, index) => (
-                <div
-                  key={index}
-                  className="relative rounded-full shrink-0"
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    marginRight: index < tokenImages.length - 1 ? '-6px' : '0',
-                    zIndex: tokenImages.length - index,
-                  }}
-                >
-                  {img.startsWith('/') ? (
-                    <Image
-                      src={img}
-                      alt={`Token ${index + 1}`}
-                      fill
-                      className="object-cover rounded-full pointer-events-none"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none'
-                      }}
-                    />
-                  ) : (
-                    <Image
-                      src={img}
-                      alt={`Token ${index + 1}`}
-                      fill
-                      className="object-cover rounded-full pointer-events-none"
-                      unoptimized={img.endsWith('.svg')}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none'
-                      }}
-                    />
-                  )}
-                </div>
-              ))}
-              <div
-                className="grid grid-cols-[max-content] grid-rows-[max-content] justify-items-start leading-[0] relative shrink-0 rounded-[99px]"
-                style={{
-                  width: '24px',
-                  height: '24px',
-                  marginLeft: '-6px',
-                  backgroundColor: '#f2f2f2',
-                }}
+            <div className="flex items-center pl-0 pr-[6px] py-0 w-full" style={{ overflow: 'hidden' }}>
+              <p
+                className="font-['Hanken_Grotesk',sans-serif] font-normal leading-normal text-[16px] text-black"
               >
-                <p
-                  className="col-[1] row-[1] font-['Hanken_Grotesk',sans-serif] font-normal leading-normal text-[12px] text-black"
-                  style={{
-                    marginLeft: '8px',
-                    marginTop: '4px',
-                  }}
-                >
-                  +{additionalCount}
-                </p>
-              </div>
+                --
+              </p>
             </div>
             <p
               className="font-['Hanken_Grotesk',sans-serif] font-medium leading-normal text-[12px] text-black tracking-[0.6px] opacity-50 whitespace-nowrap shrink-0"
@@ -263,15 +174,28 @@ function ExposureCard({ title, tokenImages, additionalCount }: ExposureCardProps
   )
 }
 
-export function DetailsTab() {
-  const { analytics } = useAnalytics()
+interface DetailsTabProps {
+  vaultConfig?: VaultConfig | null
+}
 
-  const tokenImages = [
-    "/images/icons/base.png",
-    "/images/icons/base.png",
-    "/images/icons/base.png",
-    "/images/icons/base.png",
-  ]
+/**
+ * Format an Ethereum address for display (truncate to 0x{first2}...{last4})
+ */
+function formatAddress(address: string): string {
+  if (!address || address.length < 10) return address
+  return `${address.slice(0, 4)}...${address.slice(-4)}`
+}
+
+/**
+ * Format a value, showing "--" if empty/null/undefined
+ */
+function formatValue(value: string | null | undefined, suffix: string = ""): string {
+  if (!value || value.trim() === "") return "--"
+  return `${value}${suffix}`
+}
+
+export function DetailsTab({ vaultConfig }: DetailsTabProps) {
+  const { analytics } = useAnalytics()
 
   const handleCopy = (text: string, addressType: string) => {
     analytics.addressCopied(addressType, text)
@@ -284,6 +208,24 @@ export function DetailsTab() {
       document.body.removeChild(textArea)
     })
   }
+
+  // Extract values from config, with fallback to "--"
+  const constants = vaultConfig?.vault_constants
+  
+  const contractAddress = constants?.address || ""
+  const managementFee = formatValue(constants?.management_fee, "%")
+  const performanceFee = formatValue(constants?.performance_fee, "%")
+  const auditedBy = formatValue(constants?.audited_by)
+  const deploymentDate = formatValue(constants?.deployment_date)
+  const rateProvider = constants?.rate_provider || ""
+  const feePayout = constants?.fee_payout || ""
+  const owner = constants?.owner || ""
+
+  // Format addresses for display (truncated)
+  const contractAddressDisplay = contractAddress ? formatAddress(contractAddress) : "--"
+  const rateProviderDisplay = rateProvider ? formatAddress(rateProvider) : "--"
+  const feePayoutDisplay = feePayout ? formatAddress(feePayout) : "--"
+  const ownerDisplay = owner ? formatAddress(owner) : "--"
 
   return (
     <div
@@ -298,8 +240,6 @@ export function DetailsTab() {
       <div className="absolute" style={{ left: '24px', top: '24px' }}>
         <ExposureCard
           title="ASSET EXPOSURE"
-          tokenImages={tokenImages}
-          additionalCount={5}
         />
       </div>
 
@@ -337,45 +277,45 @@ export function DetailsTab() {
       >
         <DetailRow
           label="Contract Address"
-          value="0x82...2d23"
-          showCopyIcon
-          onCopy={() => handleCopy("0x82...2d23", "Contract Address")}
+          value={contractAddressDisplay}
+          showCopyIcon={!!contractAddress}
+          onCopy={() => contractAddress && handleCopy(contractAddress, "Contract Address")}
         />
         <DetailRow
           label="Management Fees"
-          value="0%"
+          value={managementFee}
         />
         <DetailRow
           label="Performance Fee"
-          value="10%"
+          value={performanceFee}
         />
         <DetailRow
           label="Audited by"
-          value="Pashov Audit Group"
-          showCopyIcon
-          onCopy={() => handleCopy("Pashov Audit Group", "Audited by")}
+          value={auditedBy}
+          showCopyIcon={!!constants?.audited_by && constants.audited_by.trim() !== ""}
+          onCopy={() => constants?.audited_by && handleCopy(constants.audited_by, "Audited by")}
         />
         <DetailRow
           label="Vault Deployment Date"
-          value="25 Nov 2025"
+          value={deploymentDate}
         />
         <DetailRow
           label="Rate Provider Address"
-          value="0x32...2f19"
-          showCopyIcon
-          onCopy={() => handleCopy("0x32...2f19", "Rate Provider Address")}
+          value={rateProviderDisplay}
+          showCopyIcon={!!rateProvider}
+          onCopy={() => rateProvider && handleCopy(rateProvider, "Rate Provider Address")}
         />
         <DetailRow
           label="Fee Receipt"
-          value="0x32...2f19"
-          showCopyIcon
-          onCopy={() => handleCopy("0x32...2f19", "Fee Receipt")}
+          value={feePayoutDisplay}
+          showCopyIcon={!!feePayout}
+          onCopy={() => feePayout && handleCopy(feePayout, "Fee Receipt")}
         />
         <DetailRow
           label="Owner Address"
-          value="0x52...3d64"
-          showCopyIcon
-          onCopy={() => handleCopy("0x52...3d64", "Owner Address")}
+          value={ownerDisplay}
+          showCopyIcon={!!owner}
+          onCopy={() => owner && handleCopy(owner, "Owner Address")}
         />
       </div>
     </div>

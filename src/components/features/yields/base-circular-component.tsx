@@ -27,12 +27,13 @@ export function BaseCircularComponent({ vaultSymbol }: BaseCircularComponentProp
     return getVariantFromVaultSymbol(vaultSymbol);
   }, [vaultSymbol]);
 
-  // Map token to strategy: syUSD → Flagship, syETH → Delta Neutral, syBTC → Leverage Looping
-  const getStrategyFromToken = (token: 'usd' | 'eth' | 'btc'): StrategyType => {
+  // Map token to strategy: syUSD → Flagship, syETH → Delta Neutral, syBTC → Leverage Looping, syHLP → Delta Neutral
+  const getStrategyFromToken = (token: 'usd' | 'eth' | 'btc' | 'hlp'): StrategyType => {
     switch (token) {
       case "usd":
         return "flagship";
       case "eth":
+      case "hlp": // syHLP is also Delta Neutral
         return "delta-neutral";
       case "btc":
         return "leverage-looping";

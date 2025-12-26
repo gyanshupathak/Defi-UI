@@ -17,6 +17,7 @@ type ButtonVariant =
   | "usd"
   | "eth"
   | "btc"
+  | "hlp"
   | "cancel"
   | "connectWallet"
 
@@ -56,6 +57,8 @@ const getVariantColors = (variant?: ButtonVariant, isBridgeContext?: boolean): {
       return { bg: designTokens.colors.strategy.eth, text: "#FFFFFF" }
     case "btc":
       return { bg: designTokens.colors.strategy.btc, text: "#FFFFFF" }
+    case "hlp":
+      return { bg: designTokens.colors.strategy.hlp, text: "#FFFFFF" }
     case "cancel":
       return { bg: designTokens.colors.background.main, text: "#E91E21" }
     case "inactive":

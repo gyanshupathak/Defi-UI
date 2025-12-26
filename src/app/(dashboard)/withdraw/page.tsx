@@ -19,6 +19,9 @@ import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
+import { useVaultConfig } from "@/lib/hooks/use-vault-config"
+import { useWalletBalance } from "@/lib/hooks/use-wallet-balance"
+import { getVaultSymbolFromVariant } from "@/lib/config/vault-config"
 
 const USD_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
 const USDC_TOKEN_IMAGE = "/images/icons/USD-stable.svg"
@@ -51,7 +54,64 @@ function WithdrawPageContent() {
   
   const [amount, setAmount] = React.useState("0.00")
   const [selectedNetwork, setSelectedNetwork] = React.useState<Network>("Base")
-  const balance = 115447.00
+  
+  // Get vault symbol from variant
+  const vaultSymbol = getVaultSymbolFromVariant(variant)
+  
+  // Fetch vault config
+  const { data: vaultConfig, isLoading: isConfigLoading } = useVaultConfig(vaultSymbol, {
+    enabled: !!vaultSymbol,
+  })
+  
+  // Helper function to map config network names to Network type
+  const mapConfigNetworkToNetwork = React.useCallback((configNetwork: string): Network => {
+    const normalized = configNetwork.toLowerCase()
+    // Check for HyperEVM first (before checking for 'eth' which might match)
+    if (normalized.includes('hyperevm') || normalized === 'hyperevm') return 'HyperEVM'
+    if (normalized.includes('base')) return 'Base'
+    if (normalized.includes('ethereum') || (normalized.includes('eth') && !normalized.includes('hyper'))) return 'Ethereum'
+    if (normalized.includes('arbitrum')) return 'Arbitrum'
+    if (normalized.includes('katana')) return 'Katana'
+    // Default to Base if unknown
+    return 'Base'
+  }, [])
+  
+  // Get vault token network from vault config (destination network)
+  const vaultTokenNetwork = React.useMemo(() => {
+    if (!vaultConfig?.vault_constants?.dest_network) {
+      return "Base" as Network // Default fallback
+    }
+    return mapConfigNetworkToNetwork(vaultConfig.vault_constants.dest_network)
+  }, [vaultConfig, mapConfigNetworkToNetwork])
+  
+  // Get vault token symbol from config
+  const vaultTokenSymbol = React.useMemo(() => {
+    if (!vaultConfig?.vault_constants?.symbol) {
+      return vaultSymbol // Fallback to variant-based symbol
+    }
+    return vaultConfig.vault_constants.symbol
+  }, [vaultConfig, vaultSymbol])
+  
+  // Fetch wallet balance for the vault token
+  const { balance: walletBalance, isLoading: isBalanceLoading } = useWalletBalance(
+    vaultConfig,
+    vaultTokenNetwork,
+    vaultTokenSymbol
+  )
+  
+  // Use wallet balance or default to 0 if not connected or loading
+  const balance = React.useMemo(() => {
+    if (isBalanceLoading) return 0
+    return walletBalance || 0
+  }, [walletBalance, isBalanceLoading])
+  
+  // Update selected network when vault config loads
+  React.useEffect(() => {
+    if (vaultTokenNetwork) {
+      setSelectedNetwork(vaultTokenNetwork)
+    }
+  }, [vaultTokenNetwork])
+  
   const exchangeRate = 1.03
 
   const strategyConfig = {
@@ -140,7 +200,12 @@ function WithdrawPageContent() {
     setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
   }
 
-  const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formattedBalance = React.useMemo(() => {
+    if (isBalanceLoading) {
+      return '0.00'
+    }
+    return balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }, [balance, isBalanceLoading])
 
   return (
     <div 

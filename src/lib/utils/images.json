@@ -1,0 +1,234 @@
+{
+  "base_url": "https://api.lucidly.finance",
+  "total_images": 44,
+  "images_by_category": {
+    "Assets": [
+      {
+        "filename": "Lucidly - Dark.png",
+        "path": "Assets/Favicon/Lucidly - Dark.png",
+        "url": "https://api.lucidly.finance/images/Assets/Favicon/Lucidly%20-%20Dark.png"
+      },
+      {
+        "filename": "Lucidly - Light.png",
+        "path": "Assets/Favicon/Lucidly - Light.png",
+        "url": "https://api.lucidly.finance/images/Assets/Favicon/Lucidly%20-%20Light.png"
+      },
+      {
+        "filename": "Liquidity Land.png",
+        "path": "Assets/Liquidity Land.png",
+        "url": "https://api.lucidly.finance/images/Assets/Liquidity%20Land.png"
+      },
+      {
+        "filename": "USDC.svg",
+        "path": "Assets/USDC.svg",
+        "url": "https://api.lucidly.finance/images/Assets/USDC.svg"
+      },
+      {
+        "filename": "debank.svg",
+        "path": "Assets/debank.svg",
+        "url": "https://api.lucidly.finance/images/Assets/debank.svg"
+      },
+      {
+        "filename": "resolv.svg",
+        "path": "Assets/resolv.svg",
+        "url": "https://api.lucidly.finance/images/Assets/resolv.svg"
+      },
+      {
+        "filename": "sUSDS.svg",
+        "path": "Assets/sUSDS.svg",
+        "url": "https://api.lucidly.finance/images/Assets/sUSDS.svg"
+      },
+      {
+        "filename": "syBTC.svg",
+        "path": "Assets/syBTC.svg",
+        "url": "https://api.lucidly.finance/images/Assets/syBTC.svg"
+      },
+      {
+        "filename": "syETH.svg",
+        "path": "Assets/syETH.svg",
+        "url": "https://api.lucidly.finance/images/Assets/syETH.svg"
+      },
+      {
+        "filename": "syHLP.svg",
+        "path": "Assets/syHLP.svg",
+        "url": "https://api.lucidly.finance/images/Assets/syHLP.svg"
+      },
+      {
+        "filename": "syUSD.svg",
+        "path": "Assets/syUSD.svg",
+        "url": "https://api.lucidly.finance/images/Assets/syUSD.svg"
+      },
+      {
+        "filename": "usds.svg",
+        "path": "Assets/usds.svg",
+        "url": "https://api.lucidly.finance/images/Assets/usds.svg"
+      },
+      {
+        "filename": "usdt.svg",
+        "path": "Assets/usdt.svg",
+        "url": "https://api.lucidly.finance/images/Assets/usdt.svg"
+      },
+      {
+        "filename": "usdt0.png",
+        "path": "Assets/usdt0.png",
+        "url": "https://api.lucidly.finance/images/Assets/usdt0.png"
+      },
+      {
+        "filename": "wETH.svg",
+        "path": "Assets/wETH.svg",
+        "url": "https://api.lucidly.finance/images/Assets/wETH.svg"
+      },
+      {
+        "filename": "wbtc.png",
+        "path": "Assets/wbtc.png",
+        "url": "https://api.lucidly.finance/images/Assets/wbtc.png"
+      }
+    ],
+    "General": [
+      {
+        "filename": "Activity.svg",
+        "path": "General/Activity.svg",
+        "url": "https://api.lucidly.finance/images/General/Activity.svg"
+      },
+      {
+        "filename": "Arrow down.svg",
+        "path": "General/Arrow down.svg",
+        "url": "https://api.lucidly.finance/images/General/Arrow%20down.svg"
+      },
+      {
+        "filename": "Bridge.svg",
+        "path": "General/Bridge.svg",
+        "url": "https://api.lucidly.finance/images/General/Bridge.svg"
+      },
+      {
+        "filename": "Check.svg",
+        "path": "General/Check.svg",
+        "url": "https://api.lucidly.finance/images/General/Check.svg"
+      },
+      {
+        "filename": "Delete.svg",
+        "path": "General/Delete.svg",
+        "url": "https://api.lucidly.finance/images/General/Delete.svg"
+      },
+      {
+        "filename": "Deposit.svg",
+        "path": "General/Deposit.svg",
+        "url": "https://api.lucidly.finance/images/General/Deposit.svg"
+      },
+      {
+        "filename": "Filter.svg",
+        "path": "General/Filter.svg",
+        "url": "https://api.lucidly.finance/images/General/Filter.svg"
+      },
+      {
+        "filename": "Info.svg",
+        "path": "General/Info.svg",
+        "url": "https://api.lucidly.finance/images/General/Info.svg"
+      },
+      {
+        "filename": "Link.svg",
+        "path": "General/Link.svg",
+        "url": "https://api.lucidly.finance/images/General/Link.svg"
+      },
+      {
+        "filename": "Requests.svg",
+        "path": "General/Requests.svg",
+        "url": "https://api.lucidly.finance/images/General/Requests.svg"
+      },
+      {
+        "filename": "Reset.svg",
+        "path": "General/Reset.svg",
+        "url": "https://api.lucidly.finance/images/General/Reset.svg"
+      },
+      {
+        "filename": "Settings.svg",
+        "path": "General/Settings.svg",
+        "url": "https://api.lucidly.finance/images/General/Settings.svg"
+      },
+      {
+        "filename": "Table Filter.svg",
+        "path": "General/Table Filter.svg",
+        "url": "https://api.lucidly.finance/images/General/Table%20Filter.svg"
+      },
+      {
+        "filename": "Wallet.svg",
+        "path": "General/Wallet.svg",
+        "url": "https://api.lucidly.finance/images/General/Wallet.svg"
+      },
+      {
+        "filename": "Withdraw.svg",
+        "path": "General/Withdraw.svg",
+        "url": "https://api.lucidly.finance/images/General/Withdraw.svg"
+      },
+      {
+        "filename": "Yield.svg",
+        "path": "General/Yield.svg",
+        "url": "https://api.lucidly.finance/images/General/Yield.svg"
+      },
+      {
+        "filename": "flagship-icon.svg",
+        "path": "General/flagship-icon.svg",
+        "url": "https://api.lucidly.finance/images/General/flagship-icon.svg"
+      },
+      {
+        "filename": "delta-neutral-icon.svg",
+        "path": "General/delta-neutral-icon.svg",
+        "url": "https://api.lucidly.finance/images/General/delta-neutral-icon.svg"
+      },
+      {
+        "filename": "leverage-looping-icon.svg",
+        "path": "General/leverage-looping-icon.svg",
+        "url": "https://api.lucidly.finance/images/General/leverage-looping-icon.svg"
+      }
+    ],
+    "Logo": [
+      {
+        "filename": "Lucidly - Dark.png",
+        "path": "Logo/Favicon/Lucidly - Dark.png",
+        "url": "https://api.lucidly.finance/images/Logo/Favicon/Lucidly%20-%20Dark.png"
+      },
+      {
+        "filename": "Lucidly - Light.png",
+        "path": "Logo/Favicon/Lucidly - Light.png",
+        "url": "https://api.lucidly.finance/images/Logo/Favicon/Lucidly%20-%20Light.png"
+      },
+      {
+        "filename": "LucidlyLogo.svg",
+        "path": "Logo/LucidlyLogo.svg",
+        "url": "https://api.lucidly.finance/images/Logo/LucidlyLogo.svg"
+      }
+    ],
+    "Network": [
+      {
+        "filename": "Arbitrum.svg",
+        "path": "Network/Arbitrum.svg",
+        "url": "https://api.lucidly.finance/images/Network/Arbitrum.svg"
+      },
+      {
+        "filename": "Base.svg",
+        "path": "Network/Base.svg",
+        "url": "https://api.lucidly.finance/images/Network/Base.svg"
+      },
+      {
+        "filename": "Ethereum.svg",
+        "path": "Network/Ethereum.svg",
+        "url": "https://api.lucidly.finance/images/Network/Ethereum.svg"
+      },
+      {
+        "filename": "Katana.svg",
+        "path": "Network/Katana.svg",
+        "url": "https://api.lucidly.finance/images/Network/Katana.svg"
+      },
+      {
+        "filename": "Sonic.svg",
+        "path": "Network/Sonic.svg",
+        "url": "https://api.lucidly.finance/images/Network/Sonic.svg"
+      },
+      {
+        "filename": "hyperEVM.svg",
+        "path": "Network/hyperEVM.svg",
+        "url": "https://api.lucidly.finance/images/Network/hyperEVM.svg"
+      }
+    ]
+  }
+}

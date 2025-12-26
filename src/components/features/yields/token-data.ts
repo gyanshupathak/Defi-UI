@@ -50,5 +50,17 @@ export const tokenData: Record<TokenType, TokenData> = {
     sharePrice: "6.2%",
     fastRedeemed: "$15.2K",
   },
+  hlp: {
+    symbol: "syHLP",
+    name: "Stable Yield HLP",
+    icon: "/images/icons/syHLP.svg",
+    centerIcon: "/images/icons/syHLP.svg",
+    smallIcon: "/images/icons/syHLP.svg",
+    baseApy: 0,
+    tvl: "$0",
+    lifetimeReturns: "$0",
+    sharePrice: "0%",
+    fastRedeemed: "$0",
+  },
 }
 

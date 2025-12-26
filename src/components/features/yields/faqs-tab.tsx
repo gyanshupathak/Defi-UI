@@ -9,10 +9,31 @@ interface FAQItem {
   answer: string
 }
 
-export function FAQsTab() {
+interface FAQsTabProps {
+  faqs?: FAQItem[]
+  cardWidth?: string | number
+}
+
+export function FAQsTab({ faqs: propFAQs, cardWidth }: FAQsTabProps = {} as FAQsTabProps) {
   const { analytics } = useAnalytics()
-  const [openIndex, setOpenIndex] = React.useState<number | null>(1)
   const faqTimeTrackers = React.useRef<Record<number, { startTime: number | null }>>({})
+
+  // Filter out empty FAQs (where both question and answer are empty or whitespace)
+  const faqs: FAQItem[] = React.useMemo(() => {
+    if (!propFAQs || !Array.isArray(propFAQs) || propFAQs.length === 0) {
+      return []
+    }
+    // Filter out FAQs with empty question or answer
+    return propFAQs.filter(
+      faq => faq && 
+      faq.question && 
+      faq.answer && 
+      faq.question.trim() !== '' && 
+      faq.answer.trim() !== ''
+    )
+  }, [propFAQs])
+
+  const [openIndex, setOpenIndex] = React.useState<number | null>(null)
 
   const handleToggle = (index: number) => {
     const isCurrentlyOpen = openIndex === index
@@ -31,41 +52,35 @@ export function FAQsTab() {
       faqTimeTrackers.current[index] = { startTime: Date.now() }
       setOpenIndex(index)
     }
-  } 
+  }
 
-  const faqs: FAQItem[] = [
-    {
-      question: "Does the Lucidly App charge platform fees?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-    {
-      question: "Are there any exit fees when withdrawing from the Lucidly App?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-    {
-      question: "Is is secure?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-    {
-      question: "How are fixed yield positions created?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-    {
-      question: "Where is the yield coming from?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-    {
-      question: "Who is the curator?",
-      answer: "No, the Lucidly App charges 0% exit fees, allowing you to withdraw your funds without any deductions.",
-    },
-  ]
+  if (!faqs || faqs.length === 0) {
+    return (
+      <div 
+        className="absolute flex items-center justify-center"
+        style={{
+          left: '0px',
+          top: '0px',
+          width: '100%',
+          height: '100%',
+        }}
+      >
+        <p 
+          className="text-sm opacity-50"
+          style={{
+            color: 'var(--text-primary)',
+          }}
+        >
+          No data to display
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div 
-      className="absolute flex flex-col"
+      className="flex flex-col"
       style={{
-        left: '0px',
-        top: '0px',
         gap: '16px',
       }}
     >
@@ -75,6 +90,7 @@ export function FAQsTab() {
           item={faq}
           isOpen={openIndex === index}
           onToggle={() => handleToggle(index)}
+          width={cardWidth}
         />
       ))}
     </div>

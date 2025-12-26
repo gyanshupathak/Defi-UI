@@ -909,6 +909,7 @@ function CurveTextTokenSymbol({ svgPaths, tokenData }: { svgPaths: any; tokenDat
 function CurveTextStableYield({ svgPaths, tokenData }: { svgPaths: any; tokenData: TokenData }) {
   // Get token color based on symbol
   const getTokenColor = (symbol: string) => {
+    if (symbol.includes('HLP')) return designTokens.colors.strategy.hlp;
     if (symbol.includes('USD')) return designTokens.colors.strategy.usd;
     if (symbol.includes('ETH')) return designTokens.colors.strategy.eth;
     if (symbol.includes('BTC')) return designTokens.colors.strategy.btc;
@@ -917,7 +918,7 @@ function CurveTextStableYield({ svgPaths, tokenData }: { svgPaths: any; tokenDat
 
   const tokenColor = getTokenColor(tokenData.symbol);
   
-  // Extract the token type: "USD", "ETH", or "BTC"
+  // Extract the token type: "USD", "ETH", "BTC", or "HLP"
   const tokenType = tokenData.name.replace('Stable Yield ', '').toUpperCase();
   
   return (
@@ -1000,7 +1001,7 @@ function CurveTextStableYield({ svgPaths, tokenData }: { svgPaths: any; tokenDat
           </div>
         </div>
       </div>
-      {/* Dynamic token type: USD, ETH, or BTC */}
+      {/* Dynamic token type: USD, ETH, BTC, or HLP */}
       <div className="absolute flex h-[12.954px] items-center justify-center left-[323.31px] top-[259.6px] -translate-y-1/2 w-[12.517px]">
         <div className="flex-none rotate-[36.246deg]">
           <div className="flex flex-col font-['Inter:Semi_Bold',sans-serif] font-semibold h-[10.125px] justify-center leading-[0] not-italic relative text-[10.125px] w-[8.098px]" style={{ color: tokenColor }}>

@@ -32,6 +32,7 @@ interface StackedBarChartDataPoint {
 interface PortfolioChartProps {
   className?: string
   isEmpty?: boolean
+  periodDates?: string[] // Optional period dates from API (real data)
 }
 
 const chartData = [
@@ -95,8 +96,8 @@ const chartData = [
 }))
 
 const barColor = designTokens.colors.primary
-const dates = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
-const formatPortfolioData = (): StackedBarChartDataPoint[] => {
+// Removed dummy dates - only show dates when provided from real data
+const formatPortfolioData = (periodDates?: string[]): StackedBarChartDataPoint[] => {
   const rawData = [
     { segment1: 56, segment2: 142, segment3: 81 },
     { segment1: 151, segment2: 40, segment3: 133 },
@@ -171,16 +172,19 @@ const formatPortfolioData = (): StackedBarChartDataPoint[] => {
     
     const total = item.segment1 + item.segment2 + item.segment3
     
+    // Only use dates if provided from real data
+    const dates = periodDates && periodDates.length === 7 ? periodDates : []
+    
     return {
       ...item,
       total,
-      date: dates[dateIndex] || dates[dates.length - 1],
-      formattedDate: dates[dateIndex] || dates[dates.length - 1],
+      date: dates[dateIndex] || "",
+      formattedDate: dates[dateIndex] || "",
     }
   })
 }
 
-export function PortfolioChart({ className, isEmpty = false }: PortfolioChartProps) {
+export function PortfolioChart({ className, isEmpty = false, periodDates }: PortfolioChartProps) {
   const { analytics } = useAnalytics()
   const [activeFilter, setActiveFilter] = React.useState("total")
   const [timePeriod, setTimePeriod] = React.useState("1M")
@@ -252,7 +256,7 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
     )
   }
 
-  const baseChartData = formatPortfolioData().map((item, index) => ({
+  const baseChartData = formatPortfolioData(periodDates).map((item, index) => ({
     ...item,
     index,
   }))
@@ -483,25 +487,28 @@ export function PortfolioChart({ className, isEmpty = false }: PortfolioChartPro
 
       </div>
 
-      <div 
-        className="absolute flex items-center justify-between text-center"
-        style={{ 
-          left: '36px',
-          top: '668px',
-          width: '596px',
-          opacity: 0.9,
-        }}
-      >
-        {dates.map((date, index) => (
-          <p 
-            key={index}
-            className={`${typographyClasses.label1} opacity-80`}
-            style={{ color: designTokens.colors.text.primary }}
-          >
-            {date}
-          </p>
-        ))}
-      </div>
+      {/* Only show dates when provided from real data */}
+      {periodDates && periodDates.length === 7 && (
+        <div 
+          className="absolute flex items-center justify-between text-center"
+          style={{ 
+            left: '36px',
+            top: '668px',
+            width: '596px',
+            opacity: 0.9,
+          }}
+        >
+          {periodDates.map((date, index) => (
+            <p 
+              key={index}
+              className={`${typographyClasses.label1} opacity-80`}
+              style={{ color: designTokens.colors.text.primary }}
+            >
+              {date}
+            </p>
+          ))}
+        </div>
+      )}
 
       {}
       <div 

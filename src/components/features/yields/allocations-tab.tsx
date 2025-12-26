@@ -11,6 +11,8 @@ import { FilterTabSelector } from "@/components/ui/filter-tab-selector"
 import { EmptyChart } from "@/components/charts/empty-chart"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
+import { useAllocationsByTime } from "@/lib/hooks/use-vault"
+import type { VaultSymbol } from "@/lib/config/vault-config"
 import {
   BarChart,
   Bar,
@@ -34,15 +36,35 @@ type ViewType = "chart" | "table"
 
 interface AllocationsTabProps {
   isEmpty?: boolean
+  periodDates?: string[] // Optional period dates from API (real data)
+  vaultSymbol?: VaultSymbol // Vault symbol to fetch allocations data
 }
 
-export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
+export function AllocationsTab({ isEmpty = false, periodDates, vaultSymbol = "syUSD" }: AllocationsTabProps) {
   const [viewType, setViewType] = React.useState<ViewType>("chart")
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
   const { analytics } = useAnalytics()
   const hoverTimeTracker = React.useRef<{ startTime: number | null }>({ startTime: null })
   const previousViewRef = React.useRef<ViewType>("chart")
   const viewTimeTracker = useTimeTracker()
+  
+  // Fetch allocations data from API
+  const { data: allocationsData, isLoading: isLoadingAllocations, isError: isAllocationsError } = useAllocationsByTime(vaultSymbol, {
+    enabled: !!vaultSymbol && !isEmpty,
+  })
+  
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[AllocationsTab] State:', {
+      vaultSymbol,
+      isEmpty,
+      isLoadingAllocations,
+      isAllocationsError,
+      hasData: !!allocationsData,
+      dataLength: allocationsData?.length || 0,
+      allocationsData: allocationsData ? allocationsData.slice(0, 2) : null, // Log first 2 items
+    })
+  }, [vaultSymbol, isEmpty, isLoadingAllocations, isAllocationsError, allocationsData])
   
   const viewOptions = [
     { id: "chart" as ViewType, label: "Chart" },
@@ -78,91 +100,155 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
     </div>
   )
   
-  const dates = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
-  
-  const formatAllocationsData = (): StackedBarChartDataPoint[] => {
-    const rawData = [
-      { orange: 56, purple: 142, blue: 81 },
-      { orange: 151, purple: 40, blue: 133 },
-      { orange: 106, purple: 166, blue: 70 },
-      { orange: 100, purple: 226, blue: 40 },
-      { orange: 170, purple: 38, blue: 133 },
-      { orange: 93, purple: 120, blue: 93 },
-      { orange: 55, purple: 102, blue: 102 },
-      { orange: 64, purple: 206, blue: 50 },
-      { orange: 64, purple: 206, blue: 50 },
-      { orange: 64, purple: 206, blue: 50 },
-      { orange: 111, purple: 50, blue: 128 },
-      { orange: 179, purple: 38, blue: 133 },
-      { orange: 140, purple: 58, blue: 124 },
-      { orange: 52, purple: 200, blue: 52 },
-      { orange: 52, purple: 200, blue: 52 },
-      { orange: 52, purple: 200, blue: 52 },
-      { orange: 135, purple: 50, blue: 128 },
-      { orange: 92, purple: 176, blue: 65 },
-      { orange: 169, purple: 42, blue: 132 },
-      { orange: 81, purple: 142, blue: 81 },
-      { orange: 81, purple: 142, blue: 81 },
-      { orange: 81, purple: 142, blue: 81 },
-      { orange: 73, purple: 230, blue: 38 },
-      { orange: 127, purple: 166, blue: 70 },
-      { orange: 178, purple: 120, blue: 93 },
-      { orange: 126, purple: 52, blue: 126 },
-      { orange: 144, purple: 64, blue: 121 },
-      { orange: 146, purple: 102, blue: 102 },
-      { orange: 86, purple: 86, blue: 134 },
-      { orange: 91, purple: 107, blue: 107 },
-      { orange: 91, purple: 107, blue: 107 },
-      { orange: 94, purple: 164, blue: 70 },
-      { orange: 177, purple: 58, blue: 124 },
-      { orange: 121, purple: 62, blue: 121 },
-      { orange: 183, purple: 34, blue: 136 },
-      { orange: 189, purple: 40, blue: 132 },
-      { orange: 78, purple: 150, blue: 78 },
-      { orange: 146, purple: 102, blue: 102 },
-      { orange: 86, purple: 86, blue: 134 },
-      { orange: 93, purple: 166, blue: 69 },
-      { orange: 183, purple: 66, blue: 120 },
-      { orange: 128, purple: 80, blue: 113 },
-      { orange: 128, purple: 80, blue: 113 },
-      { orange: 86, purple: 86, blue: 134 },
-      { orange: 137, purple: 62, blue: 121 },
-      { orange: 125, purple: 142, blue: 82 },
-      { orange: 117, purple: 70, blue: 117 },
-      { orange: 86, purple: 86, blue: 134 },
-      { orange: 110, purple: 160, blue: 72 },
-      { orange: 110, purple: 160, blue: 72 },
-      { orange: 81, purple: 142, blue: 81 },
-      { orange: 91, purple: 170, blue: 68 },
-      { orange: 111, purple: 138, blue: 83 },
-      { orange: 101, purple: 200, blue: 53 },
-    ]
+  // Format allocations data from API for the chart
+  const formatAllocationsData = React.useMemo(() => {
+    if (!allocationsData || allocationsData.length === 0) {
+      console.log('[AllocationsTab] No allocations data to format')
+      return []
+    }
 
-    const barsPerDay = [8, 8, 8, 8, 8, 8, 6]
+    console.log('[AllocationsTab] Formatting allocations data, count:', allocationsData.length)
+    console.log('[AllocationsTab] Sample data point:', allocationsData[0])
+
+    // Extract unique dates and sort them
+    const dates = Array.from(new Set(allocationsData.map(item => item.date))).sort()
+    console.log('[AllocationsTab] Extracted dates:', dates.slice(0, 7))
     
-    return rawData.map((item, index) => {
-      let dateIndex = 0
-      let cumulativeBars = 0
-      for (let i = 0; i < barsPerDay.length; i++) {
-        cumulativeBars += barsPerDay[i]
-        if (index < cumulativeBars) {
-          dateIndex = i
-          break
+    // Extract strategy names (all keys except 'date')
+    const strategyNames = new Set<string>()
+    allocationsData.forEach(item => {
+      Object.keys(item).forEach(key => {
+        if (key !== 'date') {
+          strategyNames.add(key)
         }
-      }
-      
-      return {
-        ...item,
-        date: dates[dateIndex] || dates[dates.length - 1],
-        formattedDate: dates[dateIndex] || dates[dates.length - 1],
+      })
+    })
+    
+    // Map strategy names to colors (you may need to adjust this based on your data)
+    // For now, we'll use a simple mapping - you can enhance this based on actual strategy names
+    const strategyColorMap: Record<string, { color: string; dataKey: string }> = {}
+    const strategyArray = Array.from(strategyNames)
+    
+    // Map strategies to colors (blue, purple, orange)
+    strategyArray.forEach((strategy, index) => {
+      if (index === 0) {
+        strategyColorMap[strategy] = { color: '#2b66ff', dataKey: 'blue' }
+      } else if (index === 1) {
+        strategyColorMap[strategy] = { color: '#8198ee', dataKey: 'purple' }
+      } else {
+        strategyColorMap[strategy] = { color: '#f9b666', dataKey: 'orange' }
       }
     })
-  }
+    
+    // Group data by date and calculate totals
+    const dataByDate = new Map<string, Record<string, number>>()
+    
+    allocationsData.forEach(item => {
+      const date = item.date
+      if (!dataByDate.has(date)) {
+        dataByDate.set(date, {})
+      }
+      
+      const dateData = dataByDate.get(date)!
+      Object.keys(item).forEach(key => {
+        if (key !== 'date') {
+          const value = typeof item[key] === 'string' ? parseFloat(item[key] as string) : (item[key] as number) || 0
+          dateData[key] = (dateData[key] || 0) + value
+        }
+      })
+    })
+    
+    // Convert to chart data format
+    const chartData: StackedBarChartDataPoint[] = []
+    dates.forEach(date => {
+      const dateData = dataByDate.get(date) || {}
+      const chartPoint: StackedBarChartDataPoint = {
+        date,
+        formattedDate: date,
+      }
+      
+      // Map strategy values to color keys
+      strategyArray.forEach(strategy => {
+        const value = dateData[strategy] || 0
+        const colorMapping = strategyColorMap[strategy]
+        if (colorMapping) {
+          chartPoint[colorMapping.dataKey] = value
+        }
+      })
+      
+      chartData.push(chartPoint)
+    })
+    
+    // Distribute data points across bars (similar to original logic)
+    // Calculate bars per period
+    const totalBars = 54 // Keep the same number of bars
+    const periods = 7
+    const barsPerPeriod = Math.floor(totalBars / periods)
+    const remainder = totalBars % periods
+    
+    const barsPerDay = Array(periods).fill(barsPerPeriod)
+    for (let i = 0; i < remainder; i++) {
+      barsPerDay[i]++
+    }
+    
+    // Expand chart data to match total bars
+    const expandedData: StackedBarChartDataPoint[] = []
+    chartData.forEach((point, pointIndex) => {
+      const barsForThisPeriod = barsPerDay[pointIndex % periods] || barsPerDay[0]
+      for (let i = 0; i < barsForThisPeriod; i++) {
+        expandedData.push({ ...point })
+      }
+    })
+    
+    // Fill remaining bars with last data point if needed
+    while (expandedData.length < totalBars) {
+      const lastPoint = expandedData[expandedData.length - 1] || chartData[chartData.length - 1]
+      if (lastPoint) {
+        expandedData.push({ ...lastPoint })
+      } else {
+        break
+      }
+    }
+    
+    const result = expandedData.slice(0, totalBars)
+    console.log('[AllocationsTab] Formatted chart data length:', result.length)
+    if (result.length > 0) {
+      console.log('[AllocationsTab] Sample formatted data point:', result[0])
+    }
+    return result
+  }, [allocationsData])
 
-  const barData = formatAllocationsData().map((item, index) => ({
+  // Extract period dates from allocations data
+  const extractedPeriodDates = React.useMemo(() => {
+    if (!allocationsData || allocationsData.length === 0) {
+      return periodDates || []
+    }
+    
+    // Get unique dates and sort them
+    const dates = Array.from(new Set(allocationsData.map(item => item.date))).sort()
+    
+    // Format dates for display (last 7 dates)
+    const last7Dates = dates.slice(-7)
+    return last7Dates.map(dateStr => {
+      try {
+        const date = new Date(dateStr)
+        const day = date.getDate()
+        const month = date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()
+        return `${day} ${month}`
+      } catch {
+        return dateStr
+      }
+    })
+  }, [allocationsData, periodDates])
+
+  const barData = formatAllocationsData.map((item, index) => ({
     ...item,
     index,
   }))
+  
+  // Check if we should show empty state
+  // Show empty if: isEmpty prop is true, or no data after loading completes, or data is empty array
+  const shouldShowEmpty = isEmpty || (!isLoadingAllocations && (!allocationsData || allocationsData.length === 0))
 
   const createCustomBarShape = (fill: string, radius: [number, number, number, number]) => {
     const CustomBarShape = (props: any) => {
@@ -217,7 +303,7 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
     return CustomBarShape
   }
 
-  if (isEmpty) {
+  if (shouldShowEmpty) {
     return (
       <>
         <p 
@@ -243,11 +329,12 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
             dateLabelsLeft="24px"
             dateLabelsTop="519.26px"
             dateLabelsWidth="620px"
+            // Don't pass dates - show empty chart with no dates on x-axis
           />
         </ChartContainerWrapper>
 
         {viewTabs}
-        <YieldsDateLabels />
+        {/* Don't show date labels when empty */}
         <YieldsNoteCard 
           content="By initiating a withdrawal, your vault shares (syUSD) will be converted into the underlying asset based on the latest market rates, which may fluctuate slightly; once the request is submitted."
         />
@@ -341,7 +428,7 @@ export function AllocationsTab({ isEmpty = false }: AllocationsTabProps) {
           </ChartContainerWrapper>
 
           {viewTabs}
-          <YieldsDateLabels />
+          {extractedPeriodDates && extractedPeriodDates.length === 7 && <YieldsDateLabels dates={extractedPeriodDates} />}
           <YieldsNoteCard 
             content="By initiating a withdrawal, your vault shares (syUSD) will be converted into the underlying asset based on the latest market rates, which may fluctuate slightly; once the request is submitted."
           />

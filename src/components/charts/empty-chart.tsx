@@ -27,13 +27,14 @@ interface EmptyChartProps {
   className?: string
 }
 
-const DEFAULT_DATES = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
+// Removed DEFAULT_DATES - don't show dummy dates
+// Only show dates when provided from real data
 
 export function EmptyChart({
   barCount = 54,
   barHeight = 200,
   maxDomain = 500,
-  dates = DEFAULT_DATES,
+  dates, // No default - only show dates when provided from real data
   dateLabelsWidth,
   dateLabelsLeft,
   dateLabelsTop,
@@ -97,28 +98,31 @@ export function EmptyChart({
           </BarChart>
         </ResponsiveContainer>
       </div>
-      <div 
-        className="absolute flex items-center justify-between text-center"
-        style={{ 
-          left: dateLabelsLeft || designTokens.spacing.graph.tvlChart.contentPaddingX,
-          top: dateLabelsTop || designTokens.spacing.graph.tvlChart.datesTop,
-          width: dateLabelsWidth || designTokens.spacing.graph.tvlChart.contentWidth,
-          opacity: designTokens.spacing.graph.tvlChart.datesOpacity,
-        }}
-      >
-        {dates.map((date, index) => (
-          <p 
-            key={index}
-            className={typographyClasses.label1}
-            style={{ 
-              color: designTokens.colors.text.primary,
-              opacity: designTokens.spacing.graph.tvlChart.dateOpacity,
-            }}
-          >
-            {date}
-          </p>
-        ))}
-      </div>
+      {/* Only show dates when provided from real data */}
+      {dates && dates.length > 0 && (
+        <div 
+          className="absolute flex items-center justify-between text-center"
+          style={{ 
+            left: dateLabelsLeft || designTokens.spacing.graph.tvlChart.contentPaddingX,
+            top: dateLabelsTop || designTokens.spacing.graph.tvlChart.datesTop,
+            width: dateLabelsWidth || designTokens.spacing.graph.tvlChart.contentWidth,
+            opacity: designTokens.spacing.graph.tvlChart.datesOpacity,
+          }}
+        >
+          {dates.map((date, index) => (
+            <p 
+              key={index}
+              className={typographyClasses.label1}
+              style={{ 
+                color: designTokens.colors.text.primary,
+                opacity: designTokens.spacing.graph.tvlChart.dateOpacity,
+              }}
+            >
+              {date}
+            </p>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

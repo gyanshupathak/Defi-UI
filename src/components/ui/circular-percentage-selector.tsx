@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { designTokens, typographyClasses, shadows } from "@/lib/design-system"
 import { cn } from "@/lib/utils"
+import { TOKEN_IMAGE_FALLBACKS } from "@/lib/utils/vault-images"
 
 interface CircularPercentageSelectorProps {
   
@@ -11,7 +12,9 @@ interface CircularPercentageSelectorProps {
   
   onValueChange?: (value: number) => void
   
-  tokenIcon: string
+  tokenIcon?: string
+  
+  fallbackIcon?: string
   
   className?: string
 }
@@ -20,10 +23,17 @@ export function CircularPercentageSelector({
   value = 0,
   onValueChange,
   tokenIcon,
+  fallbackIcon,
   className,
 }: CircularPercentageSelectorProps) {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const [isDragging, setIsDragging] = React.useState(false)
+  const [currentIcon, setCurrentIcon] = React.useState(tokenIcon || fallbackIcon)
+
+  // Update current icon when tokenIcon prop changes
+  React.useEffect(() => {
+    setCurrentIcon(tokenIcon || fallbackIcon)
+  }, [tokenIcon, fallbackIcon])
 
   const radius = 37 
   const centerX = 38
@@ -223,15 +233,40 @@ export function CircularPercentageSelector({
             boxShadow: shadows.circularCenter,
           }}
         />
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[26.866px] h-[26.866px]">
-          <Image
-            src={tokenIcon}
-            alt="Token"
-            width={27}
-            height={27}
-            className="object-contain w-full h-full"
-          />
-        </div>
+        {currentIcon && (
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[26.866px] h-[26.866px]">
+            <Image
+              src={currentIcon}
+              alt="Token"
+              width={27}
+              height={27}
+              className="object-contain w-full h-full"
+              onError={(e) => {
+                // Fallback to local image if CDN image fails
+                const target = e.target as HTMLImageElement
+                // Try to determine token from current icon URL
+                let tokenFallback = fallbackIcon
+                if (!tokenFallback && currentIcon) {
+                  // Try to extract token symbol from URL (e.g., syUSD, syETH, syBTC)
+                  const urlMatch = currentIcon.match(/(syUSD|syETH|syBTC|USD|ETH|BTC)/i)
+                  if (urlMatch) {
+                    const symbol = urlMatch[1].toUpperCase()
+                    if (symbol.startsWith('SY')) {
+                      tokenFallback = TOKEN_IMAGE_FALLBACKS[symbol as keyof typeof TOKEN_IMAGE_FALLBACKS]
+                    } else if (symbol === 'USD') {
+                      tokenFallback = TOKEN_IMAGE_FALLBACKS['syUSD'] || '/images/icons/USD-stable.svg'
+                    }
+                  }
+                }
+                // Final fallback
+                const finalFallback = tokenFallback || TOKEN_IMAGE_FALLBACKS['syUSD'] || '/images/icons/USD-stable.svg'
+                if (target.src !== finalFallback && currentIcon !== finalFallback) {
+                  setCurrentIcon(finalFallback)
+                }
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <button

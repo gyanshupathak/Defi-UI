@@ -8,9 +8,15 @@ interface YieldsDateLabelsProps {
   className?: string
 }
 
-const DEFAULT_DATES = ["11 AUG", "12 AUG", "13 AUG", "14 AUG", "15 AUG", "16 AUG", "17 AUG"]
+// Removed DEFAULT_DATES - don't show dummy dates
+// Only show dates when provided from real data
 
-export function YieldsDateLabels({ dates = DEFAULT_DATES, className }: YieldsDateLabelsProps) {
+export function YieldsDateLabels({ dates, className }: YieldsDateLabelsProps) {
+  // Only render if dates are provided from real data
+  if (!dates || dates.length === 0) {
+    return null
+  }
+
   return (
     <div 
       className={`absolute flex items-center justify-between text-center ${className || ''}`}

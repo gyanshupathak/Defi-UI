@@ -8,6 +8,11 @@ const nextConfig = {
         hostname: 'www.figma.com',
         pathname: '/api/mcp/asset/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'api.lucidly.finance',
+        pathname: '/images/**',
+      },
     ],
     unoptimized: false,
   },

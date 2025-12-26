@@ -173,3 +173,21 @@ export interface WithdrawalRequestsResponse {
   result: WithdrawalRequestsResult
 }
 
+/**
+ * Allocation Data Point
+ * Represents allocation data for a specific date
+ */
+export interface AllocationDataPoint {
+  date: string
+  [strategyName: string]: string | number // Dynamic strategy names as keys with allocation values
+}
+
+/**
+ * Allocations By Time API Response
+ * Endpoint: /api/allocation/daily-allocation
+ */
+export interface AllocationsByTimeResponse {
+  data?: AllocationDataPoint[]
+  [key: string]: any // Allow for flexible response formats
+}
+

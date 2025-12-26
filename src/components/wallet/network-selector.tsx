@@ -6,19 +6,23 @@ import { useChainId, useChains, useAccount } from 'wagmi';
 import { useChainModal } from '@rainbow-me/rainbowkit';
 import { designTokens } from '@/lib/design-system';
 import { useAnalytics } from '@/lib/hooks/use-analytics';
+import type { VaultConfig } from '@/lib/config/vault-config';
+import { getNetworkImage, NETWORK_IMAGE_FALLBACKS } from '@/lib/utils/vault-images';
 
 interface NetworkSelectorProps {
   ethereumLogo?: string;
+  vaultConfig?: VaultConfig | null; // Optional vault config to get network images from
 }
 
 const DEFAULT_ETH_LOGO = '/images/icons/eth.svg';
 
-// Network icon mapping - only 4 networks supported
+// Network icon mapping - fallback defaults
 const NETWORK_ICONS: Record<number, string> = {
   1: '/images/icons/eth.svg',        // Ethereum Mainnet
   8453: '/images/icons/base.png',     // Base
   42161: '/images/icons/base.png',    // Arbitrum (using Base logo as no specific icon available)
   747474: '/images/icons/katana.png', // Katana
+  999: '/images/icons/base.png',      // HyperEVM (using base as fallback)
 };
 
 // Network name mapping
@@ -29,7 +33,7 @@ const NETWORK_NAMES: Record<number, string> = {
   747474: 'Katana',
 };
 
-export function NetworkSelector({ ethereumLogo = DEFAULT_ETH_LOGO }: NetworkSelectorProps) {
+export function NetworkSelector({ ethereumLogo = DEFAULT_ETH_LOGO, vaultConfig }: NetworkSelectorProps) {
   // Use hooks - provider is always available in the component tree
   const { isConnected } = useAccount();
   const chainId = useChainId();
@@ -56,9 +60,14 @@ export function NetworkSelector({ ethereumLogo = DEFAULT_ETH_LOGO }: NetworkSele
     return null;
   }
 
-  // Always use our custom icon mapping, never use chain.iconUrl
-  const networkIcon = NETWORK_ICONS[chainId] || ethereumLogo || DEFAULT_ETH_LOGO;
+  // Get network name first
   const networkName = NETWORK_NAMES[chainId] || currentChain?.name || 'Unknown';
+  
+  // Get network icon from config if available, otherwise use fallback
+  const fallbackIcon = NETWORK_ICONS[chainId] || ethereumLogo || DEFAULT_ETH_LOGO;
+  const networkIcon = vaultConfig
+    ? getNetworkImage(vaultConfig, networkName, fallbackIcon)
+    : fallbackIcon;
 
   const handleNetworkClick = () => {
     if (analytics) {

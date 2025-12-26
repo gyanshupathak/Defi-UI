@@ -10,6 +10,7 @@ export interface Tab {
   label: string
   badge?: number
   icon?: string
+  iconFallback?: string // Optional fallback icon path
 }
 
 export interface DashboardTabsProps {
@@ -65,6 +66,7 @@ export function DashboardTabs({
             {tab.icon && (
               <Icon
                 src={tab.icon}
+                fallback={tab.iconFallback}
                 className="shrink-0"
                 style={{
                   width: '18px',

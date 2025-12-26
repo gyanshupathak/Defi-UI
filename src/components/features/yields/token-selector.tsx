@@ -6,7 +6,7 @@ import { designTokens } from "@/lib/design-system"
 import clsx from "clsx"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 
-export type TokenType = "usd" | "eth" | "btc"
+export type TokenType = "usd" | "eth" | "btc" | "hlp"
 
 interface TokenSelectorProps {
   selectedToken: TokenType

@@ -15,6 +15,7 @@ import { FAQsTab } from "./faqs-tab"
 import { DetailsTab } from "./details-tab"
 import { usePathname } from "next/navigation"
 import { useVaultTVL } from "@/lib/hooks/use-vault"
+import { useVaultConfig } from "@/lib/hooks/use-vault-config"
 import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 
@@ -34,6 +35,11 @@ export function YieldsDashboard({
   // Fetch TVL data for the vault
   const { formattedValue: apiFormattedValue, isLoading: isTvlLoading } = useVaultTVL(vaultName, {
     staleTime: 30_000,
+  })
+
+  // Fetch vault config for incentives and FAQs
+  const { data: vaultConfig } = useVaultConfig(vaultName, {
+    enabled: !!vaultName,
   })
 
   // Use API value if available, otherwise use prop
@@ -122,20 +128,21 @@ export function YieldsDashboard({
               <BaseAPYTab 
                 currentDate={currentDate} 
                 isEmpty={!resolvedHasDeposits}
+                vaultName={vaultName}
               />
             )}
             {activeTab === "allocations" && (
-              <AllocationsTab isEmpty={!resolvedHasDeposits} />
+              <AllocationsTab 
+                isEmpty={!resolvedHasDeposits} 
+                vaultSymbol={vaultName}
+              />
             )}
             {activeTab === "returns" && <ReturnsAttributionTab />}
 
             {activeTab === "tvl" && (
-              <>
-                <YieldsDateLabels />
-                <YieldsNoteCard 
-                  content="By initiating a withdrawal, your vault shares (syUSD) will be converted into the underlying asset based on the latest market rates, which may fluctuate slightly; once the request is submitted."
-                />
-              </>
+              <YieldsNoteCard 
+                content="By initiating a withdrawal, your vault shares (syUSD) will be converted into the underlying asset based on the latest market rates, which may fluctuate slightly; once the request is submitted."
+              />
             )}
 
             {activeTab === "base-apy" && (
@@ -149,9 +156,9 @@ export function YieldsDashboard({
           </DashboardCard>
         ) : (
           <>
-            {activeTab === "incentives" && <IncentivesTab />}
-            {activeTab === "faqs" && <FAQsTab />}
-            {activeTab === "details" && <DetailsTab />}
+            {activeTab === "incentives" && <IncentivesTab incentives={vaultConfig?.vault_incentives} />}
+            {activeTab === "faqs" && <FAQsTab faqs={vaultConfig?.vault_constants?.faqs} />}
+            {activeTab === "details" && <DetailsTab vaultConfig={vaultConfig} />}
           </>
         )}
       </div>

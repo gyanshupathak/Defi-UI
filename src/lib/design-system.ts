@@ -3,6 +3,7 @@ export const colors = {
     usd: '#5496DE',
     eth: '#627EEA',
     btc: '#F7931A',
+    hlp: '#259952', // Green for Delta Neutral (syHLP)
   },
   background: {
     main: '#F4F0FF',
@@ -212,7 +213,7 @@ export const spacing = {
     paddingX: '24px',
     paddingY: '20px',
     borderRadius: '16px',
-    gap: '32px',
+    gap: '16px',
     gapInternal: '12px',
     yieldCard: {
       width: '318px',

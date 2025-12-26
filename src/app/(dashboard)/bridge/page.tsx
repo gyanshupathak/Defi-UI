@@ -14,14 +14,10 @@ import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
-const TOKEN_ICONS: Record<BridgeToken, string> = {
-  syUSD: "/images/icons/USD-stable.svg",
-  syETH: "/images/icons/ETH-stable.svg",
-  syBTC: "/images/icons/BTC Stable (1).svg",
-  USDC: "/images/icons/USD-stable.svg",
-  USDS: "/images/icons/USD-stable.svg",
-  SUSD: "/images/icons/USD-stable.svg",
-}
+import { useBridgeTokenBalance } from "@/lib/hooks/use-bridge-token-balance"
+import { useQueries } from "@tanstack/react-query"
+import { getVaultLogo, getTokenImage, TOKEN_IMAGE_FALLBACKS } from "@/lib/utils/vault-images"
+import { fetchVaultConfig } from "@/lib/config/vault-config"
 
 export default function BridgePage() {
   const { analytics } = useAnalytics()
@@ -47,7 +43,83 @@ export default function BridgePage() {
   const [sourceNetwork, setSourceNetwork] = React.useState<Network>("Base")
   const [destNetwork, setDestNetwork] = React.useState<Network>("Katana")
   const [selectedToken, setSelectedToken] = React.useState<BridgeToken>("syUSD")
-  const balance = 115447.00 
+  
+  // Fetch vault configs for vault tokens (syUSD, syETH, syBTC, syHLP)
+  const vaultConfigs = useQueries({
+    queries: [
+      { queryKey: ['vault-config', 'syUSD'], queryFn: () => fetchVaultConfig('syUSD') },
+      { queryKey: ['vault-config', 'syETH'], queryFn: () => fetchVaultConfig('syETH') },
+      { queryKey: ['vault-config', 'syBTC'], queryFn: () => fetchVaultConfig('syBTC') },
+      { queryKey: ['vault-config', 'syHLP'], queryFn: () => fetchVaultConfig('syHLP') },
+    ],
+  })
+
+  // Get token icon from config with fallback
+  const getTokenIcon = React.useCallback((token: BridgeToken): string => {
+    // For vault tokens (syUSD, syETH, syBTC, syHLP), use vault logo from config
+    if (token === 'syUSD' || token === 'syETH' || token === 'syBTC' || token === 'syHLP') {
+      const configIndex = token === 'syUSD' ? 0 : token === 'syETH' ? 1 : token === 'syBTC' ? 2 : 3
+      const vaultConfig = vaultConfigs[configIndex]?.data
+      if (vaultConfig) {
+        const logo = getVaultLogo(vaultConfig, TOKEN_IMAGE_FALLBACKS[token] || `/images/icons/${token}.svg`)
+        if (logo) return logo
+      }
+    }
+    
+    // For regular tokens (USDC, USDS, SUSD), search across all vault configs
+    // Try to find the token in any vault config's network tokens
+    for (const vaultQuery of vaultConfigs) {
+      const vaultConfig = vaultQuery?.data
+      if (vaultConfig) {
+        const tokenImage = getTokenImage(
+          vaultConfig,
+          token,
+          undefined, // Search all networks
+          TOKEN_IMAGE_FALLBACKS[token] || `/images/icons/${token}.svg`
+        )
+        // If we got a different image than the fallback, it means we found it in config
+        if (tokenImage && tokenImage !== (TOKEN_IMAGE_FALLBACKS[token] || `/images/icons/${token}.svg`)) {
+          return tokenImage
+        }
+      }
+    }
+    
+    // Fallback to icons folder
+    return TOKEN_IMAGE_FALLBACKS[token] || `/images/icons/${token}.svg`
+  }, [vaultConfigs])
+
+  // Get token icons object with config support
+  const TOKEN_ICONS = React.useMemo<Record<BridgeToken, string>>(() => ({
+    syUSD: getTokenIcon('syUSD'),
+    syETH: getTokenIcon('syETH'),
+    syBTC: getTokenIcon('syBTC'),
+    syHLP: getTokenIcon('syHLP'),
+    USDC: getTokenIcon('USDC'),
+    USDS: getTokenIcon('USDS'),
+    SUSD: getTokenIcon('SUSD'),
+  }), [getTokenIcon])
+
+  // Get vault config for the selected token (if it's a vault token)
+  const selectedVaultConfig = React.useMemo(() => {
+    if (selectedToken === 'syUSD') return vaultConfigs[0]?.data
+    if (selectedToken === 'syETH') return vaultConfigs[1]?.data
+    if (selectedToken === 'syBTC') return vaultConfigs[2]?.data
+    if (selectedToken === 'syHLP') return vaultConfigs[3]?.data
+    // For non-vault tokens, try to use any vault config for token image lookup
+    return vaultConfigs[0]?.data || vaultConfigs[1]?.data || vaultConfigs[2]?.data || vaultConfigs[3]?.data
+  }, [selectedToken, vaultConfigs])
+  
+  // Fetch wallet balance for the selected bridge token on source network
+  const { balance: walletBalance, isLoading: isBalanceLoading } = useBridgeTokenBalance(
+    selectedToken,
+    sourceNetwork
+  )
+
+  // Use wallet balance or default to 0 if not connected or loading
+  const balance = React.useMemo(() => {
+    if (isBalanceLoading) return 0
+    return walletBalance || 0
+  }, [walletBalance, isBalanceLoading]) 
 
   const percentage = React.useMemo(() => {
     const amountNum = parseFloat(amount.replace(/,/g, '')) || 0
@@ -99,7 +171,12 @@ export default function BridgePage() {
     setAmount(formatNumberWithCommas(newAmount.toFixed(2)))
   }
 
-  const formattedBalance = balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formattedBalance = React.useMemo(() => {
+    if (isBalanceLoading) {
+      return '0.00'
+    }
+    return balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }, [balance, isBalanceLoading])
 
   return (
     <div 
@@ -131,6 +208,7 @@ export default function BridgePage() {
               onValueChange={(value) => setSelectedToken(value as BridgeToken)}
               tokenFilter="yields-only"
               location="bridge_page"
+              vaultConfig={selectedVaultConfig}
             />
           }
           insetContainers={[
@@ -180,6 +258,7 @@ export default function BridgePage() {
               selectedValue={sourceNetwork}
               onValueChange={(value) => setSourceNetwork(value as Network)}
               location="bridge_page"
+              vaultConfig={selectedVaultConfig}
             />
           </div>
 
@@ -225,6 +304,7 @@ export default function BridgePage() {
               selectedValue={destNetwork}
               onValueChange={(value) => setDestNetwork(value as Network)}
               location="bridge_page"
+              vaultConfig={selectedVaultConfig}
             />
           </div>
 
@@ -266,7 +346,8 @@ export default function BridgePage() {
           <CircularPercentageSelector 
             value={percentage}
             onValueChange={handlePercentageChange}
-              tokenIcon={TOKEN_ICONS[selectedToken]}
+            tokenIcon={TOKEN_ICONS[selectedToken]}
+            fallbackIcon={TOKEN_IMAGE_FALLBACKS[selectedToken] || `/images/icons/${selectedToken}.svg`}
           />
           </div>
 

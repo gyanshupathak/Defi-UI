@@ -3,9 +3,11 @@
  * Centralized configuration for all vaults
  * 
  * Fetches vault configurations from API: GET /services/vault_config?vaultSymbol={symbol}
+ * Or uses local configs from vault-configs.local.json when NEXT_PUBLIC_USE_LOCAL_VAULT_CONFIGS=true
  */
 
 import { get } from '../services/api-client'
+import localConfigs from './vault-configs.local.json'
 
 export type VaultSymbol = string // Dynamic type - can be any vault symbol from API
 
@@ -54,6 +56,7 @@ export interface VaultEndpoints {
   asset_exposure: string
   available_liquidity: string
   base_asset_price: string
+  currency_price?: string
   last_updated_deposit: string
   last_updated_withdrawal: string
   lifetime_returns: string
@@ -73,7 +76,7 @@ export interface VaultIncentivePoint {
 }
 
 export interface VaultIncentives {
-  enabled: boolean
+  enabled: boolean | null
   points: VaultIncentivePoint[]
 }
 
@@ -114,6 +117,8 @@ export interface VaultNetworks {
   base?: VaultNetwork
   ethereum?: VaultNetwork
   katana?: VaultNetwork
+  hyperEVM?: VaultNetwork
+  [key: string]: VaultNetwork | undefined
 }
 
 export interface VaultConfig {
@@ -129,12 +134,22 @@ export interface VaultConfigResponse {
 }
 
 /**
- * Fetch vault configuration from API
+ * Fetch vault configuration from API or local configs
  * 
  * @param vaultSymbol - The vault symbol (e.g., 'syUSD', 'syETH', 'syBTC')
  * @returns Promise with vault configuration (null if config doesn't exist)
  */
 export async function fetchVaultConfig(vaultSymbol: VaultSymbol): Promise<VaultConfig | null> {
+  // Check if local configs should be used
+  const useLocalConfigs = process.env.NEXT_PUBLIC_USE_LOCAL_VAULT_CONFIGS === 'true'
+  
+  if (useLocalConfigs) {
+    console.log(`[fetchVaultConfig] Using local config for ${vaultSymbol}`)
+    const localConfig = (localConfigs as unknown as Record<string, VaultConfig>)[vaultSymbol]
+    return localConfig || null
+  }
+  
+  // Use API
   const endpoint = `https://api.lucidly.finance/services/vault_config?vaultSymbol=${encodeURIComponent(vaultSymbol)}`
   try {
     const response = await get<{ result: VaultConfig | null }>(endpoint)
@@ -147,11 +162,24 @@ export async function fetchVaultConfig(vaultSymbol: VaultSymbol): Promise<VaultC
 }
 
 /**
- * Fetch all available vault symbols from API
+ * Fetch all available vault symbols from API or local configs
  * 
  * @returns Promise with array of vault symbols
  */
 export async function fetchAllVaultSymbols(): Promise<VaultSymbol[]> {
+  // Check if local configs should be used
+  const useLocalConfigs = process.env.NEXT_PUBLIC_USE_LOCAL_VAULT_CONFIGS === 'true'
+  
+  if (useLocalConfigs) {
+    console.log('[fetchAllVaultSymbols] Using local configs')
+    const configs = localConfigs as unknown as Record<string, VaultConfig>
+    // Filter out empty config and return symbols
+    const symbols = Object.keys(configs).filter(key => key !== 'empty' && configs[key].vault_constants.symbol)
+    console.log('[fetchAllVaultSymbols] Local config symbols:', symbols)
+    return symbols
+  }
+  
+  // Use API
   const endpoint = 'https://api.lucidly.finance/services/vault_data'
   console.log('[fetchAllVaultSymbols] Making API call to:', endpoint)
   try {
@@ -168,7 +196,7 @@ export async function fetchAllVaultSymbols(): Promise<VaultSymbol[]> {
  * Get vault symbol from strategy variant
  * Maps common variants to known vault symbols
  */
-export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc'): VaultSymbol {
+export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc' | 'hlp'): VaultSymbol {
   switch (variant) {
     case 'usd':
       return 'syUSD'
@@ -176,6 +204,8 @@ export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc'): Vault
       return 'syETH'
     case 'btc':
       return 'syBTC'
+    case 'hlp':
+      return 'syHLP'
     default:
       return 'syUSD'
   }
@@ -184,14 +214,32 @@ export function getVaultSymbolFromVariant(variant: 'usd' | 'eth' | 'btc'): Vault
 /**
  * Get variant from vault symbol
  * Maps vault symbols to UI variants
- * IMPORTANT: Check BTC before ETH to avoid conflicts (e.g., if symbol contains both)
+ * IMPORTANT: Check HLP before ETH to avoid conflicts (syHLP should not match ETH)
  */
-export function getVariantFromVaultSymbol(symbol: VaultSymbol): 'usd' | 'eth' | 'btc' {
+export function getVariantFromVaultSymbol(symbol: VaultSymbol): 'usd' | 'eth' | 'btc' | 'hlp' {
   const lowerSymbol = symbol.toLowerCase().trim()
+  
+  // Check for exact matches first (most specific)
+  if (lowerSymbol === 'syhlp' || lowerSymbol === 'hlp') {
+    return 'hlp'
+  }
+  if (lowerSymbol === 'syeth' || lowerSymbol === 'eth') {
+    return 'eth'
+  }
+  if (lowerSymbol === 'sybtc' || lowerSymbol === 'btc') {
+    return 'btc'
+  }
+  if (lowerSymbol === 'syusd' || lowerSymbol === 'usd') {
+    return 'usd'
+  }
   
   // Check for BTC first (most specific, before ETH to avoid conflicts)
   if (lowerSymbol.includes('btc')) {
     return 'btc'
+  }
+  // Check for HLP before ETH (to avoid syHLP matching ETH)
+  if (lowerSymbol.includes('hlp')) {
+    return 'hlp'
   }
   // Check for ETH second
   if (lowerSymbol.includes('eth')) {

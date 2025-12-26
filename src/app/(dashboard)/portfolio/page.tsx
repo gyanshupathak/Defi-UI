@@ -16,6 +16,10 @@ import { useAnalytics } from "@/lib/hooks/use-analytics"
 import { useTimeTracker } from "@/lib/hooks/use-time-tracker"
 import { useScrollDepth } from "@/lib/hooks/use-scroll-depth"
 import { usePagePerformance } from "@/lib/hooks/use-page-performance"
+import { useAllVaultSymbols } from "@/lib/hooks/use-vault-config"
+import { getVariantFromVaultSymbol, fetchVaultConfig, type VaultSymbol, type VaultConfig } from "@/lib/config/vault-config"
+import { useQueries } from "@tanstack/react-query"
+import { getVaultLogo } from "@/lib/utils/vault-images"
 
 export default function PortfolioPage() {
   const { analytics } = useAnalytics()
@@ -70,6 +74,50 @@ export default function PortfolioPage() {
     console.log("Cancel request:", requestId)
   }
 
+  // Fetch all available vaults from API
+  const { data: allVaultSymbols = [], isLoading: isLoadingVaults } = useAllVaultSymbols({
+    enabled: true,
+  })
+  
+  // Create stable string key for memoization
+  const symbolsKey = React.useMemo(() => {
+    return allVaultSymbols.length > 0 ? allVaultSymbols.join(',') : ''
+  }, [allVaultSymbols])
+  
+  // Memoize queries array to prevent infinite loops
+  const configQueriesArray = React.useMemo(() => {
+    if (!allVaultSymbols || allVaultSymbols.length === 0) {
+      return []
+    }
+    return allVaultSymbols.map((symbol) => ({
+      queryKey: ['vault-config', symbol] as const,
+      queryFn: () => fetchVaultConfig(symbol),
+      enabled: !!symbol,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,
+      retry: 2,
+    }))
+  }, [symbolsKey])
+  
+  // Fetch configs for all symbols using useQueries
+  const configQueries = useQueries({
+    queries: configQueriesArray,
+  })
+
+  // Build configs map from queries
+  const configsBySymbol = React.useMemo(() => {
+    const map: Record<string, VaultConfig> = {}
+    configQueries.forEach((query, index) => {
+      const symbol = allVaultSymbols[index]
+      if (symbol && query.data && query.data !== null) {
+        map[symbol] = query.data
+      }
+    })
+    return map
+  }, [configQueries, allVaultSymbols])
+
+  const isConfigsLoading = configQueries.some(query => query.isLoading)
+
   return (
     <div 
       className="relative w-full h-screen flex flex-col"
@@ -106,22 +154,51 @@ export default function PortfolioPage() {
             <div style={{ marginTop: '24px' }}>
               {activeTab === "deposited" && (
                 !hasDeposits ? (
-                  <div className="flex gap-[32px]">
-                    <PortfolioStrategyCard
-                      name="Stable Yield USD"
-                      symbol="syUSD"
-                      pnl={18.18}
-                      totalBalance="$115,447.00"
-                      variant="usd"
-                    />
-                    <PortfolioStrategyCard
-                      name="Stable Yield ETH"
-                      symbol="syETH"
-                      pnl={-18.18}
-                      totalBalance="$115,447.00"
-                      variant="eth"
-                    />
-                  </div>
+                  isLoadingVaults || isConfigsLoading ? (
+                    <div className="flex gap-[32px]">
+                      <div style={{ width: '318px', height: '267px' }} />
+                      <div style={{ width: '318px', height: '267px' }} />
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-[32px]">
+                      {allVaultSymbols.map((symbol) => {
+                        const config = configsBySymbol[symbol]
+                        if (!config) return null
+                        
+                        const actualSymbol = config.vault_constants.symbol || symbol
+                        const variant = getVariantFromVaultSymbol(actualSymbol)
+                        
+                        const vaultName = config.vault_constants.name
+                        
+                        // Get logo from config with proper fallback handling
+                        // Use getVaultLogo which handles fallback to images folder
+                        const fallbackIcon = variant === 'usd' ? '/images/icons/USD-stable.svg' 
+                          : variant === 'eth' ? '/images/icons/ETH-stable.svg'
+                          : variant === 'btc' ? '/images/icons/BTC Stable (1).svg'
+                          : '/images/icons/syHLP.svg'
+                        const vaultLogo = getVaultLogo(config, fallbackIcon)
+                        
+                        // Note: PNL and total balance values
+                        // Currently using placeholder values since there's no portfolio balance API endpoint available
+                        // TODO: Integrate with user portfolio balance API when available
+                        // The total balance should come from: API endpoint that returns user's deposits/balance per vault
+                        const pnl = 0
+                        const totalBalance = "$0.00"
+                        
+                        return (
+                          <PortfolioStrategyCard
+                            key={symbol}
+                            name={vaultName}
+                            symbol={actualSymbol}
+                            pnl={pnl}
+                            totalBalance={totalBalance}
+                            variant={variant}
+                            tokenIcon={vaultLogo}
+                          />
+                        )
+                      })}
+                    </div>
+                  )
                 ) : (
                   <PortfolioDashboardEmptyState
                     icon={
@@ -172,121 +249,15 @@ export default function PortfolioPage() {
               )}
 
               {activeTab === "withdrawal" && (
-                !hasWithdrawalRequests ? (
-                  <PortfolioRequests
-                    onCancelRequest={handleCancelRequest}
-                    useApi={true}
-                    vaultAddress="0x279CAD277447965AF3d24a78197aad1B02a2c589" // syUSD vault
-                    onRequestsCountChange={setWithdrawalRequestsCount}
-                  />
-                ) : (
-                  <PortfolioDashboardEmptyState
-                    icon={
-                      <svg
-                        width="100"
-                        height="100"
-                        viewBox="0 0 100 100"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect
-                          x="20"
-                          y="20"
-                          width="54"
-                          height="68"
-                          rx="4"
-                          fill="rgba(127, 86, 217, 0.1)"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                        />
-                        <rect
-                          x="28"
-                          y="14"
-                          width="38"
-                          height="12"
-                          rx="2"
-                          fill="rgba(127, 86, 217, 0.1)"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                        />
-                        <rect
-                          x="30"
-                          y="32"
-                          width="5.586"
-                          height="5.586"
-                          rx="1"
-                          fill="#7F56D9"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                        />
-                        <line
-                          x1="42"
-                          y1="36"
-                          x2="52"
-                          y2="36"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <rect
-                          x="30"
-                          y="43.71"
-                          width="5.586"
-                          height="5.586"
-                          rx="1"
-                          fill="none"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                        />
-                        <line
-                          x1="42"
-                          y1="46.5"
-                          x2="52"
-                          y2="46.5"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <rect
-                          x="30"
-                          y="55.95"
-                          width="5.586"
-                          height="5.586"
-                          rx="1"
-                          fill="none"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                        />
-                        <line
-                          x1="42"
-                          y1="58.75"
-                          x2="52"
-                          y2="58.75"
-                          stroke="#7F56D9"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                        <circle
-                          cx="70"
-                          cy="54"
-                          r="10"
-                          fill="#7F56D9"
-                          stroke="none"
-                        />
-                        <path
-                          d="M70 48V52M70 56V56.01"
-                          stroke="white"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                    }
-                    title="No Pending Withdrawals"
-                    description="Ready to grow your funds? Start a secure on-chain deposit"
-                    buttonText="Make a Deposit"
-                    buttonVariant="default"
-                  />
-                )
+                <PortfolioRequests
+                  onCancelRequest={handleCancelRequest}
+                  useApi={true}
+                  vaultAddress="0x279CAD277447965AF3d24a78197aad1B02a2c589" // syUSD vault
+                  status="PENDING"
+                  emptyStateMessage="No Pending Withdrawals"
+                  emptyStateDescription="Ready to grow your funds? Start a secure on-chain deposit"
+                  onRequestsCountChange={setWithdrawalRequestsCount}
+                />
               )}
 
               {activeTab === "activity" && (

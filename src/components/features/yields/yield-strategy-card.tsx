@@ -12,8 +12,8 @@ import { useAnalytics } from "@/lib/hooks/use-analytics"
 export interface YieldStrategyCardProps {
   name: string
   symbol: string
-  apy: number
-  variant: "usd" | "eth" | "btc"
+  apy: number | null // null means show "--"
+  variant: "usd" | "eth" | "btc" | "hlp"
   tokenIcon?: string
   className?: string
 }
@@ -30,6 +30,10 @@ const strategyConfig = {
   btc: {
     color: designTokens.colors.strategy.btc,
     icon: "/images/icons/BTC Stable (1).svg",
+  },
+  hlp: {
+    color: designTokens.colors.strategy.hlp,
+    icon: "/images/icons/syHLP.svg", // Fallback icon (will use config logo if available)
   },
 }
 
@@ -155,6 +159,7 @@ export function YieldStrategyCard({
           <div 
             className="font-normal text-[40px] leading-[normal] text-black"
           >
+            {apy !== null ? (
             <AnimatedNumber 
               value={apy} 
               decimals={2} 
@@ -162,6 +167,9 @@ export function YieldStrategyCard({
               delay={0.1}
               duration={1.2}
             />
+            ) : (
+              '--'
+            )}
           </div>
           <p 
             className="font-normal text-[12px] leading-[normal] text-black opacity-50"

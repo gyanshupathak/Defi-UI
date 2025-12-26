@@ -6,14 +6,26 @@ interface IconProps {
   src: string
   className?: string
   style?: React.CSSProperties
+  fallback?: string // Optional fallback icon path
 }
 
-export function Icon({ src, className, style }: IconProps) {
+export function Icon({ src, className, style, fallback }: IconProps) {
   const [svgContent, setSvgContent] = React.useState<string | null>(null)
+  const [currentSrc, setCurrentSrc] = React.useState(src)
 
   React.useEffect(() => {
-    fetch(src)
-      .then((res) => res.text())
+    setCurrentSrc(src)
+    setSvgContent(null)
+  }, [src])
+
+  React.useEffect(() => {
+    fetch(currentSrc)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Failed to fetch: ${res.status}`)
+        }
+        return res.text()
+      })
       .then((text) => {
         const updatedSvg = text.replace(
           /<svg([^>]*)>/,
@@ -21,8 +33,15 @@ export function Icon({ src, className, style }: IconProps) {
         )
         setSvgContent(updatedSvg)
       })
-      .catch(() => setSvgContent(null))
-  }, [src])
+      .catch(() => {
+        // If fetch fails and we have a fallback, try the fallback
+        if (fallback && currentSrc !== fallback) {
+          setCurrentSrc(fallback)
+        } else {
+          setSvgContent(null)
+        }
+      })
+  }, [currentSrc, fallback])
 
   if (!svgContent) return null
 
