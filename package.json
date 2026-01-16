@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "download-images": "node scripts/download-figma-images.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@next/third-parties": "^16.0.10",
