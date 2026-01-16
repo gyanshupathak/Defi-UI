@@ -32,12 +32,6 @@ async function fetchApi<T>(
 ): Promise<T> {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`
 
-  // Log the actual fetch call
-  console.log('🌐 fetchApi called:')
-  console.log('  - URL:', url)
-  console.log('  - Method:', options?.method || 'GET')
-  console.log('  - Headers:', options?.headers)
-
   try {
     const response = await fetch(url, {
       ...options,
@@ -47,14 +41,8 @@ async function fetchApi<T>(
       },
     })
 
-    console.log('📡 Fetch Response:')
-    console.log('  - Status:', response.status)
-    console.log('  - Status Text:', response.statusText)
-    console.log('  - OK:', response.ok)
-
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error')
-      console.log('❌ Error Response Text:', errorText)
       throw new ApiClientError(
         `API request failed: ${errorText}`,
         response.status,
@@ -63,7 +51,6 @@ async function fetchApi<T>(
     }
 
     const data = await response.json()
-    console.log('✅ Parsed JSON Data:', JSON.stringify(data, null, 2))
     return data as T
   } catch (error) {
     if (error instanceof ApiClientError) {

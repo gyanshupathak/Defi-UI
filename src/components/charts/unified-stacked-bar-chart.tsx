@@ -47,7 +47,6 @@ export function UnifiedStackedBarChart({
 }: UnifiedStackedBarChartProps) {
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null)
 
-  
   const calculatedMaxValue = maxValue || Math.max(
     ...data.map(d => 
       stackKeys.reduce((sum, key) => sum + (typeof d[key] === 'number' ? d[key] : 0), 0)
@@ -55,12 +54,10 @@ export function UnifiedStackedBarChart({
     0
   )
 
-  
   const chartData = data.map((item, index) => ({
     ...item,
     index,
   }))
-
   
   const CustomCell = ({ 
     index, 
@@ -86,7 +83,6 @@ export function UnifiedStackedBarChart({
       />
     )
   }
-
   
   const handleMouseEnter = (data: any, index?: number) => {
     
@@ -111,7 +107,6 @@ export function UnifiedStackedBarChart({
     }
   }
 
-  
   const handleMouseLeave = () => {
     setHoveredIndex(null)
     if (onHover) {

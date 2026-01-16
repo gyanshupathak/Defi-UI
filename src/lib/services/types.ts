@@ -190,4 +190,3 @@ export interface AllocationsByTimeResponse {
   data?: AllocationDataPoint[]
   [key: string]: any // Allow for flexible response formats
 }
-

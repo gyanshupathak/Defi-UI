@@ -274,4 +274,3 @@ export function getCategoryIconWithFallback(categoryId: string): { url: string; 
   
   return { url, fallback }
 }
-
